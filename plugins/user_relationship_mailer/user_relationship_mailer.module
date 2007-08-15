@@ -1,0 +1,180 @@
+<?php
+// $Id: user_relationship_mailer.module,v 1.1 2007-08-15 20:20:02 sprsquish Exp $
+
+if (!variable_get('user_relationship_mailer_ops', FALSE)) {
+  variable_set('user_relationship_mailer_ops', array('request', 'cancel', 'approve', 'disapprove', 'remove'));
+}
+
+require_once('user_relationship_mailer_defaults.inc');
+
+/**
+ * Sends mail to the appropriate user
+ *
+ * @param $op
+ *    string of action to take [request|cancel|approve|disapprove|remove]
+ *
+ * @param $relationship
+ *    object of the relationship
+ *
+ */
+function user_relationship_mailer_send_email($op, &$relationship) {
+  $requester = $relationship->requester;
+  $requestee = $relationship->requestee;
+
+  $send_to_requestee = isset($requestee->user_relationship_mailer_send_mail) ? $requestee->user_relationship_mailer_send_mail : TRUE;
+  $send_to_requester = isset($requester->user_relationship_mailer_send_mail) ? $requester->user_relationship_mailer_send_mail : TRUE;
+
+  $send_to = array();
+
+  switch ($op) {
+  case 'request':
+  case 'cancel':
+    $send_email = $send_to_requestee;
+    $send_to[] = $requestee->mail;
+    break;
+  case 'approve':
+  case 'disapprove':
+    $send_email = $send_to_requester;
+    $send_to[] = $requester->mail;
+    break;
+  case 'remove':
+    $send_email = $send_to_requestee && $send_to_requester;
+    $send_to[] = $requester->mail;
+    if (!$relationship->type->is_oneway) {
+      $send_to[] = $requestee->mail;
+    }
+    break;
+  default:
+    return;
+  }
+
+  $send_email = variable_get('user_relationship_mailer_send_mail', FALSE) 
+    && variable_get("user_relationship_mailer_send_{$op}", TRUE)
+    && $send_email;
+  
+  if (!send_email) {
+    return; //sending email has been turned off
+  }
+
+  $replacements = user_relationship_mailer_replacements($relationship);
+  $subject = t(constant(strtoupper("USER_RELATIONSHIP_MAILER_{$op}_SUBJECT")), $replacements);
+
+  $message_function = "user_relationship_mailer_{$op}_default";
+  $message = t(variable_get("user_relationship_mailer_{$op}_message", $message_function()), $replacements);
+
+  $site_mail = variable_get('site_mail', '');
+  if (!strlen($site_mail)) {
+    if (user_access('administer nodes')){
+      drupal_set_message(t('You should create an administrator mail address for your site! <a href="%url">Do it here</a>.', array('%url' => url('admin/settings/site-information'))), 'error');
+    }
+    $site_mail = 'nobody@localhost';
+  }
+
+  $errors = array();
+  foreach ($send_to as $address) {
+    $replacements = array('%type' => $op, '%username' => $related->name);
+    if (drupal_mail("user_relationship_mailer_user_$op", $address, $subject, $message, $site_mail)) {
+      watchdog('userreltnships', t('%type message was sent to %username', $replacements));
+    }
+    else {
+      watchdog('userreltnships', t('There was a problem sending the %type message to %username', $replacements), WATCHDOG_WARNING);
+    }
+  }
+}
+
+/**
+ * hook_user_relationships()
+ */
+function user_relationship_mailer_user_relationships($type, &$relationship, $category = NULL) {
+  switch ($type) {
+  case 'update':
+    $status = 'approve';
+  case 'insert':
+    user_relationship_mailer_send_email(($status ? $status : 'request'), $relationship);
+    break;
+
+  case 'delete':
+    user_relationship_mailer_send_email($category, $relationship);
+    break;
+  }
+}
+
+/**
+ * hook_form_alter()
+ */
+function user_relationship_mailer_form_alter($form_id, &$form) {
+  switch ($form_id) {
+  case 'user_relationships_settings':
+    global $user;
+    $relationship = user_relationships_relationship_types_load();
+    $relationship = array_pop($relationship);
+
+    $form['mail'] = array(
+      '#type'   => 'fieldset',
+      '#title'  => t('Email Options'),
+      '#weight' => -9,
+    );
+      $form['mail']['user_relationship_mailer_send_mail'] = array(
+        '#type'           => 'checkbox',
+        '#title'          => t('Allow users to turn off relationship messages'),
+        '#default_value'  => variable_get('user_relationship_mailer_send_mail', FALSE),
+        '#description'    => t('If you check this, users will have a new setting on their account edit page.'),
+      );
+
+      $user_relationship_mailer_ops = variable_get('user_relationship_mailer_ops', array());
+      foreach ($user_relationship_mailer_ops as $op) {
+        $message_function = "user_relationship_mailer_{$op}_default";
+        $form['mail'][$op] = array(
+          '#type'         => 'fieldset',
+          '#title'        => t(ucfirst($op)),
+          '#collapsible'  => TRUE,
+          '#collapsed'    => TRUE
+        );
+          $form['mail'][$op]["user_relationship_mailer_send_{$op}"] = array(
+            '#type'           => 'checkbox',
+            '#title'          => t('Send @op messages', array('@op' => $op)),
+            '#default_value'  => variable_get('user_relationship_mailer_send_request', TRUE),
+          );
+          $form['mail'][$op]["user_relationship_mailer_{$op}_subject"] = array(
+            '#type'           => 'textfield',
+            '#title'          => t('@Op relationship email subject', array('@Op' => ucfirst($op))),
+            '#default_value'  => constant(strtoupper("USER_RELATIONSHIP_MAILER_{$op}_SUBJECT")),
+          );
+          $form['mail'][$op]["user_relationship_mailer_{$op}_message"] = array(
+            '#type'           => 'textarea',
+            '#title'          => t('@Op relationship email message', array('@Op' => ucfirst($op))),
+            '#default_value'  => variable_get("user_relationship_mailer_{$op}_message", $message_function()),
+            '#description'    => t('Replacement strings are: %macros', array('%macros' => implode(', ', array_keys(user_relationship_mailer_replacements($relationship))))),
+          );
+      }
+    break;
+  }
+}
+
+/**
+ * hook_user()
+ */
+function user_relationship_mailer_user($type, &$edit, &$account, $category = NULL) {
+  switch($type) {
+  case 'form':
+    $form = array();
+    if (($category == 'account') 
+      && variable_get('user_relationship_mailer_send_mail', FALSE)
+      && user_access('maintain relationships', $account)
+    ) {
+      $form['user_relationship_mailer_settings'] = array(
+        '#type'   => 'fieldset',
+        '#title'  => t('Relationship email settings'),
+        '#weight' => 5
+      );
+        $form['user_relationship_mailer_settings']['user_relationship_mailer_send_mail'] = array(
+          '#type'           => 'checkbox',
+          '#title'          => t('Receive relationship email notifications'),
+          '#options'        => $options,
+          '#default_value'  => isset($edit['user_relationship_mailer_send_mail']) ? $edit['user_relationship_mailer_send_mail'] : TRUE,
+          '#description'    => t("Check this if you'd like to receive relationship related email notifications")
+        );
+    }
+    return $form;
+  }  
+}

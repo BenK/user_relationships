@@ -1,0 +1,250 @@
+<?php
+// $Id: user_relationship_defaults.module,v 1.1 2007-08-15 20:20:01 sprsquish Exp $
+
+/**
+ * Drupal Module: User Relationship Defaults
+ *
+ * @author: Jeff Smick <sprsquish [at] gmail [dot] com>
+ * @file
+ * Automatically create a relationship when a new user joins
+ */
+
+
+/**
+ * Public API for retrieving a default relationship.
+ *
+ * @param $rdid
+ *   integer of the default relationship id
+ *
+ * @return
+ *   object of the default relationship with the user object and relationship_type object
+ * 
+*/
+function user_relationship_defaults_load($rdid) {
+  $default = db_fetch_object(db_query("SELECT * FROM {user_relationship_defaults} WHERE rdid = %d", $rdid));
+
+  $default->user              = user_load(array('uid' => $default->uid));
+  $default->relationship_type = user_relationships_relationship_type_load(array('rtid' => $default->rtid));
+
+  return $default;
+}
+
+/**
+ * Public API to retrieve the full list of default relationships
+ *
+ * @return
+ *    array of default relationship objects
+ */
+function user_relationship_defaults_relationships_load() {
+  $results = db_query("SELECT * FROM {user_relationship_defaults}");
+
+  $defaults = array();
+  while ($default = db_fetch_object($results)) {
+    $default->user              = user_load(array('uid' => $default->uid));
+    $default->relationship_type = user_relationships_relationship_type_load(array('rtid' => $default->rtid));
+
+    $defaults[] = $default;
+  }
+
+  return $defaults;
+}
+
+
+/**
+ * hook_menu()
+ */
+function user_relationship_defaults_menu($may_cache) {
+  $items = array();
+
+  if ($may_cache) {
+    $items[] = array(
+      'path'                => 'admin/user/relationships/defaults/add',
+      'title'               => t('Add default'),
+      'callback'            => 'drupal_get_form',
+      'callback arguments'  => array('user_relationship_defaults_add_form'),
+      'access'              => user_access('administer user relationships'),
+      'type'                => MENU_LOCAL_TASK,
+      'weight'              => 2
+    );
+  }
+  else {
+    $items[] = array(
+      'path'                => 'admin/user/relationships/defaults/delete',
+      'title'               => t('Delete default'),
+      'callback'            => 'drupal_get_form',
+      'callback arguments'  => array('user_relationship_defaults_delete_form', arg(5)),
+      'access'              => user_access('administer user relationships'),
+      'type'                => MENU_CALLBACK,
+    );
+  }
+
+  return $items;
+}
+
+/**
+ * Add new default relationship form
+ */
+function user_relationship_defaults_add_form() {
+  $form['username'] = array(
+    '#type'               => 'textfield',
+    '#title'              => t('Username'),
+    '#maxlength'          => 255,
+    '#default_value'      => $edit['username'],
+    '#description'        => t('Start typing the name of a user to automatically create a relationship to'),
+    '#required'           => TRUE,
+    '#autocomplete_path'  => 'user/autocomplete',
+  );
+  $form['relationship_type_name'] = array(
+    '#type'               => 'textfield',
+    '#title'              => t('Relationship'),
+    '#maxlength'          => 255,
+    '#default_value'      => $edit['relationship_type_name'],
+    '#description'        => t('Start typing the name of a relationship to use'),
+    '#required'           => TRUE,
+    '#autocomplete_path'  => 'relationship_types/autocomplete',
+  );
+  $form['submit'] = array(
+    '#type'   => 'submit',
+    '#value'  => t('Submit'),
+  );
+
+  return $form;
+}
+
+/**
+ * Validate the default relationship add page form submission.
+ */
+function user_relationship_defaults_add_form_validate($form_id, &$form_values) {
+  if(!empty($form_values['username']) && !user_load(array('name' => $form_values['username']))) {
+    form_set_error('username', t("You must enter an existing user's name."));
+  }
+
+  if (!empty($form_values['relationship_name'])) {
+    if (!user_relationships_load_relationship_type(array('name' => $form_values['relationship_name']))) {
+      form_set_error('relationship_name', t("You must enter an existing relationship's name."));
+    }
+  }
+}
+
+/**
+ * Process default relationship add form submission.
+ */
+function user_relationship_defaults_add_form_submit($form_id, &$form_values) {
+  $user               = user_load(array('name' => $form_values['username']));
+  $relationship_type  = user_relationships_relationship_type_load(array('name' => $form_values['relationship_type_name']));
+
+  db_query(
+    "INSERT INTO {user_relationship_defaults} (rdid, uid, rtid) VALUES (%d, %d, %d)", 
+    db_next_id('{user_relationship_defaults}_id'), $user->uid, $relationship_type->rtid
+  );
+  $message = t('Default relationship %relationship_name of %username has been added.', array(
+    '%username'           => $user->name,
+    '%relationship_name'  => $relationship_type->name,
+  ));
+  drupal_set_message($message);
+  watchdog('userreltnships', $message, WATCHDOG_NOTICE, l(t('view'), 'admin/user/relationships'));
+
+  return 'admin/user/relationships';
+}
+
+
+/**
+ * Default Relationship delete confirmation.
+ */
+function user_relationship_defaults_delete_form($rdid = NULL) {
+  if (isset($rdid) && ($default_relationship = user_relationship_defaults_load($rdid))) {
+    $form['rdid'] = array(
+      '#type'   => 'value',
+      '#value'  => $rdid
+    );
+    $form['user'] = array(
+      '#type'   => 'value',
+      '#value'  => $default_relationship->user,
+    );
+    $form['relationship_type'] = array(
+      '#type'   => 'value',
+      '#value'  => $default_relationship->relationship_type,
+    );
+
+    $form = confirm_form(
+      $form, 
+      t('Are you sure you want to delete the default relationship %relationship of %name?', array(
+        '%relationship' => $default_relationship->relationship_type->name,
+        '%name'         => $default_relationship->user->name,
+      )), 
+      'admin/user/relationships', 
+      t('This action cannot be undone.'),
+      t('Delete'), t('Cancel')
+    );
+
+    return $form;
+  }
+  else {
+    drupal_set_message(t('Default relationship not found.'), 'error');
+    drupal_goto('admin/user/relationships');
+  }
+}
+
+/**
+ * Process default relationship delete form submission.
+ */
+function user_relationship_defaults_delete_form_submit($form_id, &$form_values) {
+  db_query("DELETE FROM {user_relationship_defaults} WHERE rdid = %d", $form_values['rdid']);
+  $message = t('Default relationship %relationship of %name has been deleted.', array(
+    '%name'         => $form_values['user']->name,
+    '%relationship' => $form_values['relationship_type']->name,
+  ));
+
+  drupal_set_message($message);
+  watchdog('userreltnships', $message, WATCHDOG_NOTICE);
+
+  return 'admin/user/relationships';
+}
+
+/**
+ * hook_user()
+ */
+function user_relationship_defaults_user($type, &$edit, &$account, $cagetory = NULL) {
+  switch($type) {
+  case 'insert':
+    if ($defaults = user_relationship_defaults_relationships_load()) {
+      foreach($defaults as $default) {
+        user_relationships_request_relationship($default->user, $account, $default->relationship_type, TRUE);
+      }
+    }
+    break;
+  }
+}
+
+/**
+ * hook_user_relationships_admin_page_alter()
+ */
+function user_relationship_defaults_user_relationships_page_alter($page_id, &$page, &$current_table) {
+  switch ($page_id) {
+  case 'types list':
+    $defaults = user_relationship_defaults_relationships_load();
+
+    $default_rows = array();    
+    foreach($defaults as $default) {
+      $default_rows[] = array(
+        theme('username', $default->user),
+        $default->relationship_type->name, 
+        l(t('delete'), "admin/user/relationships/defaults/delete/$default->rdid"),
+      );
+    }
+
+    if (sizeof($default_rows) <= 0) {
+      $default_rows[] = array(array('data' => t('No default relationships available.'), 'colspan' => 3));
+    }
+
+    $page['defaults'] = array(
+      '#type'   => 'fieldset',
+      '#title'  => t('Default Relationships'),
+      '#weight' => 2
+    );
+      $page['defaults']['list'] = array(
+        '#value' => theme('table', array(t('User'), t('Relationship'), t('Operations')), $default_rows)
+      );
+    break;
+  }
+}

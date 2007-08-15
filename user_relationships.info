@@ -1,0 +1,4 @@
+; $Id: user_relationships.info,v 1.1 2007-08-15 20:20:01 sprsquish Exp $
+name = User Relationships
+description = "Lets users create named relationships between each other."
+package = "User Relationships"

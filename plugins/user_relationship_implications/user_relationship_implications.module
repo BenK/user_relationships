@@ -1,0 +1,218 @@
+<?php
+// $Id: user_relationship_implications.module,v 1.1 2007-08-15 20:20:01 sprsquish Exp $
+
+/**
+ * Drupal Module: User Relationship Implications
+ *
+ * @author: Jeff Smick <sprsquish [at] gmail [dot] com>
+ * @file
+ * Allows admins to create implied relationships (eg: Manager implies Coworker)
+ */
+
+
+/**
+ * Public API to load an implied relationship
+ *
+ * @param $riid
+ *    integer of the implied relationship ID
+ *
+ * @return
+ *    object with the relationship_type object and implied relationship_type object
+ */
+function user_relationship_implications_implied_load($riid) {
+  static $implied_relationships = array();
+
+  $implications = array();
+  if (!isset($implied_relationships[$riid])) {
+    $results = db_query("SELECT * FROM {user_relationship_implications} WHERE riid = %d", $riid);
+    $implications = _user_relationship_implications_load_data($results);
+    $implied_relationships[$riid] = $implications[0];
+  }
+
+  return $implied_relationships[$riid];
+}
+
+
+/**
+ * Public API to load all implied relationships
+ *
+ * @return
+ *    array of relationship implications
+ */
+function user_relationship_implications_load() {
+  static $implications = array();
+
+  if (!sizeof($implications)) {
+    $results = db_query("SELECT * FROM {user_relationship_implications}");    
+    $implications = _user_relationship_implications_load_data($results);
+  }
+
+  return $implications;
+}
+
+
+/**
+ * hook_form_alter()
+ */
+function user_relationship_implications_form_alter($form_id, &$form) {
+  switch ($form_id) {
+  case 'user_relationships_type_edit':  
+    $relationship_type = $form['relationship_type']['#value'];
+    $relationship_types = user_relationships_relationship_types_load();
+
+    foreach ($relationship_type->implies as $implies) {
+      $values[$implies->implies_rtid] = $implies->implies_rtid;
+    }
+    $implied_by = array();
+    foreach ($relationship_type->implied_by as $implied) {
+      $implied_by[] = $implied->rtid;
+    }
+
+    foreach ($relationship_types as $type) {
+      if ($type->rtid != $relationship_type->rtid && !in_array($type->rtid, $implied_by)) {
+        $options[$type->rtid] = $type->name;
+      }
+    }
+
+    if (sizeof($options)) {
+      $form['implications'] = array(
+        '#title'          => t('This relationship implies'),
+        '#type'           => 'checkboxes',
+        '#options'        => $options,
+        '#value'          => $values,
+        '#description'    => t('Users will automatically have these relationships created between them also. (ex: Manager implies Coworker)'),
+        '#weight'         => 0,
+      );
+      $form['#submit'] += array('user_relationship_implications_edit_submit' => array());
+    }
+    break;
+  }
+}
+
+/**
+ * Edit relationship type submission processor
+ */
+function user_relationship_implications_edit_submit($form_id, &$form_values) {
+  db_query("DELETE FROM {user_relationship_implications} WHERE rtid = %d", $form_values['relationship_type']->rtid);
+
+  foreach ($form_values['implications'] as $implied_rtid) {
+    if ($implied_rtid) {
+      db_query(
+        "INSERT INTO {user_relationship_implications} (riid, rtid, implies_rtid) VALUES (%d, %d, %d)", 
+        db_next_id('{user_relationship_implications}_id'), $form_values['relationship_type']->rtid, $implied_rtid
+      );
+    }
+  }
+}
+
+/**
+ * hook_user_relationships()
+ */
+function user_relationship_implications_user_relationships($type, &$relationship, $category = NULL) {
+  switch ($type) {
+  case 'load type':
+    if ($relationship->rtid) {
+      static $loaded_relationships = array();
+      if (!$loaded_relationships[$relationship->rtid]) {
+        $results = db_query(
+          "SELECT * FROM {user_relationship_implications} WHERE rtid = %d OR implies_rtid = %d", 
+          $relationship->rtid, $relationship->rtid
+        );
+        while ($implication = db_fetch_object($results)) {
+          $loaded_relationships[$relationship->rtid][] = $implication;
+        }
+      }
+
+      $relationship->implies    = array();
+      $relationship->implied_by = array();
+      foreach ($loaded_relationships[$relationship->rtid] as $implication) {
+        if ($implication->rtid == $relationship->rtid) {
+          $relationship->implies[] = $implication;
+        }
+        else {
+          $relationship->implied_by[] = $implication;
+        }
+      }
+    }
+    break;
+
+  case 'request':
+  case 'update':
+    if ($relationship->approved && $relationship->type->implies) {
+      foreach ($relationship->type->implies as $implied) {
+        $exists = FALSE;
+        foreach ($relationship->requester->relationships as $existing) {
+          if  ($existing->rtid == $implied->implies_rtid &&
+                ($existing->requester_id == $relationship->requester_uid || 
+                  ($existing->is_oneway ? FALSE : $existing->requestee_id == $relationship->requestee_id)
+                )
+              ) 
+          {
+            $exists = TRUE;
+            break;
+          }
+        }
+
+        if (!$exists) {
+          $implied = user_relationships_relationship_type_load(array('rtid' => $implied->implies_rtid));
+          user_relationships_request_relationship($relationship->requester, $relationship->requestee, $implied, TRUE);
+        }
+      }
+    }
+    break;
+
+  case 'delete':
+    foreach ($relationship->type->implied_by as $implied_by) {
+      foreach ($relationship->requester->relationships as $requester_relationship) {
+        if  ($requester_relationship->rtid == $implied_by->rtid &&
+              ($requester_relationship->requester_id == $relationship->requester_id ||
+                ($requster_relationship->is_oneway ? FALSE : $requester_relationship->requestee_id == $requester_relationship->requestee_id)
+              )
+            )
+        {
+          $relationship_to_delete = user_relationships_relationship_load($requester_relationship->rid);
+          user_relationships_delete_relationship($relationship_to_delete, $relationship->deleted_by, $category);
+        }
+      }
+    }
+    break;
+  }
+}
+
+/**
+ * hook_user_relationships_page_alter()
+ */
+function user_relationship_implications_user_relationships_page_alter($page_id, &$page, &$table) {
+  switch ($page_id) {
+  case 'types list':
+    array_splice($table['headers'], 1, 0, t('Implies'));
+
+    foreach ($table['data'] as $key => $relationship) {
+      $relationship = user_relationships_relationship_type_load(array('rtid' => $relationship->rtid));
+      array_splice($table['rows'][$key], 1, 0, '&nbsp;');
+
+      $names = array();
+      foreach ($relationship->implies as $implied) {
+        $implied = user_relationship_implications_implied_load($implied->riid);
+        $names[] = $implied->implies_relationship_type->name;
+      }
+      $table['rows'][$key][1] = implode(', ', $names);
+    }
+    break;
+  }
+}
+
+/**
+ * Helper functions (not for general use!!)
+ */
+function _user_relationship_implications_load_data(&$results) {
+  $implications = array();
+
+  while ($implication = db_fetch_object($results)) {
+    $implication->relationship_type         = user_relationships_relationship_type_load(array('rtid' => $implication->rtid));
+    $implication->implies_relationship_type = user_relationships_relationship_type_load(array('rtid' => $implication->implies_rtid));
+    $implications[] = $implication;
+  }
+
+  return $implications;
+}

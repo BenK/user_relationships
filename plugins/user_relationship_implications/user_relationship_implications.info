@@ -1,0 +1,5 @@
+; $Id: user_relationship_implications.info,v 1.1 2007-08-15 20:20:01 sprsquish Exp $
+name = User Relationships Implications
+description = "Lets admins create implied relationships. For example 'Manager implies Coworker'"
+dependencies = user_relationships
+package = "User Relationships"

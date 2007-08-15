@@ -1,0 +1,21 @@
+<?php
+
+function user_relationship_mailer_uninstall() {
+  variable_del('user_relationship_mailer_send_mail');
+
+  variable_del('user_relationships_request_subject');
+  variable_del('user_relationships_cancel_subject');
+  variable_del('user_relationships_approve_subject');
+  variable_del('user_relationships_disapproves_subject');
+  variable_del('user_relationships_remove_subject');
+
+  $ops = variable_get('user_relationship_mailer_ops', array('request', 'cancel', 'approve', 'disapprove', 'remove'));
+  foreach ($ops as $op) {
+    variable_del("user_relationship_mailer_send_{$op}");
+    variable_del("user_relationship_mailer_{$op}_message");
+  }
+  
+  variable_del('user_relationship_mailer_ops');
+}
+
+?>
