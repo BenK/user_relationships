@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_pages.inc,v 1.1 2007-08-15 20:20:01 sprsquish Exp $
+// $Id: user_relationships_pages.inc,v 1.2 2007-08-22 15:39:11 sprsquish Exp $
 
 /**
  * Pages related to User Relationships
@@ -13,6 +13,8 @@ function user_relationships_types_list_page() {
   $relationship_types = user_relationships_relationship_types_load();
 
   $table['headers'] = array(t('Name'), t('Type'), t('Requires Approval'), t('Operations'));
+  $table['data'] = array();
+  $table['rows'] = array();
 
   foreach ($relationship_types as $relationship) {
     $table['data'][] = $relationship;
