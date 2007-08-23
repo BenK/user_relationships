@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_invites.module,v 1.1 2007-08-15 20:20:01 sprsquish Exp $
+// $Id: user_relationship_invites.module,v 1.2 2007-08-23 15:28:42 sprsquish Exp $
 
 /**
  * Drupal Module: User Relationship Invites
@@ -19,9 +19,11 @@
  *    object with the invite data including the inviter user object and relationship_type object
 */
 function user_relationship_invites_get_invite($code) {
-  $invite = db_fetch_object(db_query("SELECT * FROM {user_relationship_invites} WHERE invite_code = '%s'", $code));
-  $invite->inviter = user_load(array('uid' => $invite->inviter_uid));
-  $invite->relationship_type = user_relationships_relationship_type_load(array('rtid' => $invite->rtid));
+  if (is_numeric($code)) {
+    $invite = db_fetch_object(db_query("SELECT * FROM {user_relationship_invites} WHERE invite_code = '%s'", $code));
+    $invite->inviter = user_load(array('uid' => $invite->inviter_uid));
+    $invite->relationship_type = user_relationships_relationship_type_load(array('rtid' => $invite->rtid));
+  }
 
   return $invite;
 }
