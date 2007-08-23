@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_defaults.module,v 1.1 2007-08-15 20:20:01 sprsquish Exp $
+// $Id: user_relationship_defaults.module,v 1.2 2007-08-23 14:08:37 sprsquish Exp $
 
 /**
  * Drupal Module: User Relationship Defaults
@@ -245,6 +245,17 @@ function user_relationship_defaults_user_relationships_page_alter($page_id, &$pa
       $page['defaults']['list'] = array(
         '#value' => theme('table', array(t('User'), t('Relationship'), t('Operations')), $default_rows)
       );
+    break;
+  }
+}
+
+/**
+ * hook_user_relationships()
+ */
+function user_relationship_defaults_user_relationships($op, &$relationship_type) {
+  switch ($op) {
+  case 'delete type':
+    db_query("DELETE FROM {user_relationship_defaults} WHERE rtid = %d", $relationship_type->rtid);
     break;
   }
 }
