@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_mailer.module,v 1.1 2007-08-15 20:20:02 sprsquish Exp $
+// $Id: user_relationship_mailer.module,v 1.2 2007-08-23 15:27:19 sprsquish Exp $
 
 if (!variable_get('user_relationship_mailer_ops', FALSE)) {
   variable_set('user_relationship_mailer_ops', array('request', 'cancel', 'approve', 'disapprove', 'remove'));
@@ -48,11 +48,11 @@ function user_relationship_mailer_send_email($op, &$relationship) {
     return;
   }
 
-  $send_email = variable_get('user_relationship_mailer_send_mail', FALSE) 
-    && variable_get("user_relationship_mailer_send_{$op}", TRUE)
-    && $send_email;
+  $send_email = $send_email 
+    && variable_get('user_relationship_mailer_send_mail', FALSE) 
+    && variable_get("user_relationship_mailer_send_{$op}", TRUE);
   
-  if (!send_email) {
+  if (!$send_email) {
     return; //sending email has been turned off
   }
 
