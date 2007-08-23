@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_mailer_defaults.inc,v 1.1 2007-08-15 20:20:02 sprsquish Exp $
+// $Id: user_relationship_mailer_defaults.inc,v 1.2 2007-08-23 15:44:02 sprsquish Exp $
 
 /**
  * Default subject lines
@@ -85,7 +85,7 @@ function user_relationship_mailer_approve_default() {
   return <<<MESSAGE
 Hi @requester_name,
 
-@requestee_name has approve your request to create a @relationship_name relationship to them.
+@requestee_name has approved your request to create a @relationship_name relationship to them.
 
 Here's a link to your relationships:
   @requester_list_link
