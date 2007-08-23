@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships.module,v 1.1 2007-08-15 20:20:01 sprsquish Exp $
+// $Id: user_relationships.module,v 1.2 2007-08-23 15:37:47 sprsquish Exp $
 
 /**
  *
@@ -84,6 +84,10 @@ function _user_relationships_between(&$viewer, &$viewed) {
  * List of pending relationships with between two users
  */
 function _user_relationships_actions_between(&$viewer, &$viewed) {
+  if ($viewer->uid == $viewed->uid) {
+    return;
+  }
+
   $list = array();
   foreach ($viewer->relationships as $relationship) {
     if (!$relationship->approved) {
