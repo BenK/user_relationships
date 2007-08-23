@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_implications.module,v 1.1 2007-08-15 20:20:01 sprsquish Exp $
+// $Id: user_relationship_implications.module,v 1.2 2007-08-23 13:59:10 sprsquish Exp $
 
 /**
  * Drupal Module: User Relationship Implications
@@ -60,12 +60,14 @@ function user_relationship_implications_form_alter($form_id, &$form) {
     $relationship_type = $form['relationship_type']['#value'];
     $relationship_types = user_relationships_relationship_types_load();
 
-    foreach ($relationship_type->implies as $implies) {
-      $values[$implies->implies_rtid] = $implies->implies_rtid;
-    }
-    $implied_by = array();
-    foreach ($relationship_type->implied_by as $implied) {
-      $implied_by[] = $implied->rtid;
+    if ($relationship_type) {
+      foreach ($relationship_type->implies as $implies) {
+        $values[$implies->implies_rtid] = $implies->implies_rtid;
+      }
+      $implied_by = array();
+      foreach ($relationship_type->implied_by as $implied) {
+        $implied_by[] = $implied->rtid;
+      }
     }
 
     foreach ($relationship_types as $type) {
