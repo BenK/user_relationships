@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_mailer.module,v 1.2 2007-08-23 15:27:19 sprsquish Exp $
+// $Id: user_relationship_mailer.module,v 1.3 2007-08-23 15:44:35 sprsquish Exp $
 
 if (!variable_get('user_relationship_mailer_ops', FALSE)) {
   variable_set('user_relationship_mailer_ops', array('request', 'cancel', 'approve', 'disapprove', 'remove'));
@@ -133,7 +133,7 @@ function user_relationship_mailer_form_alter($form_id, &$form) {
           $form['mail'][$op]["user_relationship_mailer_send_{$op}"] = array(
             '#type'           => 'checkbox',
             '#title'          => t('Send @op messages', array('@op' => $op)),
-            '#default_value'  => variable_get('user_relationship_mailer_send_request', TRUE),
+            '#default_value'  => variable_get("user_relationship_mailer_send_{$op}", TRUE),
           );
           $form['mail'][$op]["user_relationship_mailer_{$op}_subject"] = array(
             '#type'           => 'textfield',
