@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_implications.module,v 1.3 2007-08-23 14:09:03 sprsquish Exp $
+// $Id: user_relationship_implications.module,v 1.4 2007-08-24 15:07:15 sprsquish Exp $
 
 /**
  * Drupal Module: User Relationship Implications
@@ -57,10 +57,8 @@ function user_relationship_implications_load() {
 function user_relationship_implications_form_alter($form_id, &$form) {
   switch ($form_id) {
   case 'user_relationships_type_edit':  
-    $relationship_type = $form['relationship_type']['#value'];
-    $relationship_types = user_relationships_relationship_types_load();
-
-    if ($relationship_type) {
+    if ($relationship_type = $form['relationship_type']['#value']) {
+      $relationship_types = user_relationships_relationship_types_load();
       foreach ($relationship_type->implies as $implies) {
         $values[$implies->implies_rtid] = $implies->implies_rtid;
       }
@@ -68,11 +66,11 @@ function user_relationship_implications_form_alter($form_id, &$form) {
       foreach ($relationship_type->implied_by as $implied) {
         $implied_by[] = $implied->rtid;
       }
-    }
 
-    foreach ($relationship_types as $type) {
-      if ($type->rtid != $relationship_type->rtid && !in_array($type->rtid, $implied_by)) {
-        $options[$type->rtid] = $type->name;
+      foreach ($relationship_types as $type) {
+        if ($type->rtid != $relationship_type->rtid && !in_array($type->rtid, $implied_by)) {
+          $options[$type->rtid] = $type->name;
+        }
       }
     }
 
