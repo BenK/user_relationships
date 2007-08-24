@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_implications.module,v 1.5 2007-08-24 15:11:11 sprsquish Exp $
+// $Id: user_relationship_implications.module,v 1.6 2007-08-24 16:43:45 sprsquish Exp $
 
 /**
  * Drupal Module: User Relationship Implications
@@ -101,7 +101,7 @@ function user_relationship_implications_edit_submit($form_id, &$form_values) {
     if ($implied_rtid) {
       db_query(
         "INSERT INTO {user_relationship_implications} (riid, rtid, implies_rtid) VALUES (%d, %d, %d)", 
-        db_next_id('{user_relationship_implications}_id'), $form_values['relationship_type']->rtid, $implied_rtid
+        db_next_id('{user_relationship_implications}_id'), $form_values['rtid'], $implied_rtid
       );
     }
   }
@@ -114,22 +114,22 @@ function user_relationship_implications_user_relationships($type, &$relationship
   switch ($type) {
   case 'load type':
     if ($relationship->rtid) {
-      static $loaded_relationships = array();
+      static $loaded_relationship_implications = array();
 
-      if (!$loaded_relationships[$relationship->rtid]) {
-        $loaded_relationships[$relationship->rtid] = array();
+      if (!is_array($loaded_relationship_implications[$relationship->rtid])) {
+        $loaded_relationship_implications[$relationship->rtid] = array();
         $results = db_query(
           "SELECT * FROM {user_relationship_implications} WHERE rtid = %d OR implies_rtid = %d", 
           $relationship->rtid, $relationship->rtid
         );
         while ($implication = db_fetch_object($results)) {
-          $loaded_relationships[$relationship->rtid][] = $implication;
+          $loaded_relationship_implications[$relationship->rtid][] = $implication;
         }
       }
 
       $relationship->implies    = array();
       $relationship->implied_by = array();
-      foreach ($loaded_relationships[$relationship->rtid] as $implication) {
+      foreach ($loaded_relationship_implications[$relationship->rtid] as $implication) {
         if ($implication->rtid == $relationship->rtid) {
           $relationship->implies[] = $implication;
         }
