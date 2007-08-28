@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_actions.inc,v 1.1 2007-08-15 20:20:01 sprsquish Exp $
+// $Id: user_relationships_actions.inc,v 1.2 2007-08-28 01:48:02 gwen Exp $
 
 /**
  * User Relationships Actions
@@ -181,7 +181,7 @@ function user_relationships_remove_submit($form_id, &$form_values) {
   drupal_set_message(t("!Person is no longer a %relationship_name of !requestee.", array(
     '!Person'             => $relationship->requester->name,
     '%relationship_name'  => $relationship->name,
-    '!requestee'          => ($relationship->requestee->uid == $user->uid ? t("your's") : $relationship->requestee->name)
+    '!requestee'          => ($relationship->requestee->uid == $user->uid ? t("yours") : $relationship->requestee->name)
   )));
 
   return 'relationships/'. $form_values['viewed_id'];
