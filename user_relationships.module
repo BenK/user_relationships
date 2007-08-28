@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships.module,v 1.3 2007-08-28 01:59:26 gwen Exp $
+// $Id: user_relationships.module,v 1.4 2007-08-28 16:23:48 sprsquish Exp $
 
 /**
  *
@@ -92,14 +92,14 @@ function _user_relationships_actions_between(&$viewer, &$viewed) {
   foreach ($viewer->relationships as $relationship) {
     if (!$relationship->approved) {
       // Viewer is the requester
-      if ($relationship->requester_id == $viewer->uid) {
+      if ($relationship->requestee_id == $viewed->uid) {
         $list[] = t('You have requested to be a %relationship_name of this user. (!pending_requests)', array(
           '%relationship_name'  => $relationship->name,
           '!pending_requests'   => l(t('pending requests'), "relationships/$viewer->uid/requests"),
         ));
       }
       // Viewer is the requestee
-      else {
+      else if ($relationship->requester_id == $viewed->uid) {
         $list[] = t('This user believes that they are a %relationship_name of yours. (!pending_requests)', array(
           '%relationship_name'  => $relationship->name,
           '!pending_requests'   => l(t('pending requests'), "relationships/$viewer->uid/requests"),
