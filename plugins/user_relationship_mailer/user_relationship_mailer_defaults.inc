@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_mailer_defaults.inc,v 1.2 2007-08-23 15:44:02 sprsquish Exp $
+// $Id: user_relationship_mailer_defaults.inc,v 1.3 2007-08-28 05:33:22 sprsquish Exp $
 
 /**
  * Default subject lines
@@ -22,13 +22,13 @@ function user_relationship_mailer_replacements(&$relationship) {
     '@site_url'               => $GLOBALS['base_url'],
 
     '@requester_name'         => $requester->name,
-    '@requester_link'         => url("user/$requester->uid", NULL, NULL, TRUE),
+    '@requester_link'         => theme('user_relationship_user_link', $requester->uid),
     '@requester_uid'          => $requester->uid,
     '@requester_list_link'    => url("relationships/$requester->uid/list", NULL, NULL, TRUE),
     '@requester_pending_link' => url("relationships/$requester->uid/requests", NULL, NULL, TRUE),
 
     '@requestee_name'         => $requestee->name,
-    '@requestee_link'         => url("user/$requestee->uid", NULL, NULL, TRUE),
+    '@requestee_link'         => theme('user_relationship_user_link', $requestee->uid),
     '@requestee_uid'          => $requestee->uid,
     '@requestee_list_link'    => url("relationships/$requestee->uid/list", NULL, NULL, TRUE),
     '@requestee_pending_link' => url("relationships/$requestee->uid/requests", NULL, NULL, TRUE),
@@ -120,5 +120,3 @@ Regards,
 The @site team
 MESSAGE;
 }
-
-?>
