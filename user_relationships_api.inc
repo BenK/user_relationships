@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.inc,v 1.2 2007-08-28 05:32:41 sprsquish Exp $
+// $Id: user_relationships_api.inc,v 1.3 2007-08-28 16:33:58 sprsquish Exp $
 
 /**
  *  User Relationships API
@@ -137,7 +137,7 @@ function user_relationships_request_relationship(&$requester, &$requestee, &$rel
     $approved = TRUE;
   }
 
-  $rid = db_next_id('{user_relationships}_rid');
+  $rid = db_next_id('{user_relationships}_id');
 
   db_query(
     "INSERT INTO {user_relationships} (rid, requester_id, requestee_id, rtid, approved) VALUES (%d, %d, %d, %d, %d)",
