@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_hooks.inc,v 1.1 2007-08-15 20:20:01 sprsquish Exp $
+// $Id: user_relationships_hooks.inc,v 1.2 2007-09-03 18:35:05 sprsquish Exp $
 
 /**
  * User Relationships hook implementations
@@ -106,7 +106,7 @@ function user_relationships_menu($may_cache) {
       'title'               => t('My relationships'),
       'access'              => ($id && user_access('maintain relationships')),
       'callback'            => 'theme',
-      'callback arguments'  => array('user_relationships_page', $id),
+      'callback arguments'  => array('user_relationships_page'),
     );
 
     $items[] = array(
@@ -147,7 +147,7 @@ function user_relationships_menu($may_cache) {
     );
       $items[] = array(
         'path'                => "relationships/{$id}/list",
-        'title'               => t('Relationships'),
+        'title'               => t('All'),
         'access'              => $view_access,
         'type'                => MENU_DEFAULT_LOCAL_TASK,
         'weight'              => -1,
@@ -159,12 +159,23 @@ function user_relationships_menu($may_cache) {
     // arg(3) should be one of "approve" "disapprove" or "cancel"
     $items[] = array(
       'path'                => "relationships/{$id}/requested",
-      'title'               => t('Approve on Relationship'),
+      'title'               => t('Approve Relationship'),
       'access'              => $edit_access,
       'type'                => MENU_CALLBACK,
       'callback'            => 'drupal_get_form', 
       'callback arguments'  => array('user_relationships_pending_requested', arg(3), $id, arg(4)),
     );
+    $relationships = user_relationships_relationship_types_load();
+    foreach ($relationships as $relationship) {
+      $items[] = array(
+        'path'                => "relationships/{$id}/{$relationship->rtid}",
+        'title'               => t($relationship->name),
+        'access'              => $view_access,
+        'type'                => MENU_LOCAL_TASK,
+        'callback'            => 'theme',
+        'callback arguments'  => array('user_relationships_page', $id, $relationship),
+      );
+    }
   }
 
   return $items;

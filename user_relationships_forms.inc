@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_forms.inc,v 1.1 2007-08-15 20:20:01 sprsquish Exp $
+// $Id: user_relationships_forms.inc,v 1.2 2007-09-03 18:35:05 sprsquish Exp $
 
 /**
  * User Relationships forms
@@ -26,6 +26,13 @@ function user_relationships_settings() {
       '#title'          => t("Allow users to auto approve"),
       '#description'    => t('This will provide an the options for users to set an "auto-approve" option to automatically approve to all requested relationships.'),
       '#default_value'  => variable_get('user_relationships_allow_auto_approve', 0),
+    );
+    $form['general']['user_relationships_relationships_per_page'] = array(
+      '#type'           => 'textfield',
+      '#title'          => t("Relationships per page"),
+      '#size'          => 4,
+      '#description'    => t('Number of relationships to show per page. If set to 0 all will be shown.'),
+      '#default_value'  => variable_get('user_relationships_relationships_per_page', 16),
     );
 
   return system_settings_form($form);
@@ -227,7 +234,7 @@ function user_relationships_remove($viewed_id, $relationship) {
     'relationships/' . $viewed_id,
     t("Are you sure you no longer wish to be a %relationship_name of !name?", array(
       '%relationship_name'  => $relationship->name,
-      '!name'               => theme('username', $requestee)
+      '!name'               => theme('username', $viewed_id == $requester->uid ? $requestee : $requester)
     )),
     t('Yes'), t('No'),
     'user_relationships_remove_confirm'

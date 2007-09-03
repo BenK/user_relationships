@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_theme.inc,v 1.2 2007-08-28 05:33:22 sprsquish Exp $
+// $Id: user_relationships_theme.inc,v 1.3 2007-09-03 18:35:05 sprsquish Exp $
 
 /**
  * User Relationships theme-able functions
@@ -8,47 +8,65 @@
 /**
  * Categorized list of relationships for a given user
  */
-function theme_user_relationships_page($uid = NULL) {
+function theme_user_relationships_page($uid = NULL, $relationship = NULL) {
   global $user;
   if (empty($uid)) {
     $uid = $user->uid;
   }
 
   // Check that the uid is valid, not the anonymous user, and the user exists
-  if (!(is_numeric($uid) && ($uid > 0) && $account = user_load(array('uid' => $uid)))) {
+  if (!(is_numeric($uid) && ($uid > 0))) {
     drupal_not_found();
     exit();
   }
 
-  if (sizeof($account->relationships)) {
+  $query = 
+    " SELECT r.*, rt.name, rt.is_oneway 
+      FROM {user_relationships} r, {user_relationship_types} rt 
+      WHERE (requester_id = %d OR requestee_id = %d) 
+        AND r.rtid = rt.rtid 
+        AND r.approved = 1
+    ";
+  $args = array($uid, $uid);
+
+  if (isset($relationship)) {
+    $query .= " AND r.rtid = %d";
+    $args[] = $relationship->rtid;
+  }
+
+  $relationships_per_page = variable_get('user_relationships_relationships_per_page', 16);
+  $result = $relationships_per_page ? pager_query($query, $relationships_per_page, 0, NULL, $args) : db_query($query, $args);
+
+  if (db_num_rows($result)) {
     $edit_access = ($user->uid == $uid && user_access('maintain relationships')) || user_access('administer users');
-    $sorted = array();
-    foreach($account->relationships as $relationship) {
-      if ($relationship->approved) {
-        $sorted[$relationship->name][] = user_relationships_relationship_load($relationship->rid);
-      }
+    $online_interval = time() - variable_get('user_block_seconds_online', 180);
+
+    while ($relation = db_fetch_object($result)) {
+      $this_user = $user->uid == $relation->requestee_id ? 'requester_id' : 'requestee_id';
+      $this_user = user_load(array('uid' => $relation->$this_user));
+
+      $rows[] = array(
+        theme('username', $this_user),
+        $relation->name,
+        $this_user->access > $online_interval ? t('online') : t('not online'),
+        $edit_access ? theme('user_relationships_remove_link', $uid, $relation) : '&nbsp;',
+      );
     }
-    foreach ($sorted as $name => $relationships) {
-      $rows[] = array(array('data' => $relationship->name, 'header' => true, 'colspan' => 2));
-      foreach ($relationships as $relationship) {
-        $relate_to = ($relationship->type->is_oneway || ($relationship->requester->uid == $account->uid) ? $relationship->requestee : $relationship->requester);
-        $rows[] = array(
-          theme('username', $relate_to),
-          $edit_access ? theme('user_relationships_remove_link', $uid, $relationship) : '&nbsp;',
-        );
-      }
-    }
-    $output .= theme('table', NULL, $rows);
+    $output .= theme('table', array(), $rows);
   }
   else {
     $output .= t('No relationships found');
   }
 
-  drupal_set_title(t("%username's relationships", array('%username' => $account->name)));
+  $output .= theme('pager', NULL, $relationships_per_page);
+
+  drupal_set_title(t("%username's %relationships", array(
+    '%username' => $user->name, 
+    '%relationships' => $relationship->name ? $relationship->name : t('relationships')
+  )));
 
   return $output;
 }
-
 
 /**
  * List of pending requests from other users
