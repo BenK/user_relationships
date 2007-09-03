@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships.module,v 1.4 2007-08-28 16:23:48 sprsquish Exp $
+// $Id: user_relationships.module,v 1.5 2007-09-03 19:22:31 sprsquish Exp $
 
 /**
  *
@@ -46,16 +46,23 @@ function _user_relationships_autocomplete_types($string = '') {
  * Notify the user of pending relationship requests
  */
 function _user_relationships_set_notifications(&$account) {
+  $notifications = drupal_get_messages('status', FALSE);
+  $notifications = $notifications['status'] ? $notifications['status'] : array();
+
   global $user;
   if ($account->uid != $user->uid) {return;} //only do this for the active user
 
   foreach ($account->relationships as $relationship) {
     if (!$relationship->approved && $account->uid != $relationship->requester_id) {
-      drupal_set_message(t('!linktouser believes they are a %relationship_name of yours.  Please view your !pending_relationship_requests to approve/disapprove.', array(
-        '!linktouser'                     => theme('username', user_load(array('uid' => $relationship->requestee_id))),
+      $msg = t('!linktouser believes they are a %relationship_name of yours.  Please view your !pending_relationship_requests to approve/disapprove.', array(
+        '!linktouser'                     => theme('username', user_load(array('uid' => $relationship->requester_id))),
         '%relationship_name'              => $relationship->name,
         '!pending_relationship_requests'  => l(t('pending relationship requests'), 'relationships/'. $account->uid .'/requests')
-      )));
+      ));
+
+      if (!in_array($msg, $notifications)) {
+        drupal_set_message($msg);
+      }
     }
   }
 }
