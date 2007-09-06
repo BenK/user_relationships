@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_forms.inc,v 1.2 2007-09-03 18:35:05 sprsquish Exp $
+// $Id: user_relationships_forms.inc,v 1.3 2007-09-06 19:34:19 sprsquish Exp $
 
 /**
  * User Relationships forms
@@ -30,9 +30,12 @@ function user_relationships_settings() {
     $form['general']['user_relationships_relationships_per_page'] = array(
       '#type'           => 'textfield',
       '#title'          => t("Relationships per page"),
-      '#size'          => 4,
+      '#size'           => 4,
       '#description'    => t('Number of relationships to show per page. If set to 0 all will be shown.'),
       '#default_value'  => variable_get('user_relationships_relationships_per_page', 16),
+      '#validate'       => array('user_relationships_setting_validation' => array(array(
+        'is_numeric' => array('msg' => t('The relationships per page setting is not an integer'))
+      )))
     );
 
   return system_settings_form($form);

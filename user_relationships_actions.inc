@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_actions.inc,v 1.2 2007-08-28 01:48:02 gwen Exp $
+// $Id: user_relationships_actions.inc,v 1.3 2007-09-06 19:34:19 sprsquish Exp $
 
 /**
  * User Relationships Actions
@@ -15,6 +15,21 @@ function user_relationships_type_edit_validate($form_id, &$form_values) {
   }
 }
 
+/***
+ * Generic settings validation. 
+ */
+function user_relationships_setting_validation($element, $validations) {
+  foreach ($validations as $validation => $info) {
+    $arguments = array($element['#value']);
+    if (isset($info['valid_options'])) {
+      $arguments[] = $info['valid_options'];
+    }
+
+    if (!call_user_func_array($validation, $arguments)) {
+      form_set_error($element['#name'], $info['msg']);
+    }
+  }
+}
 
 /**
  * Process the relationship edit page form submission.
