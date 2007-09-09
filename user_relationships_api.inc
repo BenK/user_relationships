@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.inc,v 1.4 2007-09-09 07:52:35 sprsquish Exp $
+// $Id: user_relationships_api.inc,v 1.5 2007-09-09 08:54:21 sprsquish Exp $
 
 /**
  *  User Relationships API
@@ -124,9 +124,11 @@ function user_relationships_request_relationship(&$requester, &$requestee, &$rel
       FROM {user_relationships} 
       WHERE rtid = %d
         AND ((requester_id = %d AND requestee_id = %d)
-          OR (requestee_id = %d AND requester_id = %d)
-        )
-    ", $relationship_type->rtid, $requester->uid, $requestee->uid, $requester->uid, $requestee->uid
+          OR (is_oneway = 0 AND requestee_id = %d AND requester_id = %d)
+        )", 
+    $relationship_type->rtid, 
+    $requester->uid, $requestee->uid, 
+    $requester->uid, $requestee->uid
   ));
   if ($existing) {
     return t('This relationship already exists');

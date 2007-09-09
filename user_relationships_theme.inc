@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_theme.inc,v 1.3 2007-09-03 18:35:05 sprsquish Exp $
+// $Id: user_relationships_theme.inc,v 1.4 2007-09-09 08:54:21 sprsquish Exp $
 
 /**
  * User Relationships theme-able functions
@@ -21,15 +21,14 @@ function theme_user_relationships_page($uid = NULL, $relationship = NULL) {
   }
 
   $query = 
-    " SELECT r.*, rt.name, rt.is_oneway 
+     "SELECT r.*, rt.name, rt.is_oneway 
       FROM {user_relationships} r, {user_relationship_types} rt 
       WHERE (requester_id = %d OR requestee_id = %d) 
         AND r.rtid = rt.rtid 
-        AND r.approved = 1
-    ";
+        AND r.approved = 1";
   $args = array($uid, $uid);
 
-  if (isset($relationship)) {
+  if (isset($relationship->rtid)) {
     $query .= " AND r.rtid = %d";
     $args[] = $relationship->rtid;
   }
