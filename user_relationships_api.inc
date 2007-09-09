@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.inc,v 1.3 2007-08-28 16:33:58 sprsquish Exp $
+// $Id: user_relationships_api.inc,v 1.4 2007-09-09 07:52:35 sprsquish Exp $
 
 /**
  *  User Relationships API
@@ -140,7 +140,8 @@ function user_relationships_request_relationship(&$requester, &$requestee, &$rel
   $rid = db_next_id('{user_relationships}_id');
 
   db_query(
-    "INSERT INTO {user_relationships} (rid, requester_id, requestee_id, rtid, approved) VALUES (%d, %d, %d, %d, %d)",
+    "INSERT INTO {user_relationships} (rid, requester_id, requestee_id, rtid, approved, created_at)
+     VALUES (%d, %d, %d, %d, %d, NOW())",
     $rid,
     $requester->uid, 
     $requestee->uid, 
@@ -173,12 +174,14 @@ function user_relationships_update_relationship(&$relationship, &$updated_relati
 
   $updated_relationship->rid = db_next_id('{user_relationships}_id');
   db_query(
-    "INSERT INTO {user_relationships} (rid, requester_id, requestee_id, rtid, approved) VALUES (%d, %d, %d, %d, %d)",
+    "INSERT INTO {user_relationships} (rid, requester_id, requestee_id, rtid, approved, created_at)
+     VALUES (%d, %d, %d, %d, %d, '%s')",
     $updated_relationship->rid,
     $updated_relationship->requester->uid, 
     $updated_relationship->requestee->uid, 
     $updated_relationship->type->rtid,
-    ($relationship->approved ? 1 : 0)
+    ($relationship->approved ? 1 : 0),
+    $relationship->created_at
   );
 
   return $update_relationship;

@@ -1,4 +1,4 @@
-/* $Id: README.txt,v 1.1 2007-08-15 20:20:01 sprsquish Exp $ */
+/* $Id: README.txt,v 1.2 2007-09-09 07:52:35 sprsquish Exp $ */
 
 User Relationships Module
 -------------------------
@@ -74,6 +74,8 @@ CREATE TABLE IF NOT EXISTS `user_relationships` (
   `requestee_id` int(11) NOT NULL default '0',
   `rtid` int(11) NOT NULL default '0',
   `approved` tinyint(1) NOT NULL default '0',
+  `created_at` datetime NOT NULL,
+  `updated_at` timestamp NOT NULL,
   PRIMARY KEY  (`rid`),
   KEY `requester_id` (`requester_id`),
   KEY `requestee_id` (`requestee_id`),
