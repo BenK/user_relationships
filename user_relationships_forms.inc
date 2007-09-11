@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_forms.inc,v 1.3 2007-09-06 19:34:19 sprsquish Exp $
+// $Id: user_relationships_forms.inc,v 1.4 2007-09-11 00:03:42 sprsquish Exp $
 
 /**
  * User Relationships forms
@@ -113,7 +113,7 @@ function user_relationships_type_delete($rtid = NULL) {
 /**
  * Request new user to user relationship
  */
-function user_relationships_request_form(&$requester, &$requestee, &$form_values = NULL) {
+function user_relationships_request_form(&$requester, &$requestee, $form_values = NULL) {
   $current_relationships = _user_relationships_current_relationships($requester, $requestee);
 
   $results = db_query("SELECT * FROM {user_relationship_types}" . ($current_relationships ? " WHERE rtid NOT IN (%s) ORDER BY name" : ''), implode(',', array_keys($current_relationships)));

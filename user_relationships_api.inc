@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.inc,v 1.5 2007-09-09 08:54:21 sprsquish Exp $
+// $Id: user_relationships_api.inc,v 1.6 2007-09-11 00:03:42 sprsquish Exp $
 
 /**
  *  User Relationships API
@@ -121,8 +121,9 @@ function user_relationships_request_relationship(&$requester, &$requestee, &$rel
 
   $existing = db_result(db_query(
     " SELECT 1 
-      FROM {user_relationships} 
-      WHERE rtid = %d
+      FROM {user_relationships} ur, {user_relationship_types} urt
+      WHERE ur.rtid = %d
+        AND ur.rtid = urt.rtid
         AND ((requester_id = %d AND requestee_id = %d)
           OR (is_oneway = 0 AND requestee_id = %d AND requester_id = %d)
         )", 
