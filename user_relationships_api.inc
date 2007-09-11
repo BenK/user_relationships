@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.inc,v 1.6 2007-09-11 00:03:42 sprsquish Exp $
+// $Id: user_relationships_api.inc,v 1.7 2007-09-11 01:48:42 sprsquish Exp $
 
 /**
  *  User Relationships API
@@ -205,9 +205,6 @@ function user_relationships_update_relationship(&$relationship, &$updated_relati
 function user_relationships_delete_relationship(&$relationship, &$deleted_by, $op = 'remove') {
   $relationship->deleted_by = $deleted_by;
   db_query("DELETE FROM {user_relationships} WHERE rid = %d", $relationship->rid);
-  if (!is_array($relationship->type->implied_by)) {
-    die("<pre>".print_r($relationship, true)."</pre>");
-  }
 
   _user_relationships_invoke('delete', $relationship, $op);
 }
