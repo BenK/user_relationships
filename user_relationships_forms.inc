@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_forms.inc,v 1.4 2007-09-11 00:03:42 sprsquish Exp $
+// $Id: user_relationships_forms.inc,v 1.5 2007-09-12 20:27:47 sprsquish Exp $
 
 /**
  * User Relationships forms
@@ -71,6 +71,15 @@ function user_relationships_type_edit($rtid = NULL) {
     '#default_value'  => (isset($relationship_type->requires_approval) ? $relationship_type->requires_approval : 1),
     '#description'    => t('Check this if the requestee must approve the relationship'),
     '#weight'         => -9
+  );
+  $form['expires_val'] = array(
+    '#title'          => t('Request expires in'),
+    '#field_suffix'   => t('days'),
+    '#type'           => 'textfield',
+    '#size'           => 4,
+    '#default_value'  => isset($relationship_type->expires_val) ? $relationship_type->expires_val : 0,
+    '#description'    => t('After how many days should a request of this type be removed? (0 for never)'),
+    '#weight'         => -9,
   );
   $form['relationship_type'] = array(
     '#type'   => 'value',

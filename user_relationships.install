@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships.install,v 1.2 2007-09-09 07:52:35 sprsquish Exp $
+// $Id: user_relationships.install,v 1.3 2007-09-12 20:27:47 sprsquish Exp $
 
 function user_relationships_install() {
   switch ($GLOBALS['db_type']) {
@@ -11,6 +11,7 @@ function user_relationships_install() {
           name varchar(255) NOT NULL default '',
           is_oneway tinyint(1) NOT NULL default 0,
           requires_approval tinyint(1) NOT NULL default 0,
+          expires_val int(11) unsigned NOT NULL default 0,
           PRIMARY KEY (rtid),
           UNIQUE KEY name (name)
         ) /*!40100 DEFAULT CHARACTER SET utf8*/;
@@ -82,6 +83,34 @@ function user_relationships_update_1() {
     if ($result) {
       $result = db_query("UPDATE {user_relationships} SET created_at = NOW();");
     }
+    break;
+
+  default:
+    drupal_set_message(t('Unsupported database.'));
+    break;
+  }
+
+  if ($result) {
+    drupal_set_message(t('User Relationships module updated successfully.'));
+  }
+  else {
+    drupal_set_message(t('The update of the User Relationships module was unsuccessful.'), 'error');
+  }
+}
+
+/**
+ * Update 2: Add expiration of relationship requests
+ */
+function user_relationships_update_2() {
+  $result = FALSE;
+
+  switch ($GLOBALS['db_type']) {
+  case 'mysql':
+  case 'mysqli':
+    $result = db_query("
+      ALTER TABLE {user_relationship_types}
+        ADD expires_val int(11) unsigned NOT NULL default 0;
+    ");
     break;
 
   default:

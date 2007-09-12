@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_actions.inc,v 1.3 2007-09-06 19:34:19 sprsquish Exp $
+// $Id: user_relationships_actions.inc,v 1.4 2007-09-12 20:27:47 sprsquish Exp $
 
 /**
  * User Relationships Actions
@@ -13,6 +13,11 @@ function user_relationships_type_edit_validate($form_id, &$form_values) {
   if (arg(3) == 'add' && db_result(db_query("SELECT name FROM {user_relationship_types} WHERE LOWER(`name`) = LOWER('%s')", $form_values['name']))) {
     form_set_error('name', t('%name has already been used.', array('%name' => $form_values['name'])));
   }
+
+  $expire = $form_values['expires_val'];
+  if (!is_numeric($expire) || (int)$expire < 0) {
+    form_set_error('expires_val', t('Expiration period must be an integer greater than or equal to 0.'));
+  } 
 }
 
 /***
@@ -38,11 +43,12 @@ function user_relationships_type_edit_submit($form_id, &$form_values) {
   if (arg(3) == 'add') {
     $form_values['rtid'] = db_next_id('{user_relationship_types}_id');
     db_query(
-      "INSERT INTO {user_relationship_types} (rtid, name, is_oneway, requires_approval) VALUES (%d, '%s', %d, %d)", 
+      "INSERT INTO {user_relationship_types} (rtid, name, is_oneway, requires_approval, expires_val) VALUES (%d, '%s', %d, %d, %d)", 
       $form_values['rtid'],
       $form_values['name'],
       $form_values['is_oneway'],
-      $form_values['requires_approval']
+      $form_values['requires_approval'],
+      $form_values['expires_val']
     );
 
     $relationship_type = user_relationships_relationship_type_load(array('rtid' => $form_values['rtid']));
@@ -53,10 +59,11 @@ function user_relationships_type_edit_submit($form_id, &$form_values) {
   }
   else {
     db_query(
-      "UPDATE {user_relationship_types} SET name = '%s', is_oneway = %d, requires_approval = %d WHERE rtid = %d", 
+      "UPDATE {user_relationship_types} SET name = '%s', is_oneway = %d, requires_approval = %d, expires_val = %d WHERE rtid = %d", 
       $form_values['name'], 
       $form_values['is_oneway'], 
       $form_values['requires_approval'], 
+      $form_values['expires_val'],
       $form_values['relationship_type']->rtid
     );
 
