@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_implications.module,v 1.6 2007-08-24 16:43:45 sprsquish Exp $
+// $Id: user_relationship_implications.module,v 1.7 2007-09-14 21:30:29 sprsquish Exp $
 
 /**
  * Drupal Module: User Relationship Implications
@@ -189,11 +189,11 @@ function user_relationship_implications_user_relationships($type, &$relationship
 function user_relationship_implications_user_relationships_page_alter($page_id, &$page, &$table) {
   switch ($page_id) {
   case 'types list':
-    array_splice($table['headers'], 1, 0, t('Implies'));
+    array_splice($table['headers'], 2, 0, t('Implies'));
 
     foreach ($table['data'] as $key => $relationship) {
       $relationship = user_relationships_relationship_type_load(array('rtid' => $relationship->rtid));
-      array_splice($table['rows'][$key], 1, 0, '&nbsp;');
+      array_splice($table['rows'][$key], 2, 0, '&nbsp;');
 
       $names = array();
       foreach ($relationship->implies as $implied) {

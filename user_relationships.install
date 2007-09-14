@@ -1,40 +1,28 @@
 <?php
-// $Id: user_relationships.install,v 1.3 2007-09-12 20:27:47 sprsquish Exp $
+// $Id: user_relationships.install,v 1.4 2007-09-14 21:30:29 sprsquish Exp $
 
-function user_relationships_install() {
-  switch ($GLOBALS['db_type']) {
-    case 'mysql':
-    case 'mysqli':
-      db_query("
-        CREATE TABLE {user_relationship_types} (
-          rtid int unsigned NOT NULL default 0,
-          name varchar(255) NOT NULL default '',
-          is_oneway tinyint(1) NOT NULL default 0,
-          requires_approval tinyint(1) NOT NULL default 0,
-          expires_val int(11) unsigned NOT NULL default 0,
-          PRIMARY KEY (rtid),
-          UNIQUE KEY name (name)
-        ) /*!40100 DEFAULT CHARACTER SET utf8*/;
-      ");
-      db_query("
-        CREATE TABLE {user_relationships} (
-          rid int unsigned NOT NULL default 0,
-          requester_id int NOT NULL default 0,
-          requestee_id int NOT NULL default 0,
-          rtid int NOT NULL default 0,
-          approved tinyint(1) NOT NULL default 0,
-          created_at datetime NOT NULL,
-          updated_at timestamp NOT NULL,
-          PRIMARY KEY (rid),
-          KEY requester_id (requester_id),
-          KEY requestee_id (requestee_id),
-          KEY rtid (rtid)
-        ) /*!40100 DEFAULT CHARACTER SET utf8*/;
-      ");
-      $success = TRUE;
+function _user_relationships_installation_query($mysql = array(), $pgsql = array()) {
+  global $db_type;
+
+  $success = TRUE;
+  $queries = array();
+
+  if (strpos('mysql', $db_type) !== FALSE && $mysql) {
+    $queries = $mysql;
+  }
+  else if ($db_type == 'pgsql' && $pgsql) {
+    $queries = $pgsql;
+  }
+  else {
+    $success = FALSE;
+    drupal_set_message(t('Unsupported database.'));
+  }
+
+  foreach ($queries as $query) {
+    if (!db_query($query)) {
+      $success = FALSE;
       break;
-    default:
-      drupal_set_message(t('Unsupported database.'));
+    }
   }
 
   if ($success) {
@@ -45,6 +33,36 @@ function user_relationships_install() {
   }
 }
 
+function user_relationships_install() {
+  $queries = array(
+    "CREATE TABLE {user_relationship_types} (
+      rtid int unsigned NOT NULL default 0,
+      name varchar(255) NOT NULL default '',
+      plural_name varchar(255) NOT NULL default '',
+      is_oneway tinyint(1) NOT NULL default 0,
+      requires_approval tinyint(1) NOT NULL default 0,
+      expires_val int unsigned NOT NULL default 0,
+      PRIMARY KEY (rtid),
+      UNIQUE KEY name (name)
+    ) /*!40100 DEFAULT CHARACTER SET utf8*/;",
+
+    "CREATE TABLE {user_relationships} (
+      rid int unsigned NOT NULL default 0,
+      requester_id int NOT NULL default 0,
+      requestee_id int NOT NULL default 0,
+      rtid int NOT NULL default 0,
+      approved tinyint(1) NOT NULL default 0,
+      created_at datetime NOT NULL,
+      updated_at timestamp NOT NULL,
+      PRIMARY KEY (rid),
+      KEY requester_id (requester_id),
+      KEY requestee_id (requestee_id),
+      KEY rtid (rtid)
+    ) /*!40100 DEFAULT CHARACTER SET utf8*/;"
+  );
+  _user_relationships_installation_query($queries);
+}
+  
 /**
  * Implementation of hook_uninstall().
  */
@@ -63,65 +81,28 @@ function user_relationships_uninstall() {
  * Update 1: Add timestamp to allow expiring unanswered requests
  */
 function user_relationships_update_1() {
-  $result = FALSE;
-
-  switch ($GLOBALS['db_type']) {
-  case 'mysql':
-  case 'mysqli':
-    $result = db_query("
-      ALTER TABLE {user_relationships}
-        ADD created_at  DATETIME  NOT NULL;
-    ");
-
-    if ($result) {
-      $result = db_query("
-        ALTER TABLE {user_relationships}
-          ADD updated_at  TIMESTAMP  NOT NULL;
-      ");
-    }
-    
-    if ($result) {
-      $result = db_query("UPDATE {user_relationships} SET created_at = NOW();");
-    }
-    break;
-
-  default:
-    drupal_set_message(t('Unsupported database.'));
-    break;
-  }
-
-  if ($result) {
-    drupal_set_message(t('User Relationships module updated successfully.'));
-  }
-  else {
-    drupal_set_message(t('The update of the User Relationships module was unsuccessful.'), 'error');
-  }
+  $queries = array(
+    "ALTER TABLE {user_relationships} ADD created_at  DATETIME  NOT NULL;",
+    "ALTER TABLE {user_relationships} ADD updated_at  TIMESTAMP  NOT NULL;",
+    "UPDATE {user_relationships} SET created_at = NOW();",
+  );
+  _user_relationships_installation_query($queries);
 }
 
 /**
  * Update 2: Add expiration of relationship requests
  */
 function user_relationships_update_2() {
-  $result = FALSE;
+  _user_relationships_installation_query(array(
+    "ALTER TABLE {user_relationship_types} ADD expires_val int(11) unsigned NOT NULL default 0;"
+  ));
+}
 
-  switch ($GLOBALS['db_type']) {
-  case 'mysql':
-  case 'mysqli':
-    $result = db_query("
-      ALTER TABLE {user_relationship_types}
-        ADD expires_val int(11) unsigned NOT NULL default 0;
-    ");
-    break;
-
-  default:
-    drupal_set_message(t('Unsupported database.'));
-    break;
-  }
-
-  if ($result) {
-    drupal_set_message(t('User Relationships module updated successfully.'));
-  }
-  else {
-    drupal_set_message(t('The update of the User Relationships module was unsuccessful.'), 'error');
-  }
+/**
+ * Update 3: Add plural form of relationship type name
+ */
+function user_relationships_update_3() {
+  _user_relationships_installation_query(array(
+    "ALTER TABLE {user_relationship_types} ADD plural_name varchar(255) NOT NULL default '' after name;"
+  ));
 }

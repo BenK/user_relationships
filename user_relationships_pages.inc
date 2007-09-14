@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_pages.inc,v 1.3 2007-09-03 19:24:26 sprsquish Exp $
+// $Id: user_relationships_pages.inc,v 1.4 2007-09-14 21:30:29 sprsquish Exp $
 
 /**
  * Pages related to User Relationships
@@ -12,7 +12,7 @@
 function user_relationships_types_list_page() {
   $relationship_types = user_relationships_relationship_types_load();
 
-  $table['headers'] = array(t('Name'), t('Type'), t('Requires Approval'), t('Operations'));
+  $table['headers'] = array(t('Name'), t('Plural'), t('Type'), t('Requires Approval'), t('Expiration'), t('Operations'));
   $table['data'] = array();
   $table['rows'] = array();
 
@@ -20,8 +20,10 @@ function user_relationships_types_list_page() {
     $table['data'][] = $relationship;
     $table['rows'][] = array(
       $relationship->name,
+      $relationship->plural_name,
       ($relationship->is_oneway ? t('one way') : t('mutual')),
       ($relationship->requires_approval ? t('yes') : t('no')),
+      ($relationship->expires_val ? t(format_plural($relationship->expires_val, '1 day', '@count days')) : t('Never')),
       l(t('edit'),    'admin/user/relationships/edit/'. $relationship->rtid) . ' | ' .
       l(t('delete'),  'admin/user/relationships/delete/'. $relationship->rtid)
     );

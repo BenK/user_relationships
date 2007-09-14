@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_forms.inc,v 1.5 2007-09-12 20:27:47 sprsquish Exp $
+// $Id: user_relationships_forms.inc,v 1.6 2007-09-14 21:30:29 sprsquish Exp $
 
 /**
  * User Relationships forms
@@ -54,23 +54,31 @@ function user_relationships_type_edit($rtid = NULL) {
     '#title'          => t('Name'),
     '#maxlength'      => 255,
     '#default_value'  => $relationship_type->name,
-    '#description'    => t("Example: friend, coworker, spouse."),
+    '#description'    => t("Example: buddy, friend, coworker, spouse."),
     '#required'       => TRUE,
     '#weight'         => -10,
+  );
+  $form['plural_name'] = array(
+    '#type'           => 'textfield',
+    '#title'          => t('Plural name'),
+    '#maxlength'      => 255,
+    '#default_value'  => $relationship_type->plural_name,
+    '#description'    => t("Example: buddies, friends, coworkers, spouses."),
+    '#weight'         => -9,
   );
   $form['is_oneway'] = array(
     '#type'           => 'checkbox',
     '#title'          => t('This is a one-way relationship'),
     '#default_value'  => $relationship_type->is_oneway,
     '#description'    => t('Check this if this relationship should only go one way (ex Manager, Subscriber)'),
-    '#weight'         => -9
+    '#weight'         => -8,
   );
   $form['requires_approval'] = array(
     '#type'           => 'checkbox',
     '#title'          => t('Requires Approval'),
     '#default_value'  => (isset($relationship_type->requires_approval) ? $relationship_type->requires_approval : 1),
     '#description'    => t('Check this if the requestee must approve the relationship'),
-    '#weight'         => -9
+    '#weight'         => -8,
   );
   $form['expires_val'] = array(
     '#title'          => t('Request expires in'),
@@ -79,7 +87,7 @@ function user_relationships_type_edit($rtid = NULL) {
     '#size'           => 4,
     '#default_value'  => isset($relationship_type->expires_val) ? $relationship_type->expires_val : 0,
     '#description'    => t('After how many days should a request of this type be removed? (0 for never)'),
-    '#weight'         => -9,
+    '#weight'         => -8,
   );
   $form['relationship_type'] = array(
     '#type'   => 'value',

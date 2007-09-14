@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_actions.inc,v 1.4 2007-09-12 20:27:47 sprsquish Exp $
+// $Id: user_relationships_actions.inc,v 1.5 2007-09-14 21:30:29 sprsquish Exp $
 
 /**
  * User Relationships Actions
@@ -43,9 +43,10 @@ function user_relationships_type_edit_submit($form_id, &$form_values) {
   if (arg(3) == 'add') {
     $form_values['rtid'] = db_next_id('{user_relationship_types}_id');
     db_query(
-      "INSERT INTO {user_relationship_types} (rtid, name, is_oneway, requires_approval, expires_val) VALUES (%d, '%s', %d, %d, %d)", 
+      "INSERT INTO {user_relationship_types} (rtid, name, plural_name, is_oneway, requires_approval, expires_val) VALUES (%d, '%s', '%s', %d, %d, %d)", 
       $form_values['rtid'],
       $form_values['name'],
+      $form_values['plural_name'],
       $form_values['is_oneway'],
       $form_values['requires_approval'],
       $form_values['expires_val']
@@ -59,8 +60,9 @@ function user_relationships_type_edit_submit($form_id, &$form_values) {
   }
   else {
     db_query(
-      "UPDATE {user_relationship_types} SET name = '%s', is_oneway = %d, requires_approval = %d, expires_val = %d WHERE rtid = %d", 
-      $form_values['name'], 
+      "UPDATE {user_relationship_types} SET name = '%s', plural_name = '%s', is_oneway = %d, requires_approval = %d, expires_val = %d WHERE rtid = %d", 
+      $form_values['name'],
+      $form_values['plural_name'],
       $form_values['is_oneway'], 
       $form_values['requires_approval'], 
       $form_values['expires_val'],

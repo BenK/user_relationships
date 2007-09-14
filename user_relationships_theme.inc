@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_theme.inc,v 1.4 2007-09-09 08:54:21 sprsquish Exp $
+// $Id: user_relationships_theme.inc,v 1.5 2007-09-14 21:30:29 sprsquish Exp $
 
 /**
  * User Relationships theme-able functions
@@ -10,23 +10,27 @@
  */
 function theme_user_relationships_page($uid = NULL, $relationship = NULL) {
   global $user;
+
   if (empty($uid)) {
-    $uid = $user->uid;
+    $viewed_user =& $user;
+  }
+  else {
+    $viewd_user = user_load(array('uid' => $uid));
   }
 
   // Check that the uid is valid, not the anonymous user, and the user exists
-  if (!(is_numeric($uid) && ($uid > 0))) {
+  if ($viewed_user->uid > 0) {
     drupal_not_found();
     exit();
   }
 
   $query = 
-     "SELECT r.*, rt.name, rt.is_oneway 
+     "SELECT r.*, rt.name, rt.plural_name, rt.is_oneway 
       FROM {user_relationships} r, {user_relationship_types} rt 
       WHERE (requester_id = %d OR requestee_id = %d) 
         AND r.rtid = rt.rtid 
         AND r.approved = 1";
-  $args = array($uid, $uid);
+  $args = array($viewed_user->uid, $viewed_user->uid);
 
   if (isset($relationship->rtid)) {
     $query .= " AND r.rtid = %d";
@@ -37,7 +41,7 @@ function theme_user_relationships_page($uid = NULL, $relationship = NULL) {
   $result = $relationships_per_page ? pager_query($query, $relationships_per_page, 0, NULL, $args) : db_query($query, $args);
 
   if (db_num_rows($result)) {
-    $edit_access = ($user->uid == $uid && user_access('maintain relationships')) || user_access('administer users');
+    $edit_access = ($user->uid == $viewed_user->uid && user_access('maintain relationships')) || user_access('administer users');
     $online_interval = time() - variable_get('user_block_seconds_online', 180);
 
     while ($relation = db_fetch_object($result)) {
@@ -48,7 +52,7 @@ function theme_user_relationships_page($uid = NULL, $relationship = NULL) {
         theme('username', $this_user),
         $relation->name,
         $this_user->access > $online_interval ? t('online') : t('not online'),
-        $edit_access ? theme('user_relationships_remove_link', $uid, $relation) : '&nbsp;',
+        $edit_access ? theme('user_relationships_remove_link', $viewed_user->uid, $relation) : '&nbsp;',
       );
     }
     $output .= theme('table', array(), $rows);
@@ -60,8 +64,8 @@ function theme_user_relationships_page($uid = NULL, $relationship = NULL) {
   $output .= theme('pager', NULL, $relationships_per_page);
 
   drupal_set_title(t("%username's %relationships", array(
-    '%username' => $user->name, 
-    '%relationships' => $relationship->name ? $relationship->name : t('relationships')
+    '%username' => $viewed_user->name, 
+    '%relationships' => $relationship->plural_name ? $relationship->plural_name : $relationship->name
   )));
 
   return $output;
