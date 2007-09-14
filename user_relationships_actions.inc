@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_actions.inc,v 1.5 2007-09-14 21:30:29 sprsquish Exp $
+// $Id: user_relationships_actions.inc,v 1.6 2007-09-14 21:44:20 sprsquish Exp $
 
 /**
  * User Relationships Actions
@@ -10,7 +10,10 @@
  * Validate the submitted relationship type
  */
 function user_relationships_type_edit_validate($form_id, &$form_values) {
-  if (arg(3) == 'add' && db_result(db_query("SELECT name FROM {user_relationship_types} WHERE LOWER(`name`) = LOWER('%s')", $form_values['name']))) {
+  if (
+    ($form_values['relationship_type']->rtid && db_result(db_query("SELECT name FROM {user_relationship_types} WHERE LOWER(`name`) = LOWER('%s') AND rtid != %d", $form_values['name'], $form_values['relationship_type']->rtid))) ||
+    (!$form_values['relationship_type']->rtid && db_result(db_query("SELECT name FROM {user_relationship_types} WHERE LOWER(`name`) = LOWER('%s')", $form_values['name'])))
+  ) {
     form_set_error('name', t('%name has already been used.', array('%name' => $form_values['name'])));
   }
 
@@ -46,6 +49,7 @@ function user_relationships_type_edit_submit($form_id, &$form_values) {
       "INSERT INTO {user_relationship_types} (rtid, name, plural_name, is_oneway, requires_approval, expires_val) VALUES (%d, '%s', '%s', %d, %d, %d)", 
       $form_values['rtid'],
       $form_values['name'],
+      $form_values['plural_name'],
       $form_values['plural_name'],
       $form_values['is_oneway'],
       $form_values['requires_approval'],
