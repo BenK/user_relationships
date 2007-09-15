@@ -1,4 +1,4 @@
-/* $Id: README.txt,v 1.1 2007-08-15 20:20:01 sprsquish Exp $ */
+/* $Id: README.txt,v 1.2 2007-09-15 00:19:42 gwen Exp $ */
 
 User Relationship Implications Module
 -------------------------------------
@@ -30,8 +30,13 @@ User Relationships Module
 
 Installation
 ------------
-Enable User Relationship Implications in the "Site building -> modules" administration screen.
-
+* Enable User Relationship Implications in the "Site building -> modules" administration screen.
+* If you want to use the implications relationships page, override the
+theme_user_relationships_page in your theme's template.php with the
+implications page. E.g.
+  function phptemplate_user_relationships_page($uid = NULL, $relationship = NULL) {
+    return return theme('user_relationship_implications_page', $uid, $relationship);
+  }
 
 Database Schema
 ---------------

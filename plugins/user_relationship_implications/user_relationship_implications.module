@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_implications.module,v 1.7 2007-09-14 21:30:29 sprsquish Exp $
+// $Id: user_relationship_implications.module,v 1.8 2007-09-15 00:19:42 gwen Exp $
 
 /**
  * Drupal Module: User Relationship Implications
@@ -95,13 +95,23 @@ function user_relationship_implications_form_alter($form_id, &$form) {
  * Edit relationship type submission processor
  */
 function user_relationship_implications_edit_submit($form_id, &$form_values) {
-  db_query("DELETE FROM {user_relationship_implications} WHERE rtid = %d", $form_values['relationship_type']->rtid);
+  // the rtid is in a different place when adding a new type vs. editing an existing type
+  if (isset($form_values['relationship_type']) && !is_null($form_values['relationship_type'])) {
+    // editing an existing relationship type
+    $rtid = $form_values['relationship_type']->rtid;
+  }
+  else {
+    // adding a new relationship type - go figure
+    $rtid = $form_values['rtid'];
+  }
+
+  db_query("DELETE FROM {user_relationship_implications} WHERE rtid = %d", $rtid);
 
   foreach ($form_values['implications'] as $implied_rtid) {
     if ($implied_rtid) {
       db_query(
         "INSERT INTO {user_relationship_implications} (riid, rtid, implies_rtid) VALUES (%d, %d, %d)", 
-        db_next_id('{user_relationship_implications}_id'), $form_values['rtid'], $implied_rtid
+        db_next_id('{user_relationship_implications}_id'), $rtid, $implied_rtid
       );
     }
   }
@@ -200,10 +210,73 @@ function user_relationship_implications_user_relationships_page_alter($page_id, 
         $implied = user_relationship_implications_implied_load($implied->riid);
         $names[] = $implied->implies_relationship_type->name;
       }
-      $table['rows'][$key][1] = implode(', ', $names);
+      $table['rows'][$key][2] = implode(', ', $names);
     }
     break;
   }
+}
+
+/**
+ * Categorized list of relationships for a given user
+ */
+function theme_user_relationship_implications_page($uid = NULL, $relationship = NULL) {
+  global $user;
+  if (empty($uid)) {
+    $uid = $user->uid;
+  }
+
+  // Check that the uid is valid, not the anonymous user, and the user exists
+  if (!(is_numeric($uid) && ($uid > 0))) {
+    drupal_not_found();
+    exit();
+  }
+
+  $query = 
+     "SELECT r.*, rt.name, rt.is_oneway 
+      FROM {user_relationships} r, {user_relationship_types} rt 
+      WHERE (requester_id = %d OR requestee_id = %d) 
+        AND r.rtid = rt.rtid 
+        AND r.approved = 1";
+  $args = array($uid, $uid);
+
+  if (isset($relationship->rtid)) {
+    $query .= " AND r.rtid = %d";
+    $args[] = $relationship->rtid;
+  }
+
+  $relationships_per_page = variable_get('user_relationships_relationships_per_page', 16);
+  $result = $relationships_per_page ? pager_query($query, $relationships_per_page, 0, NULL, $args) : db_query($query, $args);
+
+  if (db_num_rows($result)) {
+    $edit_access = ($user->uid == $uid && user_access('maintain relationships')) || user_access('administer users');
+    $online_interval = time() - variable_get('user_block_seconds_online', 180);
+
+    while ($relation = db_fetch_object($result)) {
+      $this_user = $user->uid == $relation->requestee_id ? 'requester_id' : 'requestee_id';
+      $this_user = user_load(array('uid' => $relation->$this_user));
+      $relations = array();
+
+      $rows[] = array(
+        theme('username', $this_user),
+        theme('item_list', _user_relationship_implications_load_relationship_names($this_user->relationships, $uid)),
+        $this_user->access > $online_interval ? t('online') : t('not online'),
+        $edit_access ? theme('user_relationships_remove_link', $uid, $relation) : '&nbsp;',
+      );
+    }
+    $output .= theme('table', array(), $rows);
+  }
+  else {
+    $output .= t('No relationships found');
+  }
+
+  $output .= theme('pager', NULL, $relationships_per_page);
+
+  drupal_set_title(t("%username's %relationships", array(
+    '%username' => $user->name, 
+    '%relationships' => $relationship->name ? $relationship->name : t('relationships')
+  )));
+
+  return $output;
 }
 
 /**
@@ -219,4 +292,14 @@ function _user_relationship_implications_load_data(&$results) {
   }
 
   return $implications;
+}
+
+function _user_relationship_implications_load_relationship_names($relationships, $uid) {
+  $output = array();
+  foreach ($relationships as $relationship) {
+    if ($relationship->requester_id == $uid || $relationship->requestee_id == $uid) {
+      $output[] .= $relationship->name;
+    }
+  }
+  return $output;
 }
