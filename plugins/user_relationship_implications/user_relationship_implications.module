@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_implications.module,v 1.8 2007-09-15 00:19:42 gwen Exp $
+// $Id: user_relationship_implications.module,v 1.9 2007-09-19 18:54:29 sprsquish Exp $
 
 /**
  * Drupal Module: User Relationship Implications
@@ -221,23 +221,27 @@ function user_relationship_implications_user_relationships_page_alter($page_id, 
  */
 function theme_user_relationship_implications_page($uid = NULL, $relationship = NULL) {
   global $user;
+
   if (empty($uid)) {
-    $uid = $user->uid;
+    $viewed_user =& $user;
+  }
+  else {
+    $viewed_user = user_load(array('uid' => $uid));
   }
 
   // Check that the uid is valid, not the anonymous user, and the user exists
-  if (!(is_numeric($uid) && ($uid > 0))) {
+  if ($viewed_user->uid == 0) {
     drupal_not_found();
     exit();
   }
 
   $query = 
      "SELECT r.*, rt.name, rt.is_oneway 
-      FROM {user_relationships} r, {user_relationship_types} rt 
-      WHERE (requester_id = %d OR requestee_id = %d) 
-        AND r.rtid = rt.rtid 
-        AND r.approved = 1";
-  $args = array($uid, $uid);
+      FROM {user_relationships} r, {user_relationship_types} rt
+      WHERE (requester_id = %d OR requestee_id = %d)
+        AND r.approved = 1
+        AND r.rtid = rt.rtid";
+  $args = array($viewed_user->uid, $viewed_user->uid);
 
   if (isset($relationship->rtid)) {
     $query .= " AND r.rtid = %d";
@@ -252,15 +256,15 @@ function theme_user_relationship_implications_page($uid = NULL, $relationship = 
     $online_interval = time() - variable_get('user_block_seconds_online', 180);
 
     while ($relation = db_fetch_object($result)) {
-      $this_user = $user->uid == $relation->requestee_id ? 'requester_id' : 'requestee_id';
+      $this_user = $viewed_user->uid == $relation->requestee_id ? 'requester_id' : 'requestee_id';
       $this_user = user_load(array('uid' => $relation->$this_user));
       $relations = array();
 
       $rows[] = array(
         theme('username', $this_user),
-        theme('item_list', _user_relationship_implications_load_relationship_names($this_user->relationships, $uid)),
+        theme('item_list', _user_relationship_implications_load_relationship_names($this_user->relationships, $viewed_user->uid)),
         $this_user->access > $online_interval ? t('online') : t('not online'),
-        $edit_access ? theme('user_relationships_remove_link', $uid, $relation) : '&nbsp;',
+        $edit_access ? theme('user_relationships_remove_link', $viewed_user->uid, $relation) : '&nbsp;',
       );
     }
     $output .= theme('table', array(), $rows);
@@ -272,8 +276,8 @@ function theme_user_relationship_implications_page($uid = NULL, $relationship = 
   $output .= theme('pager', NULL, $relationships_per_page);
 
   drupal_set_title(t("%username's %relationships", array(
-    '%username' => $user->name, 
-    '%relationships' => $relationship->name ? $relationship->name : t('relationships')
+    '%username' => $viewed_user->name, 
+    '%relationships' => $relationship->plural_name ? $relationship->plural_name : t('relationships')
   )));
 
   return $output;
@@ -298,7 +302,7 @@ function _user_relationship_implications_load_relationship_names($relationships,
   $output = array();
   foreach ($relationships as $relationship) {
     if ($relationship->requester_id == $uid || $relationship->requestee_id == $uid) {
-      $output[] .= $relationship->name;
+      $output[] = $relationship->name;
     }
   }
   return $output;
