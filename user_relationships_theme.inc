@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_theme.inc,v 1.6 2007-09-17 18:44:40 gwen Exp $
+// $Id: user_relationships_theme.inc,v 1.7 2007-09-19 18:27:57 sprsquish Exp $
 
 /**
  * User Relationships theme-able functions
@@ -74,57 +74,91 @@ function theme_user_relationships_page($uid = NULL, $relationship = NULL) {
 /**
  * List of pending requests from other users
  */
+define('RECEIVED_PAGER', 0);
+define('SENT_PAGER', 1);
+
 function theme_user_relationships_pending_requests_page($uid = NULL) {
   global $user;
-  if (empty($uid)) {
-    $uid = $user->uid;
-  }
 
-  // Check that the uid is valid, not the anonymous user, and the user exists
-  if (!(is_numeric($uid) && ($uid > 0) && $account = user_load(array('uid' => $uid)))) {
+  if (!$uid) {
+    $account =& $user;
+  }
+  else if (!(is_numeric($uid) && ($uid > 0) && $account = user_load(array('uid' => $uid)))) {
     drupal_not_found();
     exit();
   }
 
-  if (sizeof($account->relationships)) {
-    $sorted = array();
-    foreach($account->relationships as $relationship) {
-      if (!$relationship->approved) {
-        $sort = $relationship->requester_id == $uid ? t('Sent Requests') : t('Received Requests');
-        $sorted[$sort][] = user_relationships_relationship_load($relationship->rid);
-      }
-    }
-    foreach ($sorted as $name => $relationships) {
-      $rows[] = array(array('data' => $name, 'header' => true, 'colspan' => 2));
-      foreach ($relationships as $relationship) {        
-        $relate_to = ($relationship->requester_id == $uid ? $relationship->requestee : $relationship->requester);
-
-        if ($account->uid == $user->uid && $relationship->requester_id == $uid) {
-          $links = theme('user_relationships_pending_request_cancel_link', $uid, $relationship->rid);
-        }
-        else {
-          $links =
-            theme('user_relationships_pending_request_approve_link', $uid, $relationship->rid) . ' | ' .
-            theme('user_relationships_pending_request_disapprove_link', $uid, $relationship->rid);
-        }
-        
-        $rows[] = array(
-          theme('username', $relate_to) . ' is a ' . $relationship->name,
-          $links
-        );
-      }
-    }
-  }
-
-  if (sizeof($rows)) {
-    $output .= theme('table', NULL, $rows);
-  }
-  else {
-    $output .= t('No pending relationships found');
-  }
-
-
   drupal_set_title(t("%username's pending relationships", array('%username' => $account->name)));
+
+  $output = '';
+  $relationships_per_page = variable_get('user_relationships_relationships_per_page', 16);
+  $args = array($account->uid);
+
+  /**
+   * Sent Requests
+   */
+  $sql = 
+    "SELECT u.*, r.*, rt.name as rname 
+     FROM {user_relationships} r, {user_relationship_types} rt, {users} u
+     WHERE  r.requester_id = %d 
+       AND r.approved = 0 
+       AND rt.rtid = r.rtid
+       AND r.requestee_id = u.uid";
+
+  $requests = $relationships_per_page ? pager_query($sql, $relationships_per_page, SENT_PAGER, NULL, $args) : db_query($sql, $args);
+
+  if (db_num_rows($requests)) {
+    $rows[] = array(array('data' => t('Sent Requests'), 'header' => true, 'colspan' => 2));
+
+    while ($relationship = db_fetch_object($requests)) {
+      $links     = theme('user_relationships_pending_request_cancel_link', $account->uid, $relationship->rid);
+      $rows[]    = array(theme('username', $relationship) . ' is a ' . $relationship->rname, $links);
+    }
+
+    $output .= theme('table', array(), $rows);
+
+    if ($relationships_per_page) {
+      $output .= theme('pager', NULL, $relationships_per_page, SENT_PAGER);
+    }
+
+    unset($rows);
+  }
+
+  /**
+   * Received Requests
+   */
+  $sql = 
+    "SELECT u.*, r.*, rt.name as rname 
+     FROM {user_relationships} r, {user_relationship_types} rt, {users} u
+     WHERE  r.requestee_id = %d 
+       AND r.approved = 0 
+       AND rt.rtid = r.rtid
+       AND r.requester_id = u.uid";
+
+  $requests = $relationships_per_page ? pager_query($sql, $relationships_per_page, RECEIVED_PAGER, NULL, $args) : db_query($sql, $args);
+
+  if (db_num_rows($requests)) {
+    $rows[] = array(array('data' => t('Received Requests'), 'header' => true, 'colspan' => 2));
+
+    while ($relationship = db_fetch_object($requests)) {
+      $links =
+      	theme('user_relationships_pending_request_approve_link',    $uid, $relationship->rid) . ' | ' .
+      	theme('user_relationships_pending_request_disapprove_link', $uid, $relationship->rid);
+      $rows[] = array(theme('username', $relationship) . ' is a ' . $relationship->rname, $links);
+    }
+
+    $output .= theme('table', array(), $rows);
+
+    if ($relationships_per_page) {
+      $output .= theme('pager', NULL, $relationships_per_page, RECEIVED_PAGER);
+    }
+
+    unset($rows);
+  }
+
+  if ($output == '') {
+    $output = t('No pending relationships found');
+  }
 
   return $output;
 }
