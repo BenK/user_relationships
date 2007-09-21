@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_implications.module,v 1.9 2007-09-19 18:54:29 sprsquish Exp $
+// $Id: user_relationship_implications.module,v 1.10 2007-09-21 16:34:05 sprsquish Exp $
 
 /**
  * Drupal Module: User Relationship Implications
@@ -147,6 +147,19 @@ function user_relationship_implications_user_relationships($type, &$relationship
           $relationship->implied_by[] = $implication;
         }
       }
+    }
+    break;
+
+  case 'delete type':
+    if ($relationship->rtid) {
+      $results = db_query(
+        "DELETE FROM {user_relationship_implications} WHERE rtid = %d OR implies_rtid = %d", 
+        $relationship->rtid, $relationship->rtid
+      );
+  
+      // clean out the implications cache
+      static $loaded_relationship_implications;
+      unset($loaded_relationship_implications);
     }
     break;
 
