@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_implications.module,v 1.10 2007-09-21 16:34:05 sprsquish Exp $
+// $Id: user_relationship_implications.module,v 1.11 2007-09-21 16:37:01 sprsquish Exp $
 
 /**
  * Drupal Module: User Relationship Implications
@@ -175,6 +175,13 @@ function user_relationship_implications_user_relationships($type, &$relationship
                 )
               ) 
           {
+            // if we're approving this relationship, also approve any implied relationships
+            if (!$existing->approved) {
+              $approved = user_relationships_relationship_load($existing->rid);
+              $approved->approved = TRUE;
+              user_relationships_update_relationship($existing, $approved);
+            }
+
             $exists = TRUE;
             break;
           }
