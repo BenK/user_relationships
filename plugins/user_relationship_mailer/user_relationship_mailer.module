@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_mailer.module,v 1.3 2007-08-23 15:44:35 sprsquish Exp $
+// $Id: user_relationship_mailer.module,v 1.4 2007-09-24 22:51:30 jbchristy Exp $
 
 if (!variable_get('user_relationship_mailer_ops', FALSE)) {
   variable_set('user_relationship_mailer_ops', array('request', 'cancel', 'approve', 'disapprove', 'remove'));
@@ -28,6 +28,9 @@ function user_relationship_mailer_send_email($op, &$relationship) {
 
   switch ($op) {
   case 'request':
+    if ($relationship->approved) {
+      return;
+    }
   case 'cancel':
     $send_email = $send_to_requestee;
     $send_to[] = $requestee->mail;
