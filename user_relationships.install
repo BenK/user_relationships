@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships.install,v 1.4 2007-09-14 21:30:29 sprsquish Exp $
+// $Id: user_relationships.install,v 1.5 2007-09-25 20:35:26 gwen Exp $
 
 function _user_relationships_installation_query($mysql = array(), $pgsql = array()) {
   global $db_type;
@@ -29,7 +29,7 @@ function _user_relationships_installation_query($mysql = array(), $pgsql = array
     drupal_set_message(t('User Relationships module installed successfully.'));
   }
   else {
-    drupal_set_message(t('The installation of the User Relationships module as unsuccessful.'), 'error');
+    drupal_set_message(t('The installation of the User Relationships module was unsuccessful.'), 'error');
   }
 }
 
