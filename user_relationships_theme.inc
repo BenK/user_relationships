@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_theme.inc,v 1.7 2007-09-19 18:27:57 sprsquish Exp $
+// $Id: user_relationships_theme.inc,v 1.8 2007-09-25 19:23:07 jbchristy Exp $
 
 /**
  * User Relationships theme-able functions
@@ -211,4 +211,79 @@ function theme_user_relationship_user_link($uid) {
   }
 
   return url($url, NULL, NULL, TRUE); 
+}
+
+/**
+ * Generate the title of a My/User Relationships block
+ */
+function theme_user_relationships_relationships_block_subject($viewing_user, $rtid, $all_types = FALSE) {
+  global $user;
+  $user_name = ($viewing_user->uid == $user->uid) ? 'My' : $viewing_user->name . "'s";
+  if ($all_types) {
+    $type_name = 'Relationships';
+  }
+  else {
+    $rtype = user_relationships_relationship_type_load(array('rtid' => $rtid));
+    $type_name = drupal_ucfirst($rtype->plural_name);
+  }
+  $output = t('@user @type', array('@user' => $user_name, '@type' => $type_name));
+  return $output;
+}
+
+/**
+ * Generate the content of a (non-empty) My/User Relationships block
+ *
+ * Only called if there are relationships to display
+ */
+function theme_user_relationships_relationships_block_content($viewing_user, $relationships, $all_types) {
+  $rows[] = array();
+
+  if ($all_types) {
+    // build an array of relationship type names indexed by rtid
+    $rtypes = user_relationships_relationship_types_load();
+    $relationship_type = array();
+    foreach ($rtypes as $rtype) {
+      $relationship_type[$rtype->rtid] = $rtype->name;
+    }
+  }
+
+  foreach ($relationships as $relationship) {
+    $relatee_id = ($viewing_user->uid == $relationship->requester_id) ? $relationship->requestee_id : $relationship->requester_id;
+    $relatee = user_load(array('uid' => $relatee_id));
+    if ($all_types) {
+      $rows[] = array(
+        t('!name', array('!name' => theme('username', $relatee))),
+        t('@type', array('@type' => $relationship_type[$relationship->rtid]))
+      );
+    }
+    else {
+      $rows[] = array(t('!name', array('!name' => theme('username', $relatee))));
+    }
+  }
+  $output = theme('table', array(), $rows);
+
+  return $output;
+}
+
+/**
+ * Generate the content of an empty My/User Relationships block
+ */
+function theme_user_relationships_relationships_block_empty($viewing_user, $rtid, $all_types) {
+  global $user;
+
+  if ($all_types) {
+    $rtype_name = 'relationships';
+  }
+  else {
+    $rtype = user_relationships_relationship_type_load(array('rtid' => $rtid));
+    $rtype_name = $rtype->plural_name;
+  }
+
+  if ($viewing_user->uid == $user->uid) {
+    return t('You have no @rels', array('@rels' => $rtype_name));
+  }
+  else {
+    return t('!name has no @rels', array('!name' => theme('username', $viewing_user), '@rels' => $rtype_name));
+  }
+  
 }

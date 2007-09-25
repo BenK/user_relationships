@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_actions.inc,v 1.6 2007-09-14 21:44:20 sprsquish Exp $
+// $Id: user_relationships_actions.inc,v 1.7 2007-09-25 19:23:07 jbchristy Exp $
 
 /**
  * User Relationships Actions
@@ -213,4 +213,85 @@ function user_relationships_remove_submit($form_id, &$form_values) {
   )));
 
   return 'relationships/'. $form_values['viewed_id'];
+}
+
+/**
+ * Validate settings on the block configuration page(s)
+ */
+function user_relationships_block_num_rels_validate($form) {
+  $num_rels = $form['#value'];
+  if (!is_numeric($num_rels) || (int)$num_rels != $num_rels || (int)$num_rels <= 0) {
+    form_set_error('user_relationships_block_num_rels', t('Number of users must be an integer greater than 0.'));
+    return FALSE;
+  } 
+  return TRUE;
+}
+
+/**
+ * function user_relationships_block_select_relationships
+ *   given a $user object, select which of their relationships to display in the block
+ * 
+ * @param $user - user object of user whose relationships we want to select
+ * @param $rtid - type id of relationships we're interested in, or 'ALL' for all relationships
+ * @param $how_many - how many relationships to return
+ * @param $options - array of (text) options presented to admins to allow them to select which n relationships to display
+ * @param $options_index - index into the $options array indicating which option the admin has selected for this type
+ *
+ * @return array of relationship objects
+ */
+function user_relationships_block_select_relationships($user, $rtid, $how_many, $options, $options_index) {
+
+  if (is_null($user->relationships)) return NULL;
+
+  $relationships = $user->relationships;
+
+  // get rid of irrelevant relationships
+  for ($i = 0; isset($relationships[$i]); $i++) {
+    if (1 != $relationships[$i]->approved) {
+      unset($relationships[$i]);
+    }
+    else if ('ALL' != $rtid) {
+      if ($relationships[$i]->rtid != $rtid) unset($relationships[$i]);
+    }
+  }
+
+  if (count($relationships) == 0) return NULL;
+
+  // trim the list as indicated by $how_many and $options[$options_index]
+  if (count($relationships) > $how_many) {
+    switch (drupal_strtolower($options[$options_index])) {
+    case 'newest':
+      usort($relationships, '_user_relationships_compare_newest_first');
+      $relationships = array_slice($relationships, 0, $how_many);
+      break;
+    case 'oldest':
+      usort($relationships, '_user_relationships_compare_oldest_first');
+      $relationships = array_slice($relationships, 0, $how_many);
+      break;
+    case 'random':
+      $random_rels = array();
+      $keys = array_rand($relationships, $how_many);
+      foreach ($keys as $key) {
+        $random_rels[] = $relationships[$key];
+      } // foreach ($keys as $key)
+      $relationships = $random_rels;
+      break;
+    }
+  }
+
+  return $relationships;
+}
+
+/**
+ * sort relationships by date in ascending order
+ */
+function _user_relationships_compare_oldest_first($r1, $r2) {
+  return strcmp($r1->updated_at, $r2->updated_at);
+}
+
+/**
+ * sort relationships by date in descending order
+ */
+function _user_relationships_compare_newest_first($r1, $r2) {
+  return -strcmp($r1->updated_at, $r2->updated_at);
 }

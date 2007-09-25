@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_hooks.inc,v 1.3 2007-09-12 20:27:47 sprsquish Exp $
+// $Id: user_relationships_hooks.inc,v 1.4 2007-09-25 19:23:07 jbchristy Exp $
 
 /**
  * User Relationships hook implementations
@@ -306,4 +306,134 @@ function user_relationships_cron() {
   // remember when we last expired relationships
   variable_set('user_relationships_last_expire', $now);
   return TRUE;
+}
+
+/**
+ * Implementation for hook_block
+ */
+function user_relationships_block($op = 'list', $delta = 0, $edit = array()) {
+  $all_types = 'ALL';
+
+  if (0 != strcmp($op, 'list')) {
+    $block_rtype = explode('|', $delta);
+    $block =  $block_rtype[0]; // 'MY' or 'USER'
+    $rtype =  $block_rtype[1]; // valid rtid or $all_types
+  }
+
+  $which_rels_options = array(
+    1 => 'Newest',
+    2 => 'Oldest',
+    3 => 'Random',
+  );
+  $default_option = 1;
+
+  switch ($op) {
+    case 'list':
+      // return list of all blocks defined by the module
+      $relationships = user_relationships_relationship_types_load();
+      $block = array();
+      foreach ($relationships as $relationship) {
+        $block["MY|{$relationship->rtid}"]['info']   = t(
+          'My Relationships: @type',
+          array('@type' => drupal_ucfirst($relationship->plural_name))
+        );
+        if (module_exists('usernode')) {
+          $block["USER|{$relationship->rtid}"]['info'] = t(
+            'User Relationships: @type',
+            array('@type' => drupal_ucfirst($relationship->plural_name))
+          );
+        }
+      }
+      $block["MY|{$all_types}"]['info']   = t('My Relationships: All relationships');
+      if (module_exists('usernode')) {
+        $block["USER|{$all_types}"]['info'] = t('User Relationships: All relationships');
+      }
+      return $block;
+      break;
+
+    case 'configure':
+      if ($block == 'MY') {
+        $block_desc = t('NOTE: This block displays relationships of the user who is currently logged in.');
+      }
+      else {
+        $block_desc = t('NOTE: This block displays only on nodes of type \'usernode\'; it displays the relationships of the user whose node is being viewed.');
+      }
+      $form = array();
+      $form['user_relationships_block_num_rels'] = array(
+        '#type'          => 'textfield',
+        '#title'         => t('Number of relationships to display in block'),
+        '#description'   => t('Enter the maximum number of relationships to display in this block.'),
+        '#size'          => 4,
+        '#default_value' => variable_get("user_relationships_block_{$block}_t_{$rtype}_num_rels", 8),
+        '#validate'      => array('user_relationships_block_num_rels_validate' => array())
+      );
+      $form['user_relationships_block_which_rels'] = array(
+        '#type'          => 'radios',
+        '#title'         => t('Which relationships should be displayed'),
+        '#options'       => $which_rels_options,
+        '#default_value' => variable_get("user_relationships_block_{$block}_t_{$rtype}_which_rels", $default_option),
+        '#suffix'        => $block_desc,
+      );
+      return $form;
+      break;
+
+    case 'save':
+      variable_set("user_relationships_block_{$block}_t_{$rtype}_num_rels",
+                   (int)$edit['user_relationships_block_num_rels']);
+      variable_set("user_relationships_block_{$block}_t_{$rtype}_which_rels",
+                   (int)$edit['user_relationships_block_which_rels']);
+      break;
+
+    case 'view':
+      global $user;
+      // determine which user's relationships to display
+      if ('MY' == $block) {
+        if ($user->uid) {
+          $viewing_user =& $user;
+        }
+      }
+      elseif (module_exists('usernode')) {
+        // if displaying a block for a user other than the person logged in, only display it on user nodes
+        if (arg(0) == 'node' && is_numeric(arg(1))) {
+          $node = node_load(arg(1));
+          if ('usernode' == $node->type) {
+            $viewing_user = user_load(array('uid' =>$node->uid));
+          }
+        }
+      }
+
+      // if we don't have a valid user to report on, there's nothing to display
+      if (!isset($viewing_user)) {
+        return NULL;
+      }
+
+      // select the appropriate set of relationships based on admin's configuration settings
+      $relationships = user_relationships_block_select_relationships(
+         $viewing_user,
+         $rtype,
+         variable_get("user_relationships_block_{$block}_t_{$rtype}_num_rels", 8),
+         $which_rels_options,
+         variable_get("user_relationships_block_{$block}_t_{$rtype}_which_rels", $default_option)
+       );
+
+      // get the content of the block
+      $blk['subject'] = theme(
+        'user_relationships_relationships_block_subject',
+        $viewing_user, $rtype, ($rtype == $all_types) ? TRUE : FALSE
+      );
+      if ($relationships != NULL) {
+        $blk['content'] = theme(
+          'user_relationships_relationships_block_content',
+          $viewing_user, $relationships, ($rtype == $all_types) ? TRUE : FALSE
+        );
+      }
+      else {
+        $blk['content'] = theme(
+          'user_relationships_relationships_block_empty',
+          $viewing_user, $rtype, ($rtype == $all_types) ? TRUE : FALSE
+        );
+      }
+      return $blk;
+      break;
+  }
 }
