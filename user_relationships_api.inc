@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.inc,v 1.7 2007-09-11 01:48:42 sprsquish Exp $
+// $Id: user_relationships_api.inc,v 1.8 2007-09-25 18:20:25 jbchristy Exp $
 
 /**
  *  User Relationships API
@@ -171,6 +171,7 @@ function user_relationships_request_relationship(&$requester, &$requestee, &$rel
  *    object of the updated relationship
  */
 function user_relationships_update_relationship(&$relationship, &$updated_relationship) {
+
   _user_relationships_invoke('update', $updated_relationship);
 
   db_query("DELETE FROM {user_relationships} WHERE rid = %d", $relationship->rid);
@@ -180,14 +181,14 @@ function user_relationships_update_relationship(&$relationship, &$updated_relati
     "INSERT INTO {user_relationships} (rid, requester_id, requestee_id, rtid, approved, created_at)
      VALUES (%d, %d, %d, %d, %d, '%s')",
     $updated_relationship->rid,
-    $updated_relationship->requester->uid, 
-    $updated_relationship->requestee->uid, 
+    $updated_relationship->requester->uid,
+    $updated_relationship->requestee->uid,
     $updated_relationship->type->rtid,
-    ($relationship->approved ? 1 : 0),
+    ($updated_relationship->approved ? 1 : 0),
     $relationship->created_at
   );
 
-  return $update_relationship;
+  return $updated_relationship;
 }
 
 /**
