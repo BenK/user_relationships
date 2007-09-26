@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_actions.inc,v 1.7 2007-09-25 19:23:07 jbchristy Exp $
+// $Id: user_relationships_actions.inc,v 1.8 2007-09-26 00:34:31 gwen Exp $
 
 /**
  * User Relationships Actions
@@ -49,7 +49,6 @@ function user_relationships_type_edit_submit($form_id, &$form_values) {
       "INSERT INTO {user_relationship_types} (rtid, name, plural_name, is_oneway, requires_approval, expires_val) VALUES (%d, '%s', '%s', %d, %d, %d)", 
       $form_values['rtid'],
       $form_values['name'],
-      $form_values['plural_name'],
       $form_values['plural_name'],
       $form_values['is_oneway'],
       $form_values['requires_approval'],
