@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_hooks.inc,v 1.4 2007-09-25 19:23:07 jbchristy Exp $
+// $Id: user_relationships_hooks.inc,v 1.5 2007-09-28 23:41:50 jbchristy Exp $
 
 /**
  * User Relationships hook implementations
@@ -311,6 +311,7 @@ function user_relationships_cron() {
 /**
  * Implementation for hook_block
  */
+define('USER_PAGES', '_USER_PAGES_');
 function user_relationships_block($op = 'list', $delta = 0, $edit = array()) {
   $all_types = 'ALL';
 
@@ -337,34 +338,50 @@ function user_relationships_block($op = 'list', $delta = 0, $edit = array()) {
           'My Relationships: @type',
           array('@type' => drupal_ucfirst($relationship->plural_name))
         );
-        if (module_exists('usernode')) {
-          $block["USER|{$relationship->rtid}"]['info'] = t(
-            'User Relationships: @type',
-            array('@type' => drupal_ucfirst($relationship->plural_name))
-          );
-        }
+        $block["USER|{$relationship->rtid}"]['info'] = t(
+          'User Relationships: @type',
+          array('@type' => drupal_ucfirst($relationship->plural_name))
+        );
       }
       $block["MY|{$all_types}"]['info']   = t('My Relationships: All relationships');
-      if (module_exists('usernode')) {
-        $block["USER|{$all_types}"]['info'] = t('User Relationships: All relationships');
-      }
+      $block["USER|{$all_types}"]['info'] = t('User Relationships: All relationships');
       return $block;
       break;
 
     case 'configure':
+      $form = array();
       if ($block == 'MY') {
         $block_desc = t('NOTE: This block displays relationships of the user who is currently logged in.');
       }
       else {
-        $block_desc = t('NOTE: This block displays only on nodes of type \'usernode\'; it displays the relationships of the user whose node is being viewed.');
+        $block_desc = t('NOTE: This block displays the relationships of the user whose node is being viewed.');
+        $page_types = array();
+        $node_types = node_get_types();
+        foreach ($node_types as $ntype) {
+          $page_types[$ntype->type] = $ntype->name;
+        }
+        asort($page_types);
+        $page_types[USER_PAGES] = t('user pages (/user/<uid>)');
+        $default_pages = variable_get("user_relationships_block_{$block}_t_{$rtype}_which_pages", array(USER_PAGES));
+        $form['user_relationships_block_display_pages'] = array(
+          '#type'          => 'select',
+          '#multiple'      => TRUE,
+          '#options'       => $page_types,
+          '#default_value' => $default_pages,
+          '#title'         => t('Pages types on which to display this block'),
+          '#description'   => t('Select the page types on which you want to display this block.'),
+          '#required'      => TRUE,
+          '#weight'        => 5,
+        );
       }
-      $form = array();
       $form['user_relationships_block_num_rels'] = array(
         '#type'          => 'textfield',
         '#title'         => t('Number of relationships to display in block'),
         '#description'   => t('Enter the maximum number of relationships to display in this block.'),
         '#size'          => 4,
         '#default_value' => variable_get("user_relationships_block_{$block}_t_{$rtype}_num_rels", 8),
+        '#weight'        => 1,
+        '#required'      => TRUE,
         '#validate'      => array('user_relationships_block_num_rels_validate' => array())
       );
       $form['user_relationships_block_which_rels'] = array(
@@ -372,6 +389,8 @@ function user_relationships_block($op = 'list', $delta = 0, $edit = array()) {
         '#title'         => t('Which relationships should be displayed'),
         '#options'       => $which_rels_options,
         '#default_value' => variable_get("user_relationships_block_{$block}_t_{$rtype}_which_rels", $default_option),
+        '#required'      => TRUE,
+        '#weight'        => 3,
         '#suffix'        => $block_desc,
       );
       return $form;
@@ -382,6 +401,8 @@ function user_relationships_block($op = 'list', $delta = 0, $edit = array()) {
                    (int)$edit['user_relationships_block_num_rels']);
       variable_set("user_relationships_block_{$block}_t_{$rtype}_which_rels",
                    (int)$edit['user_relationships_block_which_rels']);
+      variable_set("user_relationships_block_{$block}_t_{$rtype}_which_pages",
+                   array_keys($edit['user_relationships_block_display_pages']));
       break;
 
     case 'view':
@@ -392,13 +413,16 @@ function user_relationships_block($op = 'list', $delta = 0, $edit = array()) {
           $viewing_user =& $user;
         }
       }
-      elseif (module_exists('usernode')) {
-        // if displaying a block for a user other than the person logged in, only display it on user nodes
+      else {
+        $page_types = variable_get("user_relationships_block_{$block}_t_{$rtype}_which_pages", array());
         if (arg(0) == 'node' && is_numeric(arg(1))) {
           $node = node_load(arg(1));
-          if ('usernode' == $node->type) {
-            $viewing_user = user_load(array('uid' =>$node->uid));
+          if (in_array($node->type, $page_types)) {
+            $viewing_user = user_load(array('uid' => $node->uid));
           }
+        }
+        elseif (arg(0) == 'user' && is_numeric(arg(1)) && in_array(USER_PAGES, $page_types)) {
+          $viewing_user = user_load(array('uid' => arg(1)));
         }
       }
 
