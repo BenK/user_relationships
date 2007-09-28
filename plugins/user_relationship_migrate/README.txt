@@ -1,0 +1,71 @@
+/* $Id: README.txt,v 1.1 2007-09-28 21:52:20 jbchristy Exp $ */
+
+User Relationship Migrate Module
+---------------------------------
+
+This is a plugin module for the User Relationships module. It allows admins to migrate
+Buddy List relationships to user relationships.
+
+Send comments to JB Christy: http://drupal.org/user/174933, or post an issue at
+http://drupal.org/project/user_relationships.
+
+
+Requirements
+------------
+Drupal 5
+User Relationships Module
+Buddy List Module
+
+
+Installation
+------------
+Enable User Relationship Migrate in the "Site building -> Modules" administration screen.
+
+
+Usage
+-----
+After enabling the module, go to the "User management -> Relationships" page
+(admin/user/relationships) and click on "Migrate buddylist" in the menu across the top.
+Enter a relationship type for the migrated relationships, and click Migrate. Depending on
+how many buddies are in your database, this could take several minutes, and the status /
+confirmation page won't display until it's complete. [On my server, it took about 10
+minutes to migrate 630,000 buddylist entries.] Don't click Migrate more than once, and
+don't navigate away from the page, or you won't see the status / confirmation page that
+tells you the results of the migration.
+
+When the migration completes successfully, you will see the confirmation page, and the
+module will automatically disable itself, since it's work is done.
+
+Because the migration deals with a large quantity of data, it's very possible that it may
+encounter errors during the migration. If it encounters more than 100 errors inserting
+data, it will automatically abort the migration. PHP may also run out of memory, or other
+errors may occur. The module has logic built in to keep track of its progress, and to pick
+up where it left off in the event you need to restart it. It also has logic to prevent it
+from being run more than once simultaneously, in case you accidentally click the Migrate
+button twice. [However, if you do click Migrate more than once, you'll never see the page
+telling you the results of the migration, so try not to do that.] Finally, it has logic to
+prevent it from being run a second time after having completed successfully.
+
+If you do need to restart the migration from the beginning, completely uninstall this
+module (as opposed to simply disabling it) to clear the status variables that prevent it
+from running more than once, then re-enable it. Because the migration does not check for
+duplicates, you should also manually delete any entries in the user_relationships table
+created by previous migrations before re-running the migration.
+
+PLEASE NOTE: Due to overhead and performance considerations, this module creates
+relationships without checking to see if the given relationship already exists. You should
+therefore run this migration before making User Relationships module available to your
+users, to minimize the likelihood that they manually recreate their relationships prior to
+you migrating them.
+
+
+Database Schema
+---------------
+N/A
+
+
+Credits
+-------
+Written by JB Christy.
+Written originally for and financially supported by OurChart Inc. (http://www.ourchart.com)
+Thanks to Jeff Smick for the User Relationships module, and to the Buddy List folks.

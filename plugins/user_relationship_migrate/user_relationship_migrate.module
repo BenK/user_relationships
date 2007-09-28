@@ -1,0 +1,211 @@
+<?php
+// $Id: user_relationship_migrate.module,v 1.1 2007-09-28 21:52:20 jbchristy Exp $
+
+/**
+ * Drupal Module: User Relationship Migrate
+ *
+ * @author: JB Christy <JBChristy [at] pacbell. [dot] net>
+ * @file
+ * Migrate buddylist relationships to user relationships
+ */
+
+
+/**
+ * hook_menu()
+ */
+function user_relationship_migrate_menu($may_cache) {
+  $items = array();
+
+  if ($may_cache) {
+    // configuration form (select relationship type)
+    $items[] = array(
+      'path'                => 'admin/user/relationships/migrate',
+      'title'               => t('Migrate buddylist'),
+      'callback'            => 'drupal_get_form',
+      'callback arguments'  => array('user_relationship_migrate_form'),
+      'access'              => user_access('administer user relationships'),
+      'type'                => MENU_LOCAL_TASK,
+      'weight'              => 4,
+    );
+  }
+  else {
+    // page to actually do the migration
+    $items[] = array(
+      'path'                => 'admin/user/relationships/migrate/migrating',
+      'title'               => t('Migrating buddylist'),
+      'callback'            => 'user_relationship_migrate_migrate',
+      'access'              => user_access('administer user relationships'),
+      'type'                => MENU_CALLBACK,
+    );
+  }
+
+  return $items;
+}
+
+/**
+ * Add new migrate relationship form
+ */
+function user_relationship_migrate_form() {
+  $status = variable_get('user_relationship_migrate_status', 'N/A');
+  switch ($status) {
+    case 'IN PROGRESS':
+      $form['submit'] = array(
+        '#prefix' => t('Buddy list migration is already in progress. You don\'t want to do this twice!<br />'),
+        '#type'   => 'submit',
+        '#value'  => t('OK'),
+      );
+      return $form;
+    case 'COMPLETE':
+      $form['submit'] = array(
+        '#prefix' => t('Buddy list migration has already completed successfully!<br />'),
+        '#type'   => 'submit',
+        '#value'  => t('OK'),
+      );
+      return $form;
+    case 'PARTIALLY COMPLETE':
+      // it would be nice to put a message on the form we build below about picking up where we left off
+      // anyone know how?
+      break;
+  }
+  
+  $rtypes = user_relationships_relationship_types_load();
+  if (sizeof($rtypes)) {
+    $form['relationship_type_name'] = array(
+      '#type'              => 'textfield',
+      '#title'             => t('Relationship type for migrated relationships'),
+      '#prefix'            => t('Migrate Buddy List relationships to User Relationships'),
+      '#maxlength'         => 255,
+      '#description'       => t('Start typing the name of a relationship type to use for buddylist relationships'),
+      '#default_value'     => variable_get('user_relationship_migrate_rtype', ''),
+      '#required'          => TRUE,
+      '#autocomplete_path' => 'relationship_types/autocomplete',
+    );
+    $form['submit'] = array(
+      '#type'   => 'submit',
+      '#value'  => t('Migrate'),
+      // op == Migrate
+    );
+    $count = db_result(db_query('SELECT COUNT(*) FROM {buddylist}'));
+    if ($count > 100000) {
+      $form['submit']['#prefix'] = t('WARNING: You have @count buddy list entries. Creating @rels relationships may take a while! Do not click Migrate more than once.<br />', array('@count' => $count, '@rels' => (int)($count/2)));
+    }
+  }
+  else {
+    $form['submit'] = array(
+      '#prefix' => t('You must define at least one relationship type before you can migrate relationships.<br />'),
+      '#type'   => 'submit',
+      '#value'  => t('OK'),
+      // op == OK
+    );
+  }
+
+  return $form;
+}
+
+/**
+ * Validate migrate relationship form submission.
+ */
+function user_relationship_migrate_form_validate($form_id, &$form_values) {
+  if (!empty($form_values['relationship_type_name'])) {
+    if (!user_relationships_relationship_type_load(array('name' => $form_values['relationship_type_name']))) {
+      form_set_error('relationship_type_name', t("You must enter the name of an existing relationship type."));
+    }
+  }
+}
+
+/**
+ * Process migrate relationship form submission.
+ */
+function user_relationship_migrate_form_submit($form_id, &$form_values) {
+
+  if ($form_values['op'] != 'Migrate') {
+    // either there are no relationship types defined, or we're in progress or completed
+    return 'admin/user/relationships';
+  }
+
+  variable_set('user_relationship_migrate_rtype', $form_values['relationship_type_name']);
+  return "admin/user/relationships/migrate/migrating";
+}
+
+/**
+ * Actually migrate the data
+ */
+function user_relationship_migrate_migrate() {
+  $status = variable_get('user_relationship_migrate_status', 'N/A');
+  if ($status == 'IN PROGRESS') {
+    // protect against clicking 'Migrate' twice (the button stays up and active during the whole migration)
+    $output  = "Migration is already in progress. You don't want to run this twice!<br />";
+    $output .= "<br />Return to " . l(t('User Relationships'), 'admin/user/relationships');
+    return $output;
+  }
+  if ($status == 'COMPLETE') {
+    $output  = "Migration has already completed successfully. You don't want to run this twice!<br />";
+    $output .= "<br />Return to " . l(t('User Relationships'), 'admin/user/relationships');
+    return $output;
+  }
+
+  // find the appropriate relationship type id
+  $rtype_name = variable_get('user_relationship_migrate_rtype', '');
+  $rtype = user_relationships_relationship_type_load(array('name' => $rtype_name));
+  if (!$rtype) {
+    drupal_set_message(t('@type is not a valid relationship type name', array('@type' => $rtype_name)), 'error');
+    return 'admin/user/relationships/migrate';
+  }
+  $rtid = $rtype->rtid;
+
+  variable_set('user_relationship_migrate_status', 'IN PROGRESS');
+
+  $successes = 0;
+  $errors    = 0;
+
+  $insert_query   = "INSERT INTO {user_relationships} (rid, requester_id, requestee_id, rtid, approved, created_at) ";
+  $insert_query  .= "VALUES (%d, %d, %d, %d, %d, '%s')";
+
+  // if there's alot of data to migrate, this process may have failed partway through;
+  // if so, pick up where we left off
+  $starting_uid   = variable_get('user_relationship_migrate_last_uid',   -1);
+  $starting_buddy = variable_get('user_relationship_migrate_last_buddy', -1);
+  $buddy_query    = "SELECT * FROM {buddylist} WHERE (uid = %d AND buddy > %d) OR uid > %d ORDER BY uid, buddy";
+  $buddy_args     = array($starting_uid, $starting_buddy, $starting_uid);
+
+  $buddies        = db_query($buddy_query, $buddy_args);
+  while ($buddy = db_fetch_object($buddies)) {
+    // 2 rows in the buddylist table map to 1 row in the user_relationships table,
+    // so only enter the relationship when uid < buddy
+    if ($buddy->uid < $buddy->buddy) {
+      $rid         = db_next_id('{user_relationships}_id');
+      $timestamp   = date('Y-m-d H:i:s', $buddy->timestamp);
+      $insert_args = array($rid, $buddy->uid, $buddy->buddy, $rtid, 1, $timestamp);
+
+      if (db_query($insert_query, $insert_args)) {
+        variable_set('user_relationship_migrate_last_uid',   (int)$buddy->uid);
+        variable_set('user_relationship_migrate_last_buddy', (int)$buddy->buddy);
+        $successes++;
+      }
+      else {
+        $output .= "ERROR: Unable to insert rid $rid between $buddy->uid and $buddy->buddy<br />";
+        $errors++;
+      }
+      if ($errors > 100) {
+        drupal_set_message("More than 100 errors inserting relationships - aborting migration.", 'error');
+        break;
+      }
+    }
+  }
+
+  // Tidy up
+  $output .= "<br />Successfully migrated $successes buddies to relationship type $rtype_name.<br />";
+  if (!$errors) {
+    variable_set('user_relationship_migrate_status', 'COMPLETE');
+    module_disable(array('user_relationship_migrate'));
+    $output .= "<br />The Buddy List data has been successfully migrated. The User Relationship Migrate plug in has been disabled. Don't forget to diable the Buddy List module.<br />";
+  }
+  else {
+    variable_set('user_relationship_migrate_status', 'PARTIALLY COMPLETE');
+    $output .= "Unable to migrate $errors buddies.<br />";
+  }
+
+  $output .= "<br />Return to " . l(t('User Relationships'), 'admin/user/relationships');
+
+  return $output;
+}
