@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_hooks.inc,v 1.5 2007-09-28 23:41:50 jbchristy Exp $
+// $Id: user_relationships_hooks.inc,v 1.6 2007-09-29 00:34:35 jbchristy Exp $
 
 /**
  * User Relationships hook implementations
@@ -443,12 +443,12 @@ function user_relationships_block($op = 'list', $delta = 0, $edit = array()) {
       // get the content of the block
       $blk['subject'] = theme(
         'user_relationships_relationships_block_subject',
-        $viewing_user, $rtype, ($rtype == $all_types) ? TRUE : FALSE
+        $viewing_user, $relationships, $rtype, ($rtype == $all_types) ? TRUE : FALSE
       );
       if ($relationships != NULL) {
         $blk['content'] = theme(
           'user_relationships_relationships_block_content',
-          $viewing_user, $relationships, ($rtype == $all_types) ? TRUE : FALSE
+          $viewing_user, $relationships, $rtype, ($rtype == $all_types) ? TRUE : FALSE
         );
       }
       else {

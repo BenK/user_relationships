@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_theme.inc,v 1.8 2007-09-25 19:23:07 jbchristy Exp $
+// $Id: user_relationships_theme.inc,v 1.9 2007-09-29 00:34:35 jbchristy Exp $
 
 /**
  * User Relationships theme-able functions
@@ -216,7 +216,7 @@ function theme_user_relationship_user_link($uid) {
 /**
  * Generate the title of a My/User Relationships block
  */
-function theme_user_relationships_relationships_block_subject($viewing_user, $rtid, $all_types = FALSE) {
+function theme_user_relationships_relationships_block_subject($viewing_user, $relationships, $rtid, $all_types) {
   global $user;
   $user_name = ($viewing_user->uid == $user->uid) ? 'My' : $viewing_user->name . "'s";
   if ($all_types) {
@@ -235,7 +235,7 @@ function theme_user_relationships_relationships_block_subject($viewing_user, $rt
  *
  * Only called if there are relationships to display
  */
-function theme_user_relationships_relationships_block_content($viewing_user, $relationships, $all_types) {
+function theme_user_relationships_relationships_block_content($viewing_user, $relationships, $rtid, $all_types) {
   $rows[] = array();
 
   if ($all_types) {
