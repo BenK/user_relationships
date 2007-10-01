@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_hooks.inc,v 1.6 2007-09-29 00:34:35 jbchristy Exp $
+// $Id: user_relationships_hooks.inc,v 1.7 2007-10-01 21:45:47 gwen Exp $
 
 /**
  * User Relationships hook implementations
@@ -263,7 +263,7 @@ function user_relationships_user($type, &$edit, &$account, $category = NULL) {
           '#title'          => t('Automatically approve to relationship requests'),
           '#options'        => $options,
           '#default_value'  => $edit['user_relationships_auto_approve'],
-          '#description'    => t("Check off the types of relationships you'd like to automatically approve to.")
+          '#description'    => t("Check off the types of relationships you'd like to automatically approve.")
         );
       }
     }
