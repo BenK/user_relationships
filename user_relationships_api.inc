@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.inc,v 1.9 2007-10-04 04:18:36 sprsquish Exp $
+// $Id: user_relationships_api.inc,v 1.10 2007-10-04 22:42:37 gwen Exp $
 
 /**
  *  User Relationships API
@@ -227,7 +227,7 @@ function user_relationships_delete_relationship(&$relationship, &$deleted_by, $o
 function user_relationships_get_message($key, $replacements = array()) {
   if (!($msg = variable_get("user_relationships_msg_{$key}", NULL))) {
     $messages = user_relationships_default_messages();
-    $msg = user_relationships_get_from_array($key, $messages);
+    $msg = _user_relationships_get_from_array($key, $messages);
   }
   return t($msg, $replacements);
 }

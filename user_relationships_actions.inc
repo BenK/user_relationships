@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_actions.inc,v 1.9 2007-10-04 04:18:36 sprsquish Exp $
+// $Id: user_relationships_actions.inc,v 1.10 2007-10-04 22:42:37 gwen Exp $
 
 /**
  * User Relationships Actions
@@ -139,7 +139,7 @@ function user_relationships_request_submit($form_id, &$form_values) {
   $relationship_type  = user_relationships_relationship_type_load(array('rtid' => $form_values['rtid']));
   
   user_relationships_request_relationship($requester, $requestee, $relationship_type);
-  drupal_set_message(user_relationships_message('submitted', array(
+  drupal_set_message(user_relationships_get_message('submitted', array(
     '%requester'                => $requester->name,
     '%requestee'                => $requestee->name,
     '%relationship_name'        => $relationship_type->name,
@@ -167,7 +167,7 @@ function user_relationships_pending_requested_submit($form_id, &$form_values) {
     $updated = $relationship;
     $updated->approved = TRUE;
     user_relationships_update_relationship($relationship, $updated);
-    drupal_set_message(user_relationships_message('accepted', array(
+    drupal_set_message(user_relationships_get_message('accepted', array(
       '!requester'                => theme('username', $requester),
       '!requestee'                => theme('username', $requester),
       '%relationship_name'        => $relationship->name,
@@ -178,7 +178,7 @@ function user_relationships_pending_requested_submit($form_id, &$form_values) {
   case 'cancel':
   case 'disapprove':
     user_relationships_delete_relationship($relationship, $user, $form_values['action']);
-    drupal_set_message(user_relationships_message('denied', array(
+    drupal_set_message(user_relationships_get_message('denied', array(
       '!requester'                => theme('username', $requester),
       '!requestee'                => theme('username', $requestee),
       '%relationship_name'        => $relationship->name,
@@ -187,7 +187,7 @@ function user_relationships_pending_requested_submit($form_id, &$form_values) {
     break;
 
   default:
-    drupal_set_message(user_relationships_message('default'));
+    drupal_set_message(user_relationships_get_message('default'));
   }
 
   return 'relationships/'. $form_values['viewed_id'] .'/requests';
@@ -203,7 +203,7 @@ function user_relationships_remove_submit($form_id, &$form_values) {
   $relationship = $form_values['relationship'];
 
   user_relationships_delete_relationship($relationship, $user);
-  drupal_set_message(user_relationships_message('removed', array(
+  drupal_set_message(user_relationships_get_message('removed', array(
     '!requester'                => $relationship->requester->name,
     '!requestee'                => $relationship->requestee->name,
     '%relationship_name'        => $relationship->name,

@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships.module,v 1.6 2007-10-04 04:18:36 sprsquish Exp $
+// $Id: user_relationships.module,v 1.7 2007-10-04 22:42:37 gwen Exp $
 
 /**
  *
@@ -54,13 +54,12 @@ function _user_relationships_set_notifications(&$account) {
 
   foreach ($account->relationships as $relationship) {
     if (!$relationship->approved && $account->uid != $relationship->requester_id) {
-        $msg = (user_relationships_message('user_relationships_msg_pending', array(
+        $msg = user_relationships_get_message('pending', array(
         '!requester'                      => theme('username', user_load(array('uid' => $relationship->requester_id))),
         '%relationship_name'              => $relationship->name,
         '%relationship_plural_name'       => $relationship->plural_name,
         '!pending_relationship_requests'  => l(t('pending relationship requests'), 'relationships/'. $account->uid .'/requests')
-      )));
-
+      ));
       if (!in_array($msg, $notifications)) {
         drupal_set_message($msg);
       }
@@ -212,7 +211,6 @@ function user_relationships_default_messages() {
       'not_accepting_requests'          => 'This user is not accepting relationship requests.',
       'self_request'                    => 'You are not allowed to create a relationship to yourself.',
       'non_existant_user'               => 'This user does not exist.',
-      'non_existing_relationship_type'  => 'Relationship type not found.'
     ),
   );
 }

@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_forms.inc,v 1.9 2007-10-04 04:18:36 sprsquish Exp $
+// $Id: user_relationships_forms.inc,v 1.10 2007-10-04 22:42:37 gwen Exp $
 
 /**
  * User Relationships forms
@@ -157,7 +157,7 @@ function user_relationships_type_delete($rtid = NULL) {
     );
   }
   else {
-    drupal_set_message(user_relationships_message('user_relationships_msg_user_not_exist'));
+    drupal_set_message(user_relationships_get_message('non_existant_user'));
     drupal_goto('admin/user/relationships');
   }
 }
@@ -202,18 +202,18 @@ function user_relationships_request($requestee_id) {
   $requestee = user_load(array('uid' => $requestee_id));
 
   if (empty($requestee->name)) {
-    drupal_set_message(user_relationships_message('user_relationships_msg_user_not_exist'));
+    drupal_set_message(user_relationships_get_message('non_existant_user'));
   }
   else if (!user_access('can have relationship', $requestee)) {
-    drupal_set_message(user_relationships_message('user_relationships_msg_not_accepting_requests'));
+    drupal_set_message(user_relationships_get_message('not_accepting_requests'));
   }
   else if ($user->uid == $requestee_id) {
-    drupal_set_message(user_relationships_message('user_relationships_msg_link_self'));
+    drupal_set_message(user_relationships_get_message('self_request'));
   }
   else {
     $form = user_relationships_request_form($requester, $requestee);
     if (!$form['rtid']['#options']) {
-      drupal_set_message(user_relationships_message('user_relationships_msg_too_many_relations'));
+      drupal_set_message(user_relationships_get_message('too_many_relationships'));
     }
     else {
       $form = confirm_form(
