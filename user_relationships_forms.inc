@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_forms.inc,v 1.8 2007-09-24 17:57:51 sprsquish Exp $
+// $Id: user_relationships_forms.inc,v 1.9 2007-10-04 04:18:36 sprsquish Exp $
 
 /**
  * User Relationships forms
@@ -38,8 +38,44 @@ function user_relationships_settings() {
       )))
     );
 
+    $replaceables = array(
+      '!requester',
+      '!requestee',
+      '%relationship_name',
+      '%relationship_plural_name',
+    );
+    
+    $form['messages'] = array(
+      '#type'         => 'fieldset',
+      '#title'        => t('Messages'),
+      '#weight'       => 0,
+      '#description'  => t('Notifications to users. Replaceable tokens are: @replaceables', array('@replaceables' => implode($replaceables, ', '))),
+    );
+    
+    $default_messages = user_relationships_default_messages();
+    _user_relationships_message_settings_form($form['messages'], $default_messages);
+ 
+    $replaceables = array(
+      '!requester',
+      '!requestee',
+
+      '%relationship_name',
+      '%relationship_plural_name',
+    );
+    
+    $form['messages'] = array(
+      '#type'         => 'fieldset',
+      '#title'        => t('Messages'),
+      '#weight'       => 0,
+      '#description'  => t('Notifications to users. Replaceable tokens are: @replaceables', array('@replaceables' => implode($replaceables, ', '))),
+    );
+    
+    $default_messages = user_relationships_default_messages();
+    _user_relationships_message_settings_form($form['messages'], $default_messages);
+ 
   return system_settings_form($form);
 }
+
 
 /**
  * Relationship type edit page.
@@ -121,7 +157,7 @@ function user_relationships_type_delete($rtid = NULL) {
     );
   }
   else {
-    drupal_set_message(t('Relationship not found.'), 'error');
+    drupal_set_message(user_relationships_message('user_relationships_msg_user_not_exist'));
     drupal_goto('admin/user/relationships');
   }
 }
@@ -166,18 +202,18 @@ function user_relationships_request($requestee_id) {
   $requestee = user_load(array('uid' => $requestee_id));
 
   if (empty($requestee->name)) {
-    drupal_set_message(t('This user does not exist'));
+    drupal_set_message(user_relationships_message('user_relationships_msg_user_not_exist'));
   }
   else if (!user_access('can have relationship', $requestee)) {
-    drupal_set_message(t("This user is not accepting relationships"));
+    drupal_set_message(user_relationships_message('user_relationships_msg_not_accepting_requests'));
   }
   else if ($user->uid == $requestee_id) {
-    drupal_set_message(t("You are not allowed to create a relationship to yourself"));
+    drupal_set_message(user_relationships_message('user_relationships_msg_link_self'));
   }
   else {
     $form = user_relationships_request_form($requester, $requestee);
     if (!$form['rtid']['#options']) {
-      drupal_set_message(t("You already relate to this user in every possible way."));
+      drupal_set_message(user_relationships_message('user_relationships_msg_too_many_relations'));
     }
     else {
       $form = confirm_form(

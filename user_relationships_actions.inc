@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_actions.inc,v 1.8 2007-09-26 00:34:31 gwen Exp $
+// $Id: user_relationships_actions.inc,v 1.9 2007-10-04 04:18:36 sprsquish Exp $
 
 /**
  * User Relationships Actions
@@ -111,24 +111,21 @@ function user_relationships_request_validate($form_id, &$form_values) {
     $current_relationships = _user_relationships_current_relationships($requester, $requestee);
 
     if (!db_result(db_query("SELECT COUNT(*) FROM {user_relationship_types}" . ($current_relationships ? " WHERE rtid NOT IN (%s) ORDER BY name" : ''), implode(',', array_keys($current_relationships))))) {
-      drupal_set_message(t('You already relate to this user in every possible way.'), 'error');
+      drupal_set_message(user_relationships_get_message('too_many_relationships'));
       drupal_goto();
     }
     else if ($current_relationships[$form_values['rtid']]) {
-      if ($current_relationships[$form_values['rtid']]->approved) {
-        $message = 'You are already a %relationship_name of %username';
-      }
-      else {
-        $message = 'You have already requested to be a %relationship_name of %username';
-      }
-      form_set_error('rtid', t($message, array(
-        '%username'           => $requestee->name,
-        '%relationship_name'  => $$current_relationships[$form_values['rtid']]->name
+      $message_name = $current_relationships[$form_values['rtid']]->approved ? 'exisitng_relationship' : 'existing_request';
+      form_set_error('rtid', user_relationships_get_message($message_name, array(
+        '%requester'                => $requester->name,
+        '%requestee'                => $requestee->name,
+        '%relationship_name'        => $$current_relationships[$form_values['rtid']]->name,
+        '%relationship_plural_name' => $$current_relationships[$form_values['rtid']]->plural_name
       )));
     }
   }
   else {
-    drupal_set_message(t('This user is not accepting relationships.'), 'error');
+    drupal_set_message(user_relationships_get_message('not_accepting_requests'));
     drupal_goto();
   }
 }
@@ -142,10 +139,11 @@ function user_relationships_request_submit($form_id, &$form_values) {
   $relationship_type  = user_relationships_relationship_type_load(array('rtid' => $form_values['rtid']));
   
   user_relationships_request_relationship($requester, $requestee, $relationship_type);
-
-  drupal_set_message(t('Your request to be a %relationship_name of %username has been submitted.', array(
-    '%relationship_name'  => $relationship_type->name,
-    '%username'           => $requestee->name,
+  drupal_set_message(user_relationships_message('submitted', array(
+    '%requester'                => $requester->name,
+    '%requestee'                => $requestee->name,
+    '%relationship_name'        => $relationship_type->name,
+    '%relationship_plural_name' => $relationship_type->plural_name,
   )));
 
   return 'user';
@@ -168,28 +166,28 @@ function user_relationships_pending_requested_submit($form_id, &$form_values) {
   case 'approve':
     $updated = $relationship;
     $updated->approved = TRUE;
-
     user_relationships_update_relationship($relationship, $updated);
-    drupal_set_message(t("!Person !is_or_are now a %relationship_name of !requestee.", array(
-      '!Person'             => ($viewing_own_account ? t('You') : theme('username', $requester)),
-      '!is_or_are'          => ($viewing_own_account ? t('are') : t('is')),
-      '%relationship_name'  => $relationship->name,
-      '!requestee'          => theme('username', $requester),
+    drupal_set_message(user_relationships_message('accepted', array(
+      '!requester'                => theme('username', $requester),
+      '!requestee'                => theme('username', $requester),
+      '%relationship_name'        => $relationship->name,
+      '%relationship_plural_name' => $relationship->plural_name,
     )));
     break;
 
   case 'cancel':
   case 'disapprove':
     user_relationships_delete_relationship($relationship, $user, $form_values['action']);
-    drupal_set_message(t("!requester's request to be a %relationship_name of !requestee has been removed.", array(
-      '!requester'          => theme('username', $requester),
-      '%relationship_name'  => $relationship->name,
-      '!requestee'          => theme('username', $requestee),
+    drupal_set_message(user_relationships_message('denied', array(
+      '!requester'                => theme('username', $requester),
+      '!requestee'                => theme('username', $requestee),
+      '%relationship_name'        => $relationship->name,
+      '%relationship_plural_name' => $relationship->plural_name,
     )));
     break;
 
   default:
-    drupal_set_message(t('No relationship action has been taken.'));
+    drupal_set_message(user_relationships_message('default'));
   }
 
   return 'relationships/'. $form_values['viewed_id'] .'/requests';
@@ -205,10 +203,11 @@ function user_relationships_remove_submit($form_id, &$form_values) {
   $relationship = $form_values['relationship'];
 
   user_relationships_delete_relationship($relationship, $user);
-  drupal_set_message(t("!Person is no longer a %relationship_name of !requestee.", array(
-    '!Person'             => $relationship->requester->name,
-    '%relationship_name'  => $relationship->name,
-    '!requestee'          => ($relationship->requestee->uid == $user->uid ? t("yours") : $relationship->requestee->name)
+  drupal_set_message(user_relationships_message('removed', array(
+    '!requester'                => $relationship->requester->name,
+    '!requestee'                => $relationship->requestee->name,
+    '%relationship_name'        => $relationship->name,
+    '%relationship_plural_name' => $relationship->plural_name,
   )));
 
   return 'relationships/'. $form_values['viewed_id'];

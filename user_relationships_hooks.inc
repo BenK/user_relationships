@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_hooks.inc,v 1.8 2007-10-01 21:54:38 gwen Exp $
+// $Id: user_relationships_hooks.inc,v 1.9 2007-10-04 04:18:36 sprsquish Exp $
 
 /**
  * User Relationships hook implementations
@@ -190,7 +190,7 @@ function user_relationships_user($type, &$edit, &$account, $category = NULL) {
     $account->relationships = array();
 
     $results = db_query(
-      " SELECT r.*, rt.name, rt.is_oneway FROM {user_relationships} r, {user_relationship_types} rt
+      " SELECT r.*, rt.name, rt.plural_name, rt.is_oneway FROM {user_relationships} r, {user_relationship_types} rt
         WHERE (requester_id = %d OR requestee_id = %d)
           AND r.rtid = rt.rtid",
       $account->uid, $account->uid

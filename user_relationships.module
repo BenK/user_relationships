@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships.module,v 1.5 2007-09-03 19:22:31 sprsquish Exp $
+// $Id: user_relationships.module,v 1.6 2007-10-04 04:18:36 sprsquish Exp $
 
 /**
  *
@@ -54,11 +54,12 @@ function _user_relationships_set_notifications(&$account) {
 
   foreach ($account->relationships as $relationship) {
     if (!$relationship->approved && $account->uid != $relationship->requester_id) {
-      $msg = t('!linktouser believes they are a %relationship_name of yours.  Please view your !pending_relationship_requests to approve/disapprove.', array(
-        '!linktouser'                     => theme('username', user_load(array('uid' => $relationship->requester_id))),
+        $msg = (user_relationships_message('user_relationships_msg_pending', array(
+        '!requester'                      => theme('username', user_load(array('uid' => $relationship->requester_id))),
         '%relationship_name'              => $relationship->name,
+        '%relationship_plural_name'       => $relationship->plural_name,
         '!pending_relationship_requests'  => l(t('pending relationship requests'), 'relationships/'. $account->uid .'/requests')
-      ));
+      )));
 
       if (!in_array($msg, $notifications)) {
         drupal_set_message($msg);
@@ -191,3 +192,65 @@ function user_relationships_get_relationship_actions(&$viewing_user, &$viewed_us
   return $actions;
 }
 
+/**
+ * Returns a nested array of default messages
+ */
+function user_relationships_default_messages() {
+  return array(
+    'informational' => array(
+      'submitted' => 'Your request to be a %relationship_name of %requestee has been submitted.',
+      'accepted'  => 'You are now a %relationship_name of !requestee.',
+      'denied'    => "!requester's request to be a %relationship_name of !requestee has been removed.",
+      'default'   => 'No action has been taken.',
+      'removed'   => '!requester is no longer a %relationship_name of !requestee.',
+      'pending'   => '!requester believes they are a %relationship_name of yours.  Please view your !pending_relationship_requests to approve them.',
+    ),
+    'error' => array(
+      'too_many_relationships'          => 'You already relate to this user in every possible way.',
+      'existing_request'                => 'You have already requested to be a %relationship_name of %requestee',
+      'existing_relationship'           => 'You are already a %relationship_name of %requestee',
+      'not_accepting_requests'          => 'This user is not accepting relationship requests.',
+      'self_request'                    => 'You are not allowed to create a relationship to yourself.',
+      'non_existant_user'               => 'This user does not exist.',
+      'non_existing_relationship_type'  => 'Relationship type not found.'
+    ),
+  );
+}
+
+/**
+ * Recursively search an array for a key and return the value attached to it
+ */
+function _user_relationships_get_from_array($needle, &$haystack) {
+  foreach ($haystack as $key => $value) {
+    if ($key == $needle) {
+      return $value;
+    }
+    else if (is_array($value)) {
+      return _user_relationships_get_from_array($needle, $value);
+    }
+  }
+}
+
+/**
+ * Helper function to build the settings form for the notification messages
+ */
+function _user_relationships_message_settings_form(&$form, &$defaults = array()) {
+  foreach ($defaults as $key => $value) {
+    if (is_array($value)) {
+      $form[$key] = array(
+        '#type'         => 'fieldset',
+        '#title'        => ucfirst(str_replace('_',' ',$key)),
+        '#collapsible'  => TRUE,
+        '#collapsed'    => TRUE
+      );
+      _user_relationships_message_settings_form($form[$key], $value);
+    }
+    else {
+      $form["user_relationships_msg_{$key}"] = array(
+        '#type'           => 'textfield',
+        '#title'          => ucfirst(str_replace('_',' ',$key)),
+        '#default_value'  => variable_get("user_relationships_msg_{$key}", $value)
+      );
+    }
+  }  
+}

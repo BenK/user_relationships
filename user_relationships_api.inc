@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.inc,v 1.8 2007-09-25 18:20:25 jbchristy Exp $
+// $Id: user_relationships_api.inc,v 1.9 2007-10-04 04:18:36 sprsquish Exp $
 
 /**
  *  User Relationships API
@@ -79,10 +79,11 @@ function user_relationships_relationship_load($rid) {
 
   if (!$user_relationships[$rid]) {
     if ($relationship = db_fetch_object(db_query("SELECT * FROM {user_relationships} WHERE rid = %d", $rid))) {
-      $relationship->requester  = user_load(array('uid' => $relationship->requester_id));
-      $relationship->requestee  = user_load(array('uid' => $relationship->requestee_id));
-      $relationship->type       = user_relationships_relationship_type_load(array('rtid' => $relationship->rtid));
-      $relationship->name       = $relationship->type->name;
+      $relationship->requester    = user_load(array('uid' => $relationship->requester_id));
+      $relationship->requestee    = user_load(array('uid' => $relationship->requestee_id));
+      $relationship->type         = user_relationships_relationship_type_load(array('rtid' => $relationship->rtid));
+      $relationship->name         = $relationship->type->name;
+      $relationship->plural_name  = $relationship->type->plural_name;
 
       _user_relationships_invoke('load', $relationship);
       $user_relationships[$rid] = $relationship;
@@ -208,4 +209,25 @@ function user_relationships_delete_relationship(&$relationship, &$deleted_by, $o
   db_query("DELETE FROM {user_relationships} WHERE rid = %d", $relationship->rid);
 
   _user_relationships_invoke('delete', $relationship, $op);
+}
+
+
+/**
+ * Public API for getting the set or default message
+ *
+ * @param $key
+ *    string message name
+ *
+ * @param $replacements
+ *    array replaceable tokens
+ *
+ * @return
+ *    string formatted message
+ */
+function user_relationships_get_message($key, $replacements = array()) {
+  if (!($msg = variable_get("user_relationships_msg_{$key}", NULL))) {
+    $messages = user_relationships_default_messages();
+    $msg = user_relationships_get_from_array($key, $messages);
+  }
+  return t($msg, $replacements);
 }
