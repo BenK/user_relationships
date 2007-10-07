@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_mailer_defaults.inc,v 1.3 2007-08-28 05:33:22 sprsquish Exp $
+// $Id: user_relationship_mailer_defaults.inc,v 1.4 2007-10-07 19:39:22 sprsquish Exp $
 
 /**
  * Default subject lines
@@ -18,22 +18,23 @@ function user_relationship_mailer_replacements(&$relationship) {
   $requestee = $relationship->requestee;
 
   $replacements = array(
-    '@site'                   => variable_get('site_name', 'Drupal'),
-    '@site_url'               => $GLOBALS['base_url'],
+    '@site'                     => variable_get('site_name', 'Drupal'),
+    '@site_url'                 => $GLOBALS['base_url'],
 
-    '@requester_name'         => $requester->name,
-    '@requester_link'         => theme('user_relationship_user_link', $requester->uid),
-    '@requester_uid'          => $requester->uid,
-    '@requester_list_link'    => url("relationships/$requester->uid/list", NULL, NULL, TRUE),
-    '@requester_pending_link' => url("relationships/$requester->uid/requests", NULL, NULL, TRUE),
+    '@requester_name'           => $requester->name,
+    '@requester_link'           => theme('user_relationship_user_link', $requester->uid),
+    '@requester_uid'            => $requester->uid,
+    '@requester_list_link'      => url("relationships/$requester->uid/list", NULL, NULL, TRUE),
+    '@requester_pending_link'   => url("relationships/$requester->uid/requests", NULL, NULL, TRUE),
 
-    '@requestee_name'         => $requestee->name,
-    '@requestee_link'         => theme('user_relationship_user_link', $requestee->uid),
-    '@requestee_uid'          => $requestee->uid,
-    '@requestee_list_link'    => url("relationships/$requestee->uid/list", NULL, NULL, TRUE),
-    '@requestee_pending_link' => url("relationships/$requestee->uid/requests", NULL, NULL, TRUE),
+    '@requestee_name'           => $requestee->name,
+    '@requestee_link'           => theme('user_relationship_user_link', $requestee->uid),
+    '@requestee_uid'            => $requestee->uid,
+    '@requestee_list_link'      => url("relationships/$requestee->uid/list", NULL, NULL, TRUE),
+    '@requestee_pending_link'   => url("relationships/$requestee->uid/requests", NULL, NULL, TRUE),
 
-    '@relationship_name'      => $relationship->name,
+    '@relationship_name'        => $relationship->name,
+    '@relationship_plural_name' => $relationship->plural_name,
   );
 
   if ($relationship->deleted_by) {
