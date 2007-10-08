@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships.module,v 1.7 2007-10-04 22:42:37 gwen Exp $
+// $Id: user_relationships.module,v 1.8 2007-10-08 05:02:36 sprsquish Exp $
 
 /**
  *
@@ -232,7 +232,7 @@ function _user_relationships_get_from_array($needle, &$haystack) {
 /**
  * Helper function to build the settings form for the notification messages
  */
-function _user_relationships_message_settings_form(&$form, &$defaults = array()) {
+function _user_relationships_message_settings_form(&$form, $defaults = array()) {
   foreach ($defaults as $key => $value) {
     if (is_array($value)) {
       $form[$key] = array(
