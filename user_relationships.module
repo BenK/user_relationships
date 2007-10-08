@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships.module,v 1.8 2007-10-08 05:02:36 sprsquish Exp $
+// $Id: user_relationships.module,v 1.9 2007-10-08 19:49:37 sprsquish Exp $
 
 /**
  *
@@ -46,13 +46,18 @@ function _user_relationships_autocomplete_types($string = '') {
  * Notify the user of pending relationship requests
  */
 function _user_relationships_set_notifications(&$account) {
+  global $user;
+
+  //only do this for the active user
+  if ($account->uid != $user->uid) {
+    return;
+  }
+
   $notifications = drupal_get_messages('status', FALSE);
   $notifications = $notifications['status'] ? $notifications['status'] : array();
 
-  global $user;
-  if ($account->uid != $user->uid) {return;} //only do this for the active user
-
-  foreach ($account->relationships as $relationship) {
+  $account_relationships = user_relationships_load_all_for_user($account->uid);
+  foreach ($account_relationships as $relationship) {
     if (!$relationship->approved && $account->uid != $relationship->requester_id) {
         $msg = user_relationships_get_message('pending', array(
         '!requester'                      => theme('username', user_load(array('uid' => $relationship->requester_id))),
@@ -73,7 +78,9 @@ function _user_relationships_set_notifications(&$account) {
  */
 function _user_relationships_between(&$viewer, &$viewed) {
   $list = array();
-  foreach ($viewer->relationships as $relationship) {
+
+  $viewer_relationships = user_relationships_load_all_for_user($viewer->uid);
+  foreach ($viewer_relationships as $relationship) {
     $related = $relationship->requestee_id == $viewed->uid || ($relationship->is_oneway ? FALSE : $relationship->requester_id == $viewed->uid);
     if ($relationship->approved && $related) {
       $list[] = t('%relationship_name (!remove_link)', array(
@@ -96,7 +103,8 @@ function _user_relationships_actions_between(&$viewer, &$viewed) {
   }
 
   $list = array();
-  foreach ($viewer->relationships as $relationship) {
+  $viewer_relationships = user_relationships_load_all_for_user($viewer->uid);
+  foreach ($viewer_relationships as $relationship) {
     if (!$relationship->approved) {
       // Viewer is the requester
       if ($relationship->requestee_id == $viewed->uid) {
@@ -116,7 +124,7 @@ function _user_relationships_actions_between(&$viewer, &$viewed) {
   }
 
   $count = 0;
-  foreach ($viewer->relationships as $relationship) {
+  foreach ($viewer_relationships as $relationship) {
     if ($relationship->requester_id == $viewed->uid || $relationship->requestee_id == $viewed->uid) {
       $count++;
     }
@@ -133,7 +141,8 @@ function _user_relationships_actions_between(&$viewer, &$viewed) {
 
 function _user_relationships_current_relationships(&$requester, &$requestee) {
   $current_relationships = array();
-  foreach ($requester->relationships as $relationship) {
+  $requester_relationships = user_relationships_load_all_for_user($viewer->uid);
+  foreach ($requester_relationships as $relationship) {
     if (
       $relationship->requestee_id == $requestee->uid || 
       ($relationship->is_oneway ? FALSE : $relationship->requester_id == $requestee->uid)

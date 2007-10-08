@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_actions.inc,v 1.10 2007-10-04 22:42:37 gwen Exp $
+// $Id: user_relationships_actions.inc,v 1.11 2007-10-08 19:49:37 sprsquish Exp $
 
 /**
  * User Relationships Actions
@@ -238,10 +238,9 @@ function user_relationships_block_num_rels_validate($form) {
  * @return array of relationship objects
  */
 function user_relationships_block_select_relationships($user, $rtid, $how_many, $options, $options_index) {
+  $relationships = user_relationships_load_all_for_user($viewer->uid);
 
-  if (is_null($user->relationships)) return NULL;
-
-  $relationships = $user->relationships;
+  if (is_null($relationships)) return NULL;
 
   // get rid of irrelevant relationships
   for ($i = 0; isset($relationships[$i]); $i++) {

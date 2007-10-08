@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.inc,v 1.10 2007-10-04 22:42:37 gwen Exp $
+// $Id: user_relationships_api.inc,v 1.11 2007-10-08 19:49:37 sprsquish Exp $
 
 /**
  *  User Relationships API
@@ -65,6 +65,35 @@ function user_relationships_relationship_types_load() {
 }
 
 /**
+ * Public API for loading all the relationships for a specific user
+ *
+ * @param $uid
+ *    integer user id
+ *
+ * @return
+ *    array of relationships
+ */
+function user_relationships_load_all_for_user($uid) {
+  static $relationships = array();
+
+  if (!key_exists($uid, $relationships)) {
+    $relationships[$uid] = array();
+
+    $results = db_query(
+       'SELECT r.*, rt.name, rt.plural_name, rt.is_oneway FROM {user_relationships} r, {user_relationship_types} rt
+        WHERE (requester_id = %d OR requestee_id = %d)
+          AND r.rtid = rt.rtid',
+      $uid, $uid
+    );
+    while ($relationship = db_fetch_object($results)) {
+      $relationships[$uid][] = $relationship;
+    }
+  }
+
+  return $relationships[$uid];
+}
+
+/**
  * Public API for loading a relationship.
  *
  * @param $rid
@@ -113,7 +142,9 @@ function user_relationships_relationship_load($rid) {
  */
 function user_relationships_request_relationship(&$requester, &$requestee, &$relationship_type, $approved = FALSE) {
   if (!variable_get('user_relationships_allow_multiple', TRUE)) {
-    foreach ($requester->relationships as $relationship) {
+
+    $requester_relationships = user_relationships_load_all_for_user($requester->uid);
+    foreach ($requester_relationships as $relationship) {
       if ($relationship->requestee_id == $requestee->uid) {
         return t('Users are not allowed to have multiple relationships');
       }

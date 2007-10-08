@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_mailer.module,v 1.4 2007-09-24 22:51:30 jbchristy Exp $
+// $Id: user_relationship_mailer.module,v 1.5 2007-10-08 19:49:37 sprsquish Exp $
 
 if (!variable_get('user_relationship_mailer_ops', FALSE)) {
   variable_set('user_relationship_mailer_ops', array('request', 'cancel', 'approve', 'disapprove', 'remove'));
@@ -35,11 +35,13 @@ function user_relationship_mailer_send_email($op, &$relationship) {
     $send_email = $send_to_requestee;
     $send_to[] = $requestee->mail;
     break;
+
   case 'approve':
   case 'disapprove':
     $send_email = $send_to_requester;
     $send_to[] = $requester->mail;
     break;
+
   case 'remove':
     $send_email = $send_to_requestee && $send_to_requester;
     $send_to[] = $requester->mail;
@@ -47,6 +49,7 @@ function user_relationship_mailer_send_email($op, &$relationship) {
       $send_to[] = $requestee->mail;
     }
     break;
+
   default:
     return;
   }
@@ -55,8 +58,9 @@ function user_relationship_mailer_send_email($op, &$relationship) {
     && variable_get('user_relationship_mailer_send_mail', FALSE) 
     && variable_get("user_relationship_mailer_send_{$op}", TRUE);
   
+  // sending email has been turned off
   if (!$send_email) {
-    return; //sending email has been turned off
+    return;
   }
 
   $replacements = user_relationship_mailer_replacements($relationship);
