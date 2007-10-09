@@ -1,10 +1,10 @@
-/* $Id: README.txt,v 1.1 2007-09-28 21:52:20 jbchristy Exp $ */
+/* $Id: README.txt,v 1.2 2007-10-09 18:01:36 jbchristy Exp $ */
 
 User Relationship Migrate Module
 ---------------------------------
 
 This is a plugin module for the User Relationships module. It allows admins to migrate
-Buddy List relationships to user relationships.
+Buddy List relationships to User Relationships.
 
 Send comments to JB Christy: http://drupal.org/user/174933, or post an issue at
 http://drupal.org/project/user_relationships.
@@ -46,11 +46,6 @@ button twice. [However, if you do click Migrate more than once, you'll never see
 telling you the results of the migration, so try not to do that.] Finally, it has logic to
 prevent it from being run a second time after having completed successfully.
 
-If you do need to restart the migration from the beginning, completely uninstall this
-module (as opposed to simply disabling it) to clear the status variables that prevent it
-from running more than once, then re-enable it. Because the migration does not check for
-duplicates, you should also manually delete any entries in the user_relationships table
-created by previous migrations before re-running the migration.
 
 PLEASE NOTE: Due to overhead and performance considerations, this module creates
 relationships without checking to see if the given relationship already exists. You should

@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_migrate.module,v 1.1 2007-09-28 21:52:20 jbchristy Exp $
+// $Id: user_relationship_migrate.module,v 1.2 2007-10-09 18:01:36 jbchristy Exp $
 
 /**
  * Drupal Module: User Relationship Migrate
@@ -8,7 +8,6 @@
  * @file
  * Migrate buddylist relationships to user relationships
  */
-
 
 /**
  * hook_menu()
@@ -43,65 +42,125 @@ function user_relationship_migrate_menu($may_cache) {
 }
 
 /**
- * Add new migrate relationship form
+ * Migrate relationship form
+ *
+ * This function just provides the form elements. theme_user_relationship_migrate_form()
+ * provides (most of) the supporting text/descriptions.
  */
 function user_relationship_migrate_form() {
-  $status = variable_get('user_relationship_migrate_status', 'N/A');
+  $status = variable_get('user_relationship_migrate_status', '');
+  $form['status'] = array(
+    '#type'   => 'value',
+    '#value'  => $status,
+  );
   switch ($status) {
     case 'IN PROGRESS':
-      $form['submit'] = array(
-        '#prefix' => t('Buddy list migration is already in progress. You don\'t want to do this twice!<br />'),
-        '#type'   => 'submit',
-        '#value'  => t('OK'),
-      );
-      return $form;
     case 'COMPLETE':
       $form['submit'] = array(
-        '#prefix' => t('Buddy list migration has already completed successfully!<br />'),
         '#type'   => 'submit',
-        '#value'  => t('OK'),
+        '#value'  => t('Reset'),
       );
       return $form;
-    case 'PARTIALLY COMPLETE':
-      // it would be nice to put a message on the form we build below about picking up where we left off
-      // anyone know how?
-      break;
   }
   
   $rtypes = user_relationships_relationship_types_load();
-  if (sizeof($rtypes)) {
-    $form['relationship_type_name'] = array(
-      '#type'              => 'textfield',
-      '#title'             => t('Relationship type for migrated relationships'),
-      '#prefix'            => t('Migrate Buddy List relationships to User Relationships'),
-      '#maxlength'         => 255,
-      '#description'       => t('Start typing the name of a relationship type to use for buddylist relationships'),
-      '#default_value'     => variable_get('user_relationship_migrate_rtype', ''),
-      '#required'          => TRUE,
-      '#autocomplete_path' => 'relationship_types/autocomplete',
-    );
+
+  if (!sizeof($rtypes)) {
+    // must have at least one relationship type to migrate to
+    $form['status']['#value'] = 'NO TYPES';
     $form['submit'] = array(
-      '#type'   => 'submit',
-      '#value'  => t('Migrate'),
-      // op == Migrate
-    );
-    $count = db_result(db_query('SELECT COUNT(*) FROM {buddylist}'));
-    if ($count > 100000) {
-      $form['submit']['#prefix'] = t('WARNING: You have @count buddy list entries. Creating @rels relationships may take a while! Do not click Migrate more than once.<br />', array('@count' => $count, '@rels' => (int)($count/2)));
-    }
-  }
-  else {
-    $form['submit'] = array(
-      '#prefix' => t('You must define at least one relationship type before you can migrate relationships.<br />'),
       '#type'   => 'submit',
       '#value'  => t('OK'),
-      // op == OK
     );
+    return $form;
   }
+
+  $form['relationship_type_name'] = array(
+    '#type'              => 'textfield',
+    '#title'             => t('Relationship type for migrated relationships'),
+    '#maxlength'         => 255,
+    '#description'       => t('Start typing the name of a relationship type to use for buddylist relationships'),
+    '#default_value'     => variable_get('user_relationship_migrate_rtype', ''),
+    '#required'          => TRUE,
+    '#autocomplete_path' => 'relationship_types/autocomplete',
+  );
+  $count = db_result(db_query("SELECT COUNT(*) FROM {buddylist_pending_requests}"));
+  $form['migrate_pending'] = array(
+    '#type'              => 'checkbox',
+    '#title'             => t('Also migrate pending requests (@count pending requests)', array('@count' => $count)),
+    '#default_value'     => variable_get('user_relationship_migrate_pending', 0),
+  );
+  $form['submit'] = array(
+    '#type'              => 'submit',
+    '#value'             => t('Migrate'),
+    // op == Migrate
+  );
 
   return $form;
 }
 
+/**
+ * function theme_user_relationship_migrate_form($form)
+ *
+ * Display some additional useful text, depending on the migration status
+ */
+function theme_user_relationship_migrate_form($form) {
+  $output = '<h2>' . t('Migrate Buddy List relationships to User Relationships') . '</h2>';
+
+  switch ($form['status']['#value']) {
+    case 'NO TYPES':
+      $output .= '<p>';
+      $output .= t('You must define at least one relationship type before you can migrate relationships.');
+      $output .= '</p>';
+      break;
+    case 'IN PROGRESS':
+    case 'COMPLETE':
+      $output .= '<p>';
+      $output .= t(
+        'It appears that the migration @status. If you would like to reset the status so that you can continue an aborted migration, click the Reset button. Otherwise, click !here to return the Relationships admin page.',
+        array(
+          '@status' => $form['status']['#value'] == 'COMPLETE' ? 'has already completed successfully' : 'is already in progress',
+          '!here' => l('here', 'admin/user/relationships'),
+        )
+      );
+      $output .= '</p>';
+      break;
+    case 'PARTIALLY COMPLETE':
+      $checkpoint = array(
+        'migrated'           =>  0,
+        'last_uid'           => -1,
+        'last_buddy'         => -1,
+        'last_pending_uid'   => -1,
+        'last_pending_buddy' => -1,
+      );
+      $checkpoint = variable_get('user_relationship_migrate_checkpoint', $checkpoint);
+      if ($checkpoint['migrated'] > 0) {
+        $output .= '<p>';
+        $output .= t(
+          '@count relationships have already been migrated. Click Migrate to migrate the remaining relationships.',
+          array('@count' => $checkpoint['migrated'])
+        );
+        $output .= '</p>';
+      }
+      break;
+  }
+
+  $output .= drupal_render($form);
+
+  if ($form['submit']['#value'] == 'Migrate') {
+    $buddies  = db_result(db_query('SELECT COUNT(*) FROM {buddylist}'));
+    $pendings = db_result(db_query('SELECT COUNT(*) FROM {buddylist_pending_requests}'));
+    if ($buddies + $pendings > 100000) {
+      $output .= '<br />';
+      $output .= t(
+        'WARNING: You have @buddies buddy list entries and @pendings pending requests. Migration may take a while! Do not click Migrate more than once.',
+        array('@buddies' => $buddies, '@pendings' => $pendings)
+      );
+    }
+  }
+
+  return $output;
+}
 /**
  * Validate migrate relationship form submission.
  */
@@ -117,14 +176,27 @@ function user_relationship_migrate_form_validate($form_id, &$form_values) {
  * Process migrate relationship form submission.
  */
 function user_relationship_migrate_form_submit($form_id, &$form_values) {
-
-  if ($form_values['op'] != 'Migrate') {
-    // either there are no relationship types defined, or we're in progress or completed
-    return 'admin/user/relationships';
+  switch ($form_values['op']) {
+    case 'Migrate':
+      variable_set('user_relationship_migrate_rtype',   $form_values['relationship_type_name']);
+      variable_set('user_relationship_migrate_pending', $form_values['migrate_pending']);
+      return "admin/user/relationships/migrate/migrating";
+    case 'Reset':
+      // status is IN PROGRESS or COMPLETE, and admin wants to reset it
+      $checkpoint = array(
+        'migrated'           =>  0,
+        'last_uid'           => -1,
+        'last_buddy'         => -1,
+        'last_pending_uid'   => -1,
+        'last_pending_buddy' => -1,
+      );
+      $checkpoint = variable_get('user_relationship_migrate_checkpoint', $checkpoint);
+      variable_set('user_relationship_migrate_status', ($checkpoint['migrated'] > 0) ? 'PARTIALLY COMPLETE' : '');
+      return 'admin/user/relationships/migrate';
+    default:
+      // no types defined, so can't migrate
+      return 'admin/user/relationships';
   }
-
-  variable_set('user_relationship_migrate_rtype', $form_values['relationship_type_name']);
-  return "admin/user/relationships/migrate/migrating";
 }
 
 /**
@@ -134,13 +206,13 @@ function user_relationship_migrate_migrate() {
   $status = variable_get('user_relationship_migrate_status', 'N/A');
   if ($status == 'IN PROGRESS') {
     // protect against clicking 'Migrate' twice (the button stays up and active during the whole migration)
-    $output  = "Migration is already in progress. You don't want to run this twice!<br />";
-    $output .= "<br />Return to " . l(t('User Relationships'), 'admin/user/relationships');
+    $output  = t("Migration is already in progress. You don't want to run this twice!") . "<br />";
+    $output .= "<br />" . t("Return to ") . l(t('User Relationships'), 'admin/user/relationships');
     return $output;
   }
   if ($status == 'COMPLETE') {
-    $output  = "Migration has already completed successfully. You don't want to run this twice!<br />";
-    $output .= "<br />Return to " . l(t('User Relationships'), 'admin/user/relationships');
+    $output  = t("Migration has already completed successfully. You don't want to run this twice!") . "<br />";
+    $output .= "<br />" . t("Return to ") . l(t('User Relationships'), 'admin/user/relationships');
     return $output;
   }
 
@@ -153,6 +225,7 @@ function user_relationship_migrate_migrate() {
   }
   $rtid = $rtype->rtid;
 
+  // start the migration
   variable_set('user_relationship_migrate_status', 'IN PROGRESS');
 
   $successes = 0;
@@ -163,49 +236,114 @@ function user_relationship_migrate_migrate() {
 
   // if there's alot of data to migrate, this process may have failed partway through;
   // if so, pick up where we left off
-  $starting_uid   = variable_get('user_relationship_migrate_last_uid',   -1);
-  $starting_buddy = variable_get('user_relationship_migrate_last_buddy', -1);
-  $buddy_query    = "SELECT * FROM {buddylist} WHERE (uid = %d AND buddy > %d) OR uid > %d ORDER BY uid, buddy";
-  $buddy_args     = array($starting_uid, $starting_buddy, $starting_uid);
+  $checkpoint = array(
+    'migrated'           =>  0,
+    'last_uid'           => -1,
+    'last_buddy'         => -1,
+    'last_pending_uid'   => -1,
+    'last_pending_buddy' => -1,
+  );
+  $checkpoint = variable_get('user_relationship_migrate_checkpoint', $checkpoint);
 
+  $buddy_query    = "SELECT * FROM {buddylist} WHERE (uid = %d AND buddy > %d) OR uid > %d ORDER BY uid, buddy";
+  $buddy_args     = array($checkpoint['last_uid'], $checkpoint['last_buddy'], $checkpoint['last_uid']);
+
+  // migrate the approved relationships
   $buddies        = db_query($buddy_query, $buddy_args);
-  while ($buddy = db_fetch_object($buddies)) {
+  while ($buddy   = db_fetch_object($buddies)) {
     // 2 rows in the buddylist table map to 1 row in the user_relationships table,
     // so only enter the relationship when uid < buddy
     if ($buddy->uid < $buddy->buddy) {
       $rid         = db_next_id('{user_relationships}_id');
       $timestamp   = date('Y-m-d H:i:s', $buddy->timestamp);
       $insert_args = array($rid, $buddy->uid, $buddy->buddy, $rtid, 1, $timestamp);
-
+      // start a transaction so that the insert and the variable_set either both happen or neither happen
+      db_query("START TRANSACTION");
       if (db_query($insert_query, $insert_args)) {
-        variable_set('user_relationship_migrate_last_uid',   (int)$buddy->uid);
-        variable_set('user_relationship_migrate_last_buddy', (int)$buddy->buddy);
+        $checkpoint['migrated']  += 2; // 2 rows in the buddylist table have been accounted for
+        $checkpoint['last_uid']   = (int)$buddy->uid;
+        $checkpoint['last_buddy'] = (int)$buddy->buddy;
+        variable_set('user_relationship_migrate_checkpoint', $checkpoint);
         $successes++;
       }
       else {
-        $output .= "ERROR: Unable to insert rid $rid between $buddy->uid and $buddy->buddy<br />";
+        $output .= t(
+          "ERROR: Unable to insert rid @rid between @uid and @buddy",
+          array('@rid' => $rid, '@uid' => $buddy->uid, '@buddy' => $buddy->buddy)
+        ) . "<br />";
         $errors++;
       }
+      db_query("COMMIT"); // end the transaction
       if ($errors > 100) {
-        drupal_set_message("More than 100 errors inserting relationships - aborting migration.", 'error');
+        drupal_set_message(t("More than 100 errors inserting relationships - aborting migration."), 'error');
+        break;
+      }
+    }
+  }
+
+  // migrate the pending relationships, if admin requested it
+  if ($errors <= 100 && variable_get('user_relationship_migrate_pending', 0)) {
+    $timestamp      = date('Y-m-d H:i:s');
+
+    // if there's alot of data to migrate, this process may have failed partway through;
+    // if so, pick up where we left off
+    $pending_query  = "SELECT * FROM {buddylist_pending_requests} ";
+    $pending_query .= "WHERE (requester_uid = %d AND requestee_uid > %d) OR requester_uid > %d ";
+    $pending_query .= "ORDER BY requester_uid, requestee_uid";
+    $pending_args   = array($checkpoint['last_pending_uid'], $checkpoint['last_pending_buddy'], $checkpoint['last_pending_uid']);
+
+    $pendings       = db_query($pending_query, $pending_args);
+    while ($pending = db_fetch_object($pendings)) {
+      $rid          = db_next_id('{user_relationships}_id');
+      $insert_args  = array($rid, $pending->requester_uid, $pending->requestee_uid, $rtid, 0, $timestamp);
+      // start a transaction so that the insert and the variable set either both happen or neither happen
+      db_query("START TRANSACTION");
+      if (db_query($insert_query, $insert_args)) {
+        $checkpoint['migrated']++;
+        $checkpoint['last_pending_uid']   = (int)$pending->requester_uid;
+        $checkpoint['last_pending_buddy'] = (int)$pending->requestee_uid;
+        variable_set('user_relationship_migrate_checkpoint', $checkpoint);
+        $successes++;
+      }
+      else {
+        $output .= t(
+          "ERROR: Unable to insert rid @rid between @uid and @buddy",
+          array('@rid' => $rid, '@uid' => $pending->requester_uid, '@buddy' => $pending->requester_uid)
+        ) . "<br />";
+        $errors++;
+      }
+      db_query("COMMIT"); // end the transaction
+      if ($errors > 100) {
+        drupal_set_message(t("More than 100 errors inserting relationships - aborting migration."), 'error');
         break;
       }
     }
   }
 
   // Tidy up
-  $output .= "<br />Successfully migrated $successes buddies to relationship type $rtype_name.<br />";
+  $output .= "<p>";
+  $output .= t(
+    'Successfully migrated @count buddies to relationship type @type.',
+    array('@count' => $checkpoint['migrated'], '@type' => $rtype_name)
+  );
+  $output .= "</p>";
   if (!$errors) {
     variable_set('user_relationship_migrate_status', 'COMPLETE');
     module_disable(array('user_relationship_migrate'));
-    $output .= "<br />The Buddy List data has been successfully migrated. The User Relationship Migrate plug in has been disabled. Don't forget to diable the Buddy List module.<br />";
+    $output .= "<p>";
+    $output .= t("Buddy List data has been successfully migrated. The User Relationship Migrate plug in has been disabled. Don't forget to disable the Buddy List module.");
+    $output .= "</p>";
   }
   else {
     variable_set('user_relationship_migrate_status', 'PARTIALLY COMPLETE');
-    $output .= "Unable to migrate $errors buddies.<br />";
+    $output .= "<p>";
+    $output .= t("Unable to migrate $errors buddies.");
+    $output .= "</p>";
   }
 
-  $output .= "<br />Return to " . l(t('User Relationships'), 'admin/user/relationships');
+  $output .= "<p>";
+  $output .= t("Return to ") . l(t('User Relationships'), 'admin/user/relationships');
+  $output .= "</p>";
 
   return $output;
 }

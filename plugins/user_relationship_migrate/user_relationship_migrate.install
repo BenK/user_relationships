@@ -1,12 +1,12 @@
 <?php
-// $Id: user_relationship_migrate.install,v 1.1 2007-09-28 21:52:20 jbchristy Exp $
+// $Id: user_relationship_migrate.install,v 1.2 2007-10-09 18:01:36 jbchristy Exp $
   
 /**
  * Implementation of hook_uninstall().
  */
 function user_relationship_migrate_uninstall() {
-  variable_del('user_relationship_migrate_status');
+  variable_del('user_relationship_migrate_checkpoint');
+  variable_del('user_relationship_migrate_pending');
   variable_del('user_relationship_migrate_rtype');
-  variable_del('user_relationship_migrate_last_uid');
-  variable_del('user_relationship_migrate_last_buddy');
+  variable_del('user_relationship_migrate_status');
 }
