@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_implications.module,v 1.13 2007-10-08 19:49:37 sprsquish Exp $
+// $Id: user_relationship_implications.module,v 1.14 2007-10-09 02:21:08 jbchristy Exp $
 
 /**
  * Drupal Module: User Relationship Implications
@@ -197,15 +197,18 @@ function user_relationship_implications_user_relationships($type, &$relationship
     break;
 
   case 'delete':
+    global $user;
     foreach ($relationship->type->implied_by as $implied_by) {
-      $requester_relationships = user_relationships_load_all_for_user($relationship->requester->uid);
+      $requester = $relationship->requester->uid;
+      $requestee = $relationship->requestee->uid;
+      $requester_relationships = user_relationships_load_all_for_user($requester);
       foreach ($requester_relationships as $requester_relationship) {
-        if  ($requester_relationship->rtid == $implied_by->rtid &&
-              ($requester_relationship->requester_id == $relationship->requester_id ||
-                ($requster_relationship->is_oneway ? FALSE : $requester_relationship->requestee_id == $requester_relationship->requestee_id)
-              )
-            )
-        {
+        if ($requester_relationship->rtid == $implied_by->rtid &&
+             (($requester_relationship->requester_id == $requester && $requester_relationship->requestee_id == $requestee) ||
+              ($requester_relationship->requester_id == $requestee && $requester_relationship->requestee_id == $requester)
+             ) &&
+             (!$requester_relationship->is_oneway || $requester == $user->uid)
+           ) {
           $relationship_to_delete = user_relationships_relationship_load($requester_relationship->rid);
           user_relationships_delete_relationship($relationship_to_delete, $relationship->deleted_by, $category);
         }
