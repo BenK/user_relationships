@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships.module,v 1.9 2007-10-08 19:49:37 sprsquish Exp $
+// $Id: user_relationships.module,v 1.10 2007-10-09 01:28:21 gwen Exp $
 
 /**
  *
@@ -141,7 +141,7 @@ function _user_relationships_actions_between(&$viewer, &$viewed) {
 
 function _user_relationships_current_relationships(&$requester, &$requestee) {
   $current_relationships = array();
-  $requester_relationships = user_relationships_load_all_for_user($viewer->uid);
+  $requester_relationships = user_relationships_load_all_for_user($requester->uid);
   foreach ($requester_relationships as $relationship) {
     if (
       $relationship->requestee_id == $requestee->uid || 
