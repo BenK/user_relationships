@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_mailer_defaults.inc,v 1.4 2007-10-07 19:39:22 sprsquish Exp $
+// $Id: user_relationship_mailer_defaults.inc,v 1.5 2007-10-11 18:38:04 gwen Exp $
 
 /**
  * Default subject lines
@@ -16,7 +16,6 @@ define('USER_RELATIONSHIP_MAILER_REMOVE_SUBJECT',     variable_get('user_relatio
 function user_relationship_mailer_replacements(&$relationship) {
   $requester = $relationship->requester;
   $requestee = $relationship->requestee;
-
   $replacements = array(
     '@site'                     => variable_get('site_name', 'Drupal'),
     '@site_url'                 => $GLOBALS['base_url'],
@@ -37,7 +36,7 @@ function user_relationship_mailer_replacements(&$relationship) {
     '@relationship_plural_name' => $relationship->plural_name,
   );
 
-  if ($relationship->deleted_by) {
+  if ($deleted_by = $relationship->deleted_by) {
     $replacements['@deleted_by_name'] = $deleted_by->name;
     $replacements['@deleted_by_link'] = url("user/$deleted_by->uid", NULL, NULL, TRUE);
     $replacements['@deleted_by_uid']  = $deleted_by->uid;
@@ -62,6 +61,8 @@ To approve/disapprove this, log in to @site_url and see your pending relationshi
 
 Regards,
 The @site team
+This message was sent to you because you have user relationships email notifications turned on.
+If you no longer wish to receive these emails, you can turn them off at @site_url/user/@requestee_uid/edit.
 MESSAGE;
 }
 
@@ -76,6 +77,9 @@ Hi @requestee_name,
 
 Regards,
 The @site team
+
+This message was sent to you because you have user relationships email notifications turned on.
+If you no longer wish to receive these emails, you can turn them off at @site_url/user/@requestee_uid/edit.
 MESSAGE;
 }
 
@@ -93,6 +97,9 @@ Here's a link to your relationships:
 
 Regards,
 The @site team
+
+This message was sent to you because you have user relationships email notifications turned on.
+If you no longer wish to receive these emails, you can turn them off at @site_url/user/@requester_uid/edit.
 MESSAGE;
 }
 
@@ -107,6 +114,9 @@ Hi @requester_name,
 
 Regards,
 The @site team
+
+This message was sent to you because you have user relationships email notifications turned on.
+If you no longer wish to receive these emails, you can turn them off at @site_url/user/@requester_uid/edit.
 MESSAGE;
 }
 
@@ -119,5 +129,8 @@ function user_relationship_mailer_remove_default() {
 
 Regards,
 The @site team
+
+This message was sent to you because you have user relationships email notifications turned on. 
+If you no longer wish to receive these emails, you can turn them off at @site_url/user/@profile_uid/edit.
 MESSAGE;
 }

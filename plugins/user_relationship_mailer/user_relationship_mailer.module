@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_mailer.module,v 1.5 2007-10-08 19:49:37 sprsquish Exp $
+// $Id: user_relationship_mailer.module,v 1.6 2007-10-11 18:38:04 gwen Exp $
 
 if (!variable_get('user_relationship_mailer_ops', FALSE)) {
   variable_set('user_relationship_mailer_ops', array('request', 'cancel', 'approve', 'disapprove', 'remove'));
@@ -25,7 +25,6 @@ function user_relationship_mailer_send_email($op, &$relationship) {
   $send_to_requester = isset($requester->user_relationship_mailer_send_mail) ? $requester->user_relationship_mailer_send_mail : TRUE;
 
   $send_to = array();
-
   switch ($op) {
   case 'request':
     if ($relationship->approved) {
@@ -33,20 +32,20 @@ function user_relationship_mailer_send_email($op, &$relationship) {
     }
   case 'cancel':
     $send_email = $send_to_requestee;
-    $send_to[] = $requestee->mail;
+    $send_to[]['address'] = $requestee->mail;
     break;
 
   case 'approve':
   case 'disapprove':
     $send_email = $send_to_requester;
-    $send_to[] = $requester->mail;
+    $send_to[]['address'] = $requester->mail;
     break;
 
   case 'remove':
     $send_email = $send_to_requestee && $send_to_requester;
-    $send_to[] = $requester->mail;
+    $send_to[] = array ('address' => $requester->mail, 'uid' => $requester->uid,);
     if (!$relationship->type->is_oneway) {
-      $send_to[] = $requestee->mail;
+      $send_to[] = array ('address' => $requestee->mail, 'uid' => $requestee->uid,);
     }
     break;
 
@@ -62,25 +61,28 @@ function user_relationship_mailer_send_email($op, &$relationship) {
   if (!$send_email) {
     return;
   }
-
-  $replacements = user_relationship_mailer_replacements($relationship);
-  $subject = t(constant(strtoupper("USER_RELATIONSHIP_MAILER_{$op}_SUBJECT")), $replacements);
-
-  $message_function = "user_relationship_mailer_{$op}_default";
-  $message = t(variable_get("user_relationship_mailer_{$op}_message", $message_function()), $replacements);
-
-  $site_mail = variable_get('site_mail', '');
-  if (!strlen($site_mail)) {
-    if (user_access('administer nodes')){
-      drupal_set_message(t('You should create an administrator mail address for your site! <a href="%url">Do it here</a>.', array('%url' => url('admin/settings/site-information'))), 'error');
+  foreach ($send_to as $target) {
+    $replacements = user_relationship_mailer_replacements($relationship);
+    $subject = t(constant(strtoupper("USER_RELATIONSHIP_MAILER_{$op}_SUBJECT")), $replacements);
+    if ($op == 'remove') {
+      $replacements['@profile_uid'] = $target['uid'];
     }
-    $site_mail = 'nobody@localhost';
-  }
 
-  $errors = array();
-  foreach ($send_to as $address) {
+    $message_function = "user_relationship_mailer_{$op}_default";
+    $message = t(variable_get("user_relationship_mailer_{$op}_message", $message_function()), $replacements);
+
+    $site_mail = variable_get('site_mail', '');
+    if (!strlen($site_mail)) {
+      if (user_access('administer nodes')){
+        drupal_set_message(t('You should create an administrator mail address for your site! <a href="%url">Do it here</a>.', array('%url' => url('admin/settings/site-information'))), 'error');
+      }
+      $site_mail = 'nobody@localhost';
+    }
+
+    $errors = array();
+
     $replacements = array('%type' => $op, '%username' => $related->name);
-    if (drupal_mail("user_relationship_mailer_user_$op", $address, $subject, $message, $site_mail)) {
+    if (drupal_mail("user_relationship_mailer_user_$op", $target['address'], $subject, $message, $site_mail)) {
       watchdog('userreltnships', t('%type message was sent to %username', $replacements));
     }
     else {
