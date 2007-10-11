@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships.module,v 1.10 2007-10-09 01:28:21 gwen Exp $
+// $Id: user_relationships.module,v 1.11 2007-10-11 16:02:35 sprsquish Exp $
 
 /**
  *
@@ -8,12 +8,12 @@
  *
  */
 
-include_once('user_relationships_api.inc');
-include_once('user_relationships_theme.inc');
-include_once('user_relationships_hooks.inc');
-include_once('user_relationships_pages.inc');
-include_once('user_relationships_forms.inc');
-include_once('user_relationships_actions.inc');
+$ur_include_files = array(
+  'api', 'theme', 'hooks', 'pages', 'forms', 'actions', 'views'
+);
+foreach ($ur_include_files as $file_to_include) {
+  include_once("user_relationships_{$file_to_include}.inc");
+}
 
 /**
  * Invoke hook_user_relationships()
