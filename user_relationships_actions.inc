@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_actions.inc,v 1.12 2007-10-09 01:22:09 gwen Exp $
+// $Id: user_relationships_actions.inc,v 1.13 2007-10-11 19:27:04 jbchristy Exp $
 
 /**
  * User Relationships Actions
@@ -88,6 +88,7 @@ function user_relationships_type_edit_submit($form_id, &$form_values) {
 function user_relationships_type_delete_submit($form_id, &$form_values) {
   $rtid = arg(4);
 
+  cache_clear_all("user_relationships", 'cache_user_relationships', TRUE);
   db_query("DELETE FROM {user_relationship_types} WHERE rtid = %d", $rtid);
   db_query("DELETE FROM {user_relationships} WHERE rtid = %d", $rtid);
 

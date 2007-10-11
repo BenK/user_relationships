@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_theme.inc,v 1.9 2007-09-29 00:34:35 jbchristy Exp $
+// $Id: user_relationships_theme.inc,v 1.10 2007-10-11 19:27:04 jbchristy Exp $
 
 /**
  * User Relationships theme-able functions
@@ -11,7 +11,7 @@
 function theme_user_relationships_page($uid = NULL, $relationship = NULL) {
   global $user;
 
-  if (empty($uid)) {
+  if (empty($uid) || $uid == $user->uid) {
     $viewed_user =& $user;
   }
   else {

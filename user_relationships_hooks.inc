@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_hooks.inc,v 1.10 2007-10-08 19:49:37 sprsquish Exp $
+// $Id: user_relationships_hooks.inc,v 1.11 2007-10-11 19:27:04 jbchristy Exp $
 
 /**
  * User Relationships hook implementations
@@ -224,6 +224,7 @@ function user_relationships_user($type, &$edit, &$account, $category = NULL) {
 
   case 'delete':
     db_query("DELETE FROM {user_relationships} WHERE requester_id = %d OR requestee_id = %d", $account->uid, $account->uid);
+    cache_clear_all("user_relationships", 'cache_user_relationships', TRUE);
     break;
 
   case 'form':

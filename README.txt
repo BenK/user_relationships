@@ -1,4 +1,4 @@
-/* $Id: README.txt,v 1.2 2007-09-09 07:52:35 sprsquish Exp $ */
+/* $Id: README.txt,v 1.3 2007-10-11 19:27:04 jbchristy Exp $ */
 
 User Relationships Module
 -------------------------
@@ -27,6 +27,49 @@ Installation
    see the database definition at the end of this file.
 
 3. Create relationship types in "User Management -> User Relationships -> Add relationship"
+
+
+Memcache Users
+--------------
+
+The User Relationships module uses drupal's caching API to save results across page loads. The memcache
+module replaces drupal's default API with it's own implementations of cache_set, cache_get and
+cache_clear_all. Unfortunately, memcache's implementation of cache_clear_all doesn't honor the third
+(wildcard) parameter. If you have memcache installed, then the cache will not be properly cleared when
+you delete a user or a relationship type, resulting in stale data that may persist indefinitely.
+
+If you have memcache installed, you should implement the following two hooks in your module:
+
+/*
+ * Implementation of hook_user()
+ */
+function YOURMODULE_user($op, &$edit, &$account, $category = NULL) {
+  switch ($op) {
+    case 'delete':
+      if (module_exists('memcache')) {
+        // memcache's implementation of cache_clear_all doesn't support wildcarding,
+        // so wipe the entire user relationship cache by passing a null cache id
+        dpm("Deleting a user - clearing UR cache");
+        cache_clear_all(NULL, 'cache_user_relationships');
+      }
+      break;
+  }
+}
+
+/*
+ * Implementation of hook_user_relationships()
+ */
+function YOURMODULE_user_relationships($type, &$relationship, $category = NULL) {
+  switch ($type) {
+    case 'delete type':
+      if (module_exists('memcache')) {
+        // memcache's implementation of cache_clear_all doesn't support wildcarding,
+        // so wipe the entire user relationship cache by passing a null cache id
+        cache_clear_all(NULL, 'cache_user_relationships');
+      }
+      break;
+  }
+}
 
 
 Developers

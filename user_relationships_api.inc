@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.inc,v 1.12 2007-10-11 16:02:35 sprsquish Exp $
+// $Id: user_relationships_api.inc,v 1.13 2007-10-11 19:27:04 jbchristy Exp $
 
 /**
  *  User Relationships API
@@ -10,38 +10,37 @@
  *
  * @param $array
  *    An associative array of attributes to search for in selecting the
- *    relationship, such as id or name.
+ *    relationship, such as rtid or name. Attributes must match column names
+ *    in the user_relationships table.
  *
  * @return
  *    object of the requested relationship type
  *
  */
-function user_relationships_relationship_type_load($array = array()) {
-  static $user_relationship_types = array();
-  $cache_key = implode('', array_keys($array) + $array);
-
-  if (!$user_relationship_types[$cache_key]) {
-    $query  = array();
-    $params = array();
-
-    foreach($array as $key => $value) {
-      if ($key == 'rtid') {
-        $query[] = "$key = %d";
-        $params[] = $value;
-      }
-      else {
-        $query[]= "LOWER($key) = LOWER('%s')";
-        $params[] = $value;
-      }
-    }
-    $relationship = db_fetch_object(db_query('SELECT * FROM {user_relationship_types} WHERE '. implode(' AND ', $query), $params));
-
-    _user_relationships_invoke('load type', $relationship);
-
-    $user_relationship_types[$cache_key] = $relationship;
+function user_relationships_relationship_type_load($criteria = array()) {
+  if (!sizeof($criteria)) {
+    return NULL;
   }
 
-  return $user_relationship_types[$cache_key];
+  $types = user_relationships_relationship_types_load();
+  foreach ($types as $type) {
+    $found = TRUE; // assume this is the type we're looking for
+
+    foreach($criteria as $column => $value) {
+      $column = strtolower($column);
+      if ($column == 'name' || $column == 'plural_name') {
+        $value = strtolower($value);
+      }
+
+      if ($type->$column != $value) {
+        $found=FALSE; // value doesn't match, so this isn't the type after all
+      }
+    }
+    if ($found) {
+      return $type;
+    }
+  }
+  return NULL;
 }
 
 /**
@@ -78,15 +77,20 @@ function user_relationships_load_all_for_user($uid) {
 
   if (!key_exists($uid, $relationships)) {
     $relationships[$uid] = array();
-
-    $results = db_query(
-       'SELECT r.*, rt.name, rt.plural_name, rt.is_oneway FROM {user_relationships} r, {user_relationship_types} rt
-        WHERE (requester_id = %d OR requestee_id = %d)
-          AND r.rtid = rt.rtid',
-      $uid, $uid
-    );
-    while ($relationship = db_fetch_object($results)) {
-      $relationships[$uid][] = $relationship;
+    if (($cache = cache_get("user_relationships_relationships_{$uid}", 'cache_user_relationships')) && !empty($cache->data)) {
+      $relationships[$uid] = unserialize($cache->data);
+    }
+    else {
+      $results = db_query(
+         'SELECT r.*, rt.name, rt.plural_name, rt.is_oneway FROM {user_relationships} r, {user_relationship_types} rt
+          WHERE (requester_id = %d OR requestee_id = %d)
+            AND r.rtid = rt.rtid',
+        $uid, $uid
+      );
+      while ($relationship = db_fetch_object($results)) {
+        $relationships[$uid][] = $relationship;
+      }
+      cache_set("user_relationships_relationships_{$uid}", 'cache_user_relationships', serialize($relationships[$uid]));
     }
   }
 
@@ -107,7 +111,10 @@ function user_relationships_relationship_load($rid) {
   static $user_relationships = array(); 
 
   if (!$user_relationships[$rid]) {
-    if ($relationship = db_fetch_object(db_query("SELECT * FROM {user_relationships} WHERE rid = %d", $rid))) {
+    if (($cache = cache_get("user_relationships_relationship_{$rid}", 'cache_user_relationships')) && !empty($cache->date)) {
+      $user_relationships[$rid] = unserialize($cache->data);
+    }
+    elseif ($relationship = db_fetch_object(db_query("SELECT * FROM {user_relationships} WHERE rid = %d", $rid))) {
       $relationship->requester    = user_load(array('uid' => $relationship->requester_id));
       $relationship->requestee    = user_load(array('uid' => $relationship->requestee_id));
       $relationship->type         = user_relationships_relationship_type_load(array('rtid' => $relationship->rtid));
@@ -116,6 +123,7 @@ function user_relationships_relationship_load($rid) {
 
       _user_relationships_invoke('load', $relationship);
       $user_relationships[$rid] = $relationship;
+      cache_set("user_relationships_relationship_{$rid}", 'cache_user_relationships', serialize($relationship));
     }
   }
 
@@ -183,6 +191,8 @@ function user_relationships_request_relationship(&$requester, &$requestee, &$rel
     $relationship_type->rtid,
     ($approved ? 1 : 0)
   );
+  cache_clear_all("user_relationships_relationships_{$requester->uid}", 'cache_user_relationships');
+  cache_clear_all("user_relationships_relationships_{$requestee->uid}", 'cache_user_relationships');
 
   $relationship = user_relationships_relationship_load($rid);
   _user_relationships_invoke('insert', $relationship);
@@ -207,6 +217,7 @@ function user_relationships_update_relationship(&$relationship, &$updated_relati
   _user_relationships_invoke('update', $updated_relationship);
 
   db_query("DELETE FROM {user_relationships} WHERE rid = %d", $relationship->rid);
+  cache_clear_all("user_relationships_relationship_{$relationship->rid}", 'cache_user_relationships');
 
   $updated_relationship->rid = db_next_id('{user_relationships}_id');
   db_query(
@@ -219,6 +230,11 @@ function user_relationships_update_relationship(&$relationship, &$updated_relati
     ($updated_relationship->approved ? 1 : 0),
     $relationship->created_at
   );
+  // requester and requestee should be the same in the old and new relationships, but better safe than sorry
+  cache_clear_all("user_relationships_relationships_{$relationship->requester->uid}", 'cache_user_relationships');
+  cache_clear_all("user_relationships_relationships_{$relationship->requestee->uid}", 'cache_user_relationships');
+  cache_clear_all("user_relationships_relationships_{$updated_relationship->requester->uid}", 'cache_user_relationships');
+  cache_clear_all("user_relationships_relationships_{$updated_relationship->requestee->uid}", 'cache_user_relationships');
 
   return $updated_relationship;
 }
@@ -238,8 +254,11 @@ function user_relationships_update_relationship(&$relationship, &$updated_relati
 function user_relationships_delete_relationship(&$relationship, &$deleted_by, $op = 'remove') {
   $relationship->deleted_by = $deleted_by;
   db_query("DELETE FROM {user_relationships} WHERE rid = %d", $relationship->rid);
+  cache_clear_all("user_relationships_relationship_{$relationship->rid}", 'cache_user_relationships');
 
   _user_relationships_invoke('delete', $relationship, $op);
+  cache_clear_all("user_relationships_relationships_{$relationship->requester_id}", 'cache_user_relationships');
+  cache_clear_all("user_relationships_relationships_{$relationship->requestee_id}", 'cache_user_relationships');
 }
 
 

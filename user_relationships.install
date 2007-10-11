@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships.install,v 1.5 2007-09-25 20:35:26 gwen Exp $
+// $Id: user_relationships.install,v 1.6 2007-10-11 19:27:04 jbchristy Exp $
 
 function _user_relationships_installation_query($mysql = array(), $pgsql = array()) {
   global $db_type;
@@ -58,7 +58,18 @@ function user_relationships_install() {
       KEY requester_id (requester_id),
       KEY requestee_id (requestee_id),
       KEY rtid (rtid)
-    ) /*!40100 DEFAULT CHARACTER SET utf8*/;"
+    ) /*!40100 DEFAULT CHARACTER SET utf8*/;",
+
+    "CREATE TABLE {cache_user_relationships} (
+      cid varchar(255) NOT NULL default '',
+      data longblob,
+      expire int(11) NOT NULL default 0,
+      created int(11) NOT NULL default 0,
+      headers text,
+      serialized int(1) NOT NULL default 0,
+      PRIMARY KEY (cid),
+      KEY expire (expire)
+    ) /*!40100 DEFAULT CHARACTER SET utf8*/;",
   );
   _user_relationships_installation_query($queries);
 }
@@ -69,6 +80,7 @@ function user_relationships_install() {
 function user_relationships_uninstall() {
   db_query('DROP TABLE {user_relationships}');
   db_query('DROP TABLE {user_relationship_types}');
+  db_query('DROP TABLE {cache_user_relationships}');
 
   variable_del('user_relationships_require_approval');
   variable_del('user_relationships_allow_multiple');
@@ -104,5 +116,23 @@ function user_relationships_update_2() {
 function user_relationships_update_3() {
   _user_relationships_installation_query(array(
     "ALTER TABLE {user_relationship_types} ADD plural_name varchar(255) NOT NULL default '' after name;"
+  ));
+}
+
+/**
+ * Update 4: Add separate cache table for user relationship data
+ */
+function user_relationships_update_4() {
+  _user_relationships_installation_query(array(
+    "CREATE TABLE {cache_user_relationships} (
+      cid varchar(255) NOT NULL default '',
+      data longblob,
+      expire int(11) NOT NULL default 0,
+      created int(11) NOT NULL default 0,
+      headers text,
+      serialized int(1) NOT NULL default 0,
+      PRIMARY KEY (cid),
+      KEY expire (expire)
+    ) /*!40100 DEFAULT CHARACTER SET utf8*/;"
   ));
 }
