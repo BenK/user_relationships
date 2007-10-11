@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships.module,v 1.12 2007-10-11 18:33:04 sprsquish Exp $
+// $Id: user_relationships.module,v 1.13 2007-10-11 18:55:32 sprsquish Exp $
 
 /**
  *
@@ -214,12 +214,12 @@ function user_relationships_default_messages() {
       'pending'   => '!requester believes they are a %relationship_name of yours.  Please view your !pending_relationship_requests to approve them.',
     ),
     'error' => array(
-      'too_many_relationships'          => 'You already relate to this user in every possible way.',
-      'existing_request'                => 'You have already requested to be a %relationship_name of %requestee',
-      'existing_relationship'           => 'You are already a %relationship_name of %requestee',
-      'not_accepting_requests'          => 'This user is not accepting relationship requests.',
-      'self_request'                    => 'You are not allowed to create a relationship to yourself.',
-      'non_existant_user'               => 'This user does not exist.',
+      'too_many_relationships'  => 'You already relate to this user in every possible way.',
+      'existing_request'        => 'You have already requested to be a %relationship_name of %requestee',
+      'existing_relationship'   => 'You are already a %relationship_name of %requestee',
+      'not_accepting_requests'  => 'This user is not accepting relationship requests.',
+      'self_request'            => 'You are not allowed to create a relationship to yourself.',
+      'non_existant_user'       => 'This user does not exist.',
     ),
   );
 }
@@ -233,7 +233,9 @@ function _user_relationships_get_from_array($needle, &$haystack) {
       return $value;
     }
     else if (is_array($value)) {
-      return _user_relationships_get_from_array($needle, $value);
+      if ($msg = _user_relationships_get_from_array($needle, $value)) {
+        return $msg;
+      }
     }
   }
 }
