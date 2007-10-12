@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_mailer.module,v 1.6 2007-10-11 18:38:04 gwen Exp $
+// $Id: user_relationship_mailer.module,v 1.7 2007-10-12 01:35:52 gwen Exp $
 
 if (!variable_get('user_relationship_mailer_ops', FALSE)) {
   variable_set('user_relationship_mailer_ops', array('request', 'cancel', 'approve', 'disapprove', 'remove'));
@@ -63,7 +63,8 @@ function user_relationship_mailer_send_email($op, &$relationship) {
   }
   foreach ($send_to as $target) {
     $replacements = user_relationship_mailer_replacements($relationship);
-    $subject = t(constant(strtoupper("USER_RELATIONSHIP_MAILER_{$op}_SUBJECT")), $replacements);
+    $message_function = "user_relationship_mailer_{$op}_default";
+    $subject = variable_get("user_relationship_mailer_{$op}_subject", $message_function());
     if ($op == 'remove') {
       $replacements['@profile_uid'] = $target['uid'];
     }
@@ -147,7 +148,7 @@ function user_relationship_mailer_form_alter($form_id, &$form) {
           $form['mail'][$op]["user_relationship_mailer_{$op}_subject"] = array(
             '#type'           => 'textfield',
             '#title'          => t('@Op relationship email subject', array('@Op' => ucfirst($op))),
-            '#default_value'  => constant(strtoupper("USER_RELATIONSHIP_MAILER_{$op}_SUBJECT")),
+            '#default_value'  => variable_get("user_relationship_mailer_{$op}_subject", $message_function()),
           );
           $form['mail'][$op]["user_relationship_mailer_{$op}_message"] = array(
             '#type'           => 'textarea',
