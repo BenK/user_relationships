@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.inc,v 1.13 2007-10-11 19:27:04 jbchristy Exp $
+// $Id: user_relationships_api.inc,v 1.14 2007-10-12 02:03:34 jbchristy Exp $
 
 /**
  *  User Relationships API
@@ -111,7 +111,7 @@ function user_relationships_relationship_load($rid) {
   static $user_relationships = array(); 
 
   if (!$user_relationships[$rid]) {
-    if (($cache = cache_get("user_relationships_relationship_{$rid}", 'cache_user_relationships')) && !empty($cache->date)) {
+    if (($cache = cache_get("user_relationships_relationship_{$rid}", 'cache_user_relationships')) && !empty($cache->data)) {
       $user_relationships[$rid] = unserialize($cache->data);
     }
     elseif ($relationship = db_fetch_object(db_query("SELECT * FROM {user_relationships} WHERE rid = %d", $rid))) {
