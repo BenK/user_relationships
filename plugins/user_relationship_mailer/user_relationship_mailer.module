@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_mailer.module,v 1.7 2007-10-12 01:35:52 gwen Exp $
+// $Id: user_relationship_mailer.module,v 1.8 2007-10-12 01:50:18 gwen Exp $
 
 if (!variable_get('user_relationship_mailer_ops', FALSE)) {
   variable_set('user_relationship_mailer_ops', array('request', 'cancel', 'approve', 'disapprove', 'remove'));
@@ -63,13 +63,12 @@ function user_relationship_mailer_send_email($op, &$relationship) {
   }
   foreach ($send_to as $target) {
     $replacements = user_relationship_mailer_replacements($relationship);
-    $message_function = "user_relationship_mailer_{$op}_default";
-    $subject = variable_get("user_relationship_mailer_{$op}_subject", $message_function());
     if ($op == 'remove') {
       $replacements['@profile_uid'] = $target['uid'];
     }
 
     $message_function = "user_relationship_mailer_{$op}_default";
+    $subject = t(variable_get("user_relationship_mailer_{$op}_subject", $message_function()), $replacements);
     $message = t(variable_get("user_relationship_mailer_{$op}_message", $message_function()), $replacements);
 
     $site_mail = variable_get('site_mail', '');
