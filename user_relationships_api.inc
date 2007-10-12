@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.inc,v 1.14 2007-10-12 02:03:34 jbchristy Exp $
+// $Id: user_relationships_api.inc,v 1.15 2007-10-12 17:03:26 jbchristy Exp $
 
 /**
  *  User Relationships API
@@ -259,6 +259,82 @@ function user_relationships_delete_relationship(&$relationship, &$deleted_by, $o
   _user_relationships_invoke('delete', $relationship, $op);
   cache_clear_all("user_relationships_relationships_{$relationship->requester_id}", 'cache_user_relationships');
   cache_clear_all("user_relationships_relationships_{$relationship->requestee_id}", 'cache_user_relationships');
+}
+
+/**
+ * Public API for counting relationships that match specified criteria
+ *
+ * @param $array
+ *    An associative array of attributes to search for. Keys in the array should match
+ *    column names in the user_relationships table. However, as a convenience, you can
+ *    also specify the following keys:
+ *      'typename': match the rtid of the type with the given name (no join)
+ *      'uid', 'uid1', 'uid2': match either the requester_id or the requestee_id
+ *        Example: ('uid1'=>10, 'uid2'=>20) counts how many relationships exist between
+ *          users 10 and 20
+ *
+ *    For the dates (created_at and updated_at), the first character of the value should
+ *    be an operator, i.e. '<', '=' or '>'. The remainder should be the value, which can
+ *    be either a (numeric) Unix timestamp, or a string formatted to match MySQL's
+ *    date/timestamp format.
+ *    e.g. 'created_at' => '>2006-12-31 23:59:59' to find relationships added in 2007 or later
+ *
+ * @return
+ *    count of the relationships that match the criteria
+ *
+ */
+function user_relationships_count_relationships($criteria = array()) {
+  $query = "SELECT COUNT(rid) FROM {user_relationships} WHERE 1 ";
+  $args  = array();
+
+  foreach($criteria as $column => $value) {
+    $column = strtolower($column);
+    switch ($column) {
+    case 'uid':
+    case 'uid1':
+    case 'uid2':
+      $query  .= "AND (requester_id=%d OR requestee_id=%d) ";
+      $args[]  = (int)$value;
+      $args[]  = (int)$value;
+      break;
+    case 'typename':
+      if ($type = user_relationships_relationship_type_load(array('name' => $value))) {
+        $query  .= "AND rtid=%d ";
+        $args[]  = (int)$type->rtid;
+      }
+      else {
+        return NULL; // if an invalid typename was specified, no relationships can match it
+      }
+      break;
+    case 'rid':
+    case 'requester_id':
+    case 'requestee_id':
+    case 'rtid':
+    case 'approved':
+      $query  .= "AND {$column}=%d ";
+      $args[]  = (int)$value;
+      break;
+    case 'created_at':
+    case 'updated_at':
+      // for the dates, the first character of $value should be the operator, i.e. '<', '=' or '>'
+      // the remainder should be the value: either a (numeric) Unix timestamp, or a string formatted
+      //   to match MySQL's date/timestamp format
+      //   e.g. 'created_at' => '>2006-12-31 23:59:59' to find relationships added in 2007 or later
+      $operator = substr($value, 0, 1);
+      $value    = substr($value, 1);
+      if (is_numeric($value)) {
+        $value = date('Y-m-d H:i:s', (int)$value);
+      }
+      $query  .= "AND {$column}{$operator}'%s' ";
+      $args[]  = $value;
+      break;
+    default:
+      // invalid criteria
+      return NULL;
+      break;
+    }
+  }
+  return db_result(db_query($query, $args));
 }
 
 
