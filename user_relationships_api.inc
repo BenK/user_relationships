@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.inc,v 1.15 2007-10-12 17:03:26 jbchristy Exp $
+// $Id: user_relationships_api.inc,v 1.16 2007-10-17 01:46:39 jbchristy Exp $
 
 /**
  *  User Relationships API
@@ -150,12 +150,8 @@ function user_relationships_relationship_load($rid) {
  */
 function user_relationships_request_relationship(&$requester, &$requestee, &$relationship_type, $approved = FALSE) {
   if (!variable_get('user_relationships_allow_multiple', TRUE)) {
-
-    $requester_relationships = user_relationships_load_all_for_user($requester->uid);
-    foreach ($requester_relationships as $relationship) {
-      if ($relationship->requestee_id == $requestee->uid) {
-        return t('Users are not allowed to have multiple relationships');
-      }
+    if (user_relationships_count_relationships(array('uid1' => $requester->uid, 'uid2' => $requestee->uid)) > 0) {
+      return t('Users are not allowed to have multiple relationships');
     }
   }
 
@@ -175,7 +171,7 @@ function user_relationships_request_relationship(&$requester, &$requestee, &$rel
     return t('This relationship already exists');
   }
 
-  $user_auto_approve = is_array($requestee->user_relationships_auto_approve) && $requestee->user_relationships_auto_approve[$relationship->rid];
+  $user_auto_approve = is_array($requestee->user_relationships_auto_approve) && $requestee->user_relationships_auto_approve[$relationship_type->rtid];
   if ($user_auto_approve || !$relationship_type->requires_approval) {
     $approved = TRUE;
   }
