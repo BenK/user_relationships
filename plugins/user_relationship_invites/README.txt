@@ -1,4 +1,4 @@
-/* $Id: README.txt,v 1.1 2007-08-15 20:20:01 sprsquish Exp $ */
+/* $Id: README.txt,v 1.2 2007-10-17 20:49:26 gwen Exp $ */
 
 User Relationship Invites Module
 --------------------------------
@@ -20,6 +20,7 @@ Installation
 ------------
 Enable User Relationship Invites in the "Site building -> modules" administration screen.
 
+Please note: we had to patch invite module to make this work, so you'll need to use a version of invite dated after 10/14/2007 or apply the patch yourself. The patch can be found at http://drupal.org/node/175518.
 
 Database Schema
 ---------------
