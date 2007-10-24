@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_migrate.module,v 1.2 2007-10-09 18:01:36 jbchristy Exp $
+// $Id: user_relationship_migrate.module,v 1.3 2007-10-24 06:30:08 jbchristy Exp $
 
 /**
  * Drupal Module: User Relationship Migrate
@@ -89,6 +89,11 @@ function user_relationship_migrate_form() {
     '#type'              => 'checkbox',
     '#title'             => t('Also migrate pending requests (@count pending requests)', array('@count' => $count)),
     '#default_value'     => variable_get('user_relationship_migrate_pending', 0),
+  );
+  $form['migrate_email'] = array(
+    '#type'              => 'checkbox',
+    '#title'             => t("Also migrate users' email settings"),
+    '#default_value'     => variable_get('user_relationship_migrate_email', 0),
   );
   $form['submit'] = array(
     '#type'              => 'submit',
@@ -180,15 +185,17 @@ function user_relationship_migrate_form_submit($form_id, &$form_values) {
     case 'Migrate':
       variable_set('user_relationship_migrate_rtype',   $form_values['relationship_type_name']);
       variable_set('user_relationship_migrate_pending', $form_values['migrate_pending']);
+      variable_set('user_relationship_migrate_email',   $form_values['migrate_email']);
       return "admin/user/relationships/migrate/migrating";
     case 'Reset':
       // status is IN PROGRESS or COMPLETE, and admin wants to reset it
-      $checkpoint = array(
+      $checkpoint = array( // set default values prior to checking the variable
         'migrated'           =>  0,
         'last_uid'           => -1,
         'last_buddy'         => -1,
         'last_pending_uid'   => -1,
         'last_pending_buddy' => -1,
+        'last_email_uid'     => -1,
       );
       $checkpoint = variable_get('user_relationship_migrate_checkpoint', $checkpoint);
       variable_set('user_relationship_migrate_status', ($checkpoint['migrated'] > 0) ? 'PARTIALLY COMPLETE' : '');
@@ -242,6 +249,7 @@ function user_relationship_migrate_migrate() {
     'last_buddy'         => -1,
     'last_pending_uid'   => -1,
     'last_pending_buddy' => -1,
+    'last_email_uid'     => -1,
   );
   $checkpoint = variable_get('user_relationship_migrate_checkpoint', $checkpoint);
 
@@ -320,12 +328,46 @@ function user_relationship_migrate_migrate() {
     }
   }
 
+  // migrate the email settings, if admin requested it
+  if ($errors <= 100 && variable_get('user_relationship_migrate_email', 0)) {
+    $users = db_query("SELECT uid, data FROM {users} WHERE uid > %d", $checkpoint['last_email_uid']);
+    while ($user_object = db_fetch_object($users)) {
+      $user_data = unserialize($user_object->data);
+      if (isset($user_data['buddylist_mail'])) {
+        $user_data['user_relationship_mailer_send_mail'] = $user_data['buddylist_mail'];
+        unset($user_data['buddylist_mail']);
+        $user_data = serialize($user_data);
+        // start a transaction so that the update and the variable set either both happen or neither happen
+        db_query("START TRANSACTION");
+        if (db_query("UPDATE {users} SET data = '%s' WHERE uid = %d", $user_data, $user_object->uid)) {
+          $checkpoint['last_email_uid'] = (int)$user_object->uid;
+          variable_set('user_relationship_migrate_checkpoint', $checkpoint);
+          $updated_users++;
+        }
+        else {
+          $output .= t(
+            "ERROR: Unable to update email settings for user @uid",
+            array('@uid' => $user_object->uid)
+            ) . "<br />";
+          $errors++;
+        }
+        db_query("COMMIT"); // end the transaction
+      }
+    }
+  }
+
   // Tidy up
   $output .= "<p>";
   $output .= t(
     'Successfully migrated @count buddies to relationship type @type.',
     array('@count' => $checkpoint['migrated'], '@type' => $rtype_name)
   );
+  if ($updated_users > 0) {
+    $output .= t(
+      "  @count users' email settings were updated.",
+      array('@count' => $updated_users)
+    );
+  }
   $output .= "</p>";
   if (!$errors) {
     variable_set('user_relationship_migrate_status', 'COMPLETE');
