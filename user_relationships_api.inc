@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.inc,v 1.16 2007-10-17 01:46:39 jbchristy Exp $
+// $Id: user_relationships_api.inc,v 1.17 2007-10-24 07:42:33 jbchristy Exp $
 
 /**
  *  User Relationships API
@@ -56,7 +56,7 @@ function user_relationships_relationship_types_load() {
     $results = db_query("SELECT * FROM {user_relationship_types}");  
     while ($relationship = db_fetch_object($results)) {
       _user_relationships_invoke('load type', $relationship);
-      $relationship_types_list[] = $relationship;
+      $relationship_types_list[$relationship->rtid] = $relationship;
     }
   }
 
@@ -260,14 +260,24 @@ function user_relationships_delete_relationship(&$relationship, &$deleted_by, $o
 /**
  * Public API for counting relationships that match specified criteria
  *
- * @param $array
+ * @param $criteria
  *    An associative array of attributes to search for. Keys in the array should match
  *    column names in the user_relationships table. However, as a convenience, you can
  *    also specify the following keys:
  *      'typename': match the rtid of the type with the given name (no join)
  *      'uid', 'uid1', 'uid2': match either the requester_id or the requestee_id
- *        Example: ('uid1'=>10, 'uid2'=>20) counts how many relationships exist between
- *          users 10 and 20
+ *      Examples:
+ *        ('uid'=>1, 'approved'=>0) matches the pending relationships user 1 has either
+ *          sent or received
+ *        ('uid1'=>10, 'uid2'=>20) matches all relationships between users 10 and 20
+ *
+ *    The values for keys uid, uid1, uid2, rid, requester_id, requestee_id and rtid can be
+ *    either scalars or arrays. If the values are arrays, the function will match
+ *    relationships where the indicated column matches any of the entries in the array.
+ *      Examples:
+ *        ('uid1'=>10, uid2=>array(1,2,3,4)) matches all relationships between user 10 and
+ *          users 1, 2, 3 or 4.
+ *        ('uid'=>10, rtid=>array(1,2)) matches the relationships user 10 has of type 1 or 2
  *
  *    For the dates (created_at and updated_at), the first character of the value should
  *    be an operator, i.e. '<', '=' or '>'. The remainder should be the value, which can
@@ -280,7 +290,57 @@ function user_relationships_delete_relationship(&$relationship, &$deleted_by, $o
  *
  */
 function user_relationships_count_relationships($criteria = array()) {
-  $query = "SELECT COUNT(rid) FROM {user_relationships} WHERE 1 ";
+  return _user_relationships_select_relationships($criteria, TRUE);
+}
+
+/**
+ * Public API for loading relationships that match specified criteria
+ *
+ * @param $criteria
+ *    An associative array of attributes to search for. Keys in the array should match
+ *    See the comments for user_relationships_count_relationships() above for a description
+ *    of the criteria.
+ *
+ * @return
+ *    An array of the relationships that match the criteria
+ *
+ */
+function user_relationships_load_relationships($criteria = array()) {
+  return _user_relationships_select_relationships($criteria, FALSE);
+}
+
+/**
+ * Public API for loading relationships that match specified criteria, indexed by relatee
+ *
+ * @param $criteria
+ *    An associative array of attributes to search for. Keys in the array should match
+ *    See the comments for user_relationships_count_relationships() above for a description
+ *    of the criteria.
+ *
+ * @param $relater
+ *    The uid of the user whose relatees you want to identify
+ *
+ * @return
+ *    An array indexed by $relatee, where $relatee is whichever of (requester_id, requestee_id)
+ *    doesn't match $relater. Each element of the returned array is an array of relationships
+ *    between $relater and $relatee which match the criteria. If some relationships match the
+ *    criteria, but don't involve $relater, they're returned in the array indexed by $relatee = -1.
+ *
+ */
+function user_relationships_load_relationships_by_relatee($criteria = array(), $relater = -1) {
+  return _user_relationships_select_relationships($criteria, FALSE, $relater);
+}
+
+/**
+ * helper function that does the actual work of counting/loading relationships based on criteria
+ */
+function _user_relationships_select_relationships($criteria = array(), $count_only=FALSE, $relater=FALSE) {
+  if ($count_only) {
+    $query = "SELECT COUNT(rid) FROM {user_relationships} WHERE 1 ";
+  }
+  else {
+    $query = "SELECT * FROM {user_relationships} WHERE 1 ";
+  }
   $args  = array();
 
   foreach($criteria as $column => $value) {
@@ -289,9 +349,16 @@ function user_relationships_count_relationships($criteria = array()) {
     case 'uid':
     case 'uid1':
     case 'uid2':
-      $query  .= "AND (requester_id=%d OR requestee_id=%d) ";
-      $args[]  = (int)$value;
-      $args[]  = (int)$value;
+      if (is_array($value)) {
+        $query  .= "AND (requester_id IN (%s) OR requestee_id IN (%s)) ";
+        $args[]  = implode(', ', $value);
+        $args[]  = implode(', ', $value);
+      }
+      else {
+        $query  .= "AND (requester_id=%d OR requestee_id=%d) ";
+        $args[]  = (int)$value;
+        $args[]  = (int)$value;
+      }
       break;
     case 'typename':
       if ($type = user_relationships_relationship_type_load(array('name' => $value))) {
@@ -306,6 +373,15 @@ function user_relationships_count_relationships($criteria = array()) {
     case 'requester_id':
     case 'requestee_id':
     case 'rtid':
+      if (is_array($value)) {
+        $query  .= "AND {$column} IN (%s) ";
+        $args[]  = implode(', ', $value);
+      }
+      else {
+        $query  .= "AND {$column}=%d ";
+        $args[]  = (int)$value;
+      }
+      break;
     case 'approved':
       $query  .= "AND {$column}=%d ";
       $args[]  = (int)$value;
@@ -328,10 +404,40 @@ function user_relationships_count_relationships($criteria = array()) {
       // invalid criteria
       return NULL;
       break;
+    } // switch ($column)
+  } // foreach($criteria as $column => $value)
+
+  // if all we want is a count, get it and return it
+  if ($count_only) {
+    return db_result(db_query($query, $args));
+  }
+
+  // load the relationships into an array
+  // if $relater was not specified, load the relationships into a flat array with an arbitrary index
+  // if $relater was specified, index the array by the user id of the user who relates to $relater: each
+  //    element of the returned array is an array of relationships between $relater and $relatee; if
+  //    a relationship matches the criteria, but doesn't involve $relater, use -1 as the $relatee
+  $relationships = array();
+  $results = db_query($query, $args);
+  while ($relationship = db_fetch_object($results)) {
+    if ($relater) {
+      if ($relater == $relationship->requester_id) {
+        $index = $relationship->requestee_id;
+      }
+      elseif ($relater == $relationship->requestee_id) {
+        $index = $relationship->requester_id;
+      }
+      else {
+        $index = -1; // don't conflict with any valid uid
+      }
+      $relationships[$index][] = $relationship;
+    }
+    else {
+      $relationships[] = $relationship;
     }
   }
-  return db_result(db_query($query, $args));
-}
+  return $relationships;
+} // function _user_relationships_select_relationships($criteria = array(), $count_only=FALSE)
 
 
 /**
