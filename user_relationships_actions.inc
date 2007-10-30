@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_actions.inc,v 1.13 2007-10-11 19:27:04 jbchristy Exp $
+// $Id: user_relationships_actions.inc,v 1.14 2007-10-30 01:17:04 jbchristy Exp $
 
 /**
  * User Relationships Actions
@@ -239,42 +239,32 @@ function user_relationships_block_num_rels_validate($form) {
  * @return array of relationship objects
  */
 function user_relationships_block_select_relationships($user, $rtid, $how_many, $options, $options_index) {
-  $relationships = user_relationships_load_all_for_user($user->uid);
+  // build the query and the argument list
+  $query  = "SELECT * FROM {user_relationships} ";
+  $query .= " WHERE approved = 1 ";
+  $query .= "   AND rtid = %d ";
+  $query .= "   AND (requester_id = %d OR requestee_id = %d) ";
+  $args   = array($rtid, $user->uid, $user->uid);
 
-  if (is_null($relationships)) return NULL;
-
-  // get rid of irrelevant relationships
-  for ($i = 0; isset($relationships[$i]); $i++) {
-    if (1 != $relationships[$i]->approved) {
-      unset($relationships[$i]);
-    }
-    else if ('ALL' != $rtid) {
-      if ($relationships[$i]->rtid != $rtid) unset($relationships[$i]);
-    }
+  switch (drupal_strtolower($options[$options_index])) {
+  case 'newest':
+    $query .= "ORDER BY updated_at DESC ";
+    break;
+  case 'oldest':
+    $query .= "ORDER BY updated_at ";
+    break;
+  case 'random':
+    $query .= "ORDER BY RAND() ";
+    break;
   }
 
-  if (count($relationships) == 0) return NULL;
+  $query .= "LIMIT $how_many ";
 
-  // trim the list as indicated by $how_many and $options[$options_index]
-  if (count($relationships) > $how_many) {
-    switch (drupal_strtolower($options[$options_index])) {
-    case 'newest':
-      usort($relationships, '_user_relationships_compare_newest_first');
-      $relationships = array_slice($relationships, 0, $how_many);
-      break;
-    case 'oldest':
-      usort($relationships, '_user_relationships_compare_oldest_first');
-      $relationships = array_slice($relationships, 0, $how_many);
-      break;
-    case 'random':
-      $random_rels = array();
-      $keys = array_rand($relationships, $how_many);
-      foreach ($keys as $key) {
-        $random_rels[] = $relationships[$key];
-      } // foreach ($keys as $key)
-      $relationships = $random_rels;
-      break;
-    }
+  // build the array of relationships to return
+  $relationships = array();
+  $results = db_query($query, $args);
+  while ($relationship = db_fetch_object($results)) {
+    $relationships[] = $relationship;
   }
 
   return $relationships;
