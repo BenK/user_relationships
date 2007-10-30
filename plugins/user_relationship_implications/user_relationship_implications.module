@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_implications.module,v 1.15 2007-10-17 23:06:23 jbchristy Exp $
+// $Id: user_relationship_implications.module,v 1.16 2007-10-30 02:59:48 jbchristy Exp $
 
 /**
  * Drupal Module: User Relationship Implications
@@ -166,32 +166,30 @@ function user_relationship_implications_user_relationships($type, &$relationship
   case 'insert':
   case 'update':
     if ($relationship->type->implies) {
-      $requester = $relationship->requester_id;
-      $requestee = $relationship->requestee_id;
-      $requester_relationships = user_relationships_load_all_for_user($requester);
+      // if the type of the relationship we're inserting or updating implies other relationship type(s),
+      // loop through the implied relationship types and do the right thing
       foreach ($relationship->type->implies as $implied) {
-        $exists = FALSE;
-        foreach ($requester_relationships as $existing) {
-          if (($existing->rtid == $implied->implies_rtid) &&
-              ($existing->requester_id == $requester || $existing->requester_id == $requestee) &&
-              ($existing->requestee_id == $requester || $existing->requestee_id == $requestee)
-             )
-          {
-            // if we're approving this relationship, also approve any implied relationships
+        // load all the pre-existing relationships between these two users of the implied relationship type
+        $relationships = user_relationships_load_relationships(array(
+          'uid1' => $relationship->requester_id,
+          'uid2' => $relationship->requestee_id,
+          'rtid' => $implied->implies_rtid,
+          )
+        );
+        // if there aren't any, create one with the same approved status as the relationship we're inserting/updateing
+        if (sizeof($relationships) == 0) {
+          $implied = user_relationships_relationship_type_load(array('rtid' => $implied->implies_rtid));
+          user_relationships_request_relationship($relationship->requester, $relationship->requestee, $implied, $relationship->approved);
+        }
+        // if there are some, then if we're approving this relationship, approve the pre-existing one(s) too
+        else {
+          foreach ($relationships as $existing) {
             if ($relationship->approved && !$existing->approved) {
               $approved = user_relationships_relationship_load($existing->rid);
               $approved->approved = TRUE;
               user_relationships_update_relationship($existing, $approved);
             }
-
-            $exists = TRUE;
-            break;
           }
-        }
-
-        if (!$exists) {
-          $implied = user_relationships_relationship_type_load(array('rtid' => $implied->implies_rtid));
-          user_relationships_request_relationship($relationship->requester, $relationship->requestee, $implied, $relationship->approved);
         }
       }
     }
@@ -199,19 +197,25 @@ function user_relationship_implications_user_relationships($type, &$relationship
 
   case 'delete':
     global $user;
-    $requester = $relationship->requester_id;
-    $requestee = $relationship->requestee_id;
-    $requester_relationships = user_relationships_load_all_for_user($requester);
-    foreach ($relationship->type->implied_by as $implied_by) {
-      foreach ($requester_relationships as $requester_relationship) {
-        if (($requester_relationship->rtid == $implied_by->rtid) &&
-            ($requester_relationship->requester_id == $requester || $requester_relationship->requester_id == $requestee) &&
-            ($requester_relationship->requestee_id == $requester || $requester_relationship->requestee_id == $requestee) &&
-            (!$requester_relationship->is_oneway || $user->uid != $requestee)
-           )
-        {
-          $relationship_to_delete = user_relationships_relationship_load($requester_relationship->rid);
-          user_relationships_delete_relationship($relationship_to_delete, $relationship->deleted_by, $category);
+    if ($relationship->type->implied_by) {
+      // if the type of the relationship we're deleting is implied by other relationship type(s),
+      // loop through the implying relationship types and do the right thing
+      foreach ($relationship->type->implied_by as $implied_by) {
+        // load all the pre-existing relationships between these two users of the implying relationship type
+        $relationships = user_relationships_load_relationships(array(
+          'uid1' => $relationship->requester_id,
+          'uid2' => $relationship->requestee_id,
+          'rtid' => $implied_by->rtid,
+          )
+        );
+        // if they're not oneway relationships, or if they are and the requester is the one doing the deleting,
+        // then delete the implying relationships
+        foreach ($relationships as $existing) {
+          $rtype = user_relationships_relationship_type_load(array('rtid' => $existing->rtid));
+          if (!$rtype->is_oneway || $relationship->requester_id == $user->uid) {
+            $relationship_to_delete = user_relationships_relationship_load($existing->rid);
+            user_relationships_delete_relationship($relationship_to_delete, $relationship->deleted_by, $category);
+          }
         }
       }
     }
