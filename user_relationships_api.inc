@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.inc,v 1.17 2007-10-24 07:42:33 jbchristy Exp $
+// $Id: user_relationships_api.inc,v 1.18 2007-10-30 20:00:16 jbchristy Exp $
 
 /**
  *  User Relationships API
@@ -74,6 +74,7 @@ function user_relationships_relationship_types_load() {
  */
 function user_relationships_load_all_for_user($uid) {
   static $relationships = array();
+  $cache_throttle = variable_get('user_relationships_cache_throttle', 5000); // max # of relationships to cache
 
   if (!key_exists($uid, $relationships)) {
     $relationships[$uid] = array();
@@ -90,7 +91,9 @@ function user_relationships_load_all_for_user($uid) {
       while ($relationship = db_fetch_object($results)) {
         $relationships[$uid][] = $relationship;
       }
-      cache_set("user_relationships_relationships_{$uid}", 'cache_user_relationships', serialize($relationships[$uid]));
+      if ($cache_throttle >= 0 && sizeof($relationships[$uid]) < $cache_throttle) {
+        cache_set("user_relationships_relationships_{$uid}", 'cache_user_relationships', serialize($relationships[$uid]));
+      }
     }
   }
 
@@ -208,27 +211,31 @@ function user_relationships_request_relationship(&$requester, &$requestee, &$rel
  * @return
  *    object of the updated relationship
  */
-function user_relationships_update_relationship(&$relationship, &$updated_relationship) {
+function user_relationships_update_relationship(&$current_relationship, &$updated_relationship) {
+  // ensure data that shouldn't change doesn't
+  $updated_relationship->rid        = $current_relationship->rid;
+  $updated_relationship->created_at = $current_relationship->created_at;
 
+  // call any hooks that might want to know about updating this relationship
   _user_relationships_invoke('update', $updated_relationship);
 
-  db_query("DELETE FROM {user_relationships} WHERE rid = %d", $relationship->rid);
-  cache_clear_all("user_relationships_relationship_{$relationship->rid}", 'cache_user_relationships');
-
-  $updated_relationship->rid = db_next_id('{user_relationships}_id');
-  db_query(
-    "INSERT INTO {user_relationships} (rid, requester_id, requestee_id, rtid, approved, created_at)
-     VALUES (%d, %d, %d, %d, %d, '%s')",
-    $updated_relationship->rid,
-    $updated_relationship->requester->uid,
-    $updated_relationship->requestee->uid,
-    $updated_relationship->type->rtid,
-    ($updated_relationship->approved ? 1 : 0),
-    $relationship->created_at
+  // update the db
+  db_query("UPDATE {user_relationships}
+               SET requester_id=%d,
+                   requestee_id=%d,
+                   rtid=%d,
+                   approved=%d
+             WHERE rid=%d",
+    $updated_relationship->requester_id,
+    $updated_relationship->requestee_id,
+    $updated_relationship->rtid,
+   ($updated_relationship->approved ? 1 : 0),
+    $current_relationship->rid
   );
+  // clear the cache of both (all) users' list of all relationships
   // requester and requestee should be the same in the old and new relationships, but better safe than sorry
-  cache_clear_all("user_relationships_relationships_{$relationship->requester->uid}", 'cache_user_relationships');
-  cache_clear_all("user_relationships_relationships_{$relationship->requestee->uid}", 'cache_user_relationships');
+  cache_clear_all("user_relationships_relationships_{$current_relationship->requester->uid}", 'cache_user_relationships');
+  cache_clear_all("user_relationships_relationships_{$current_relationship->requestee->uid}", 'cache_user_relationships');
   cache_clear_all("user_relationships_relationships_{$updated_relationship->requester->uid}", 'cache_user_relationships');
   cache_clear_all("user_relationships_relationships_{$updated_relationship->requestee->uid}", 'cache_user_relationships');
 
