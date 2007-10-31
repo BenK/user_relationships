@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_implications.module,v 1.16 2007-10-30 02:59:48 jbchristy Exp $
+// $Id: user_relationship_implications.module,v 1.17 2007-10-31 23:17:52 jbchristy Exp $
 
 /**
  * Drupal Module: User Relationship Implications
@@ -185,9 +185,19 @@ function user_relationship_implications_user_relationships($type, &$relationship
         else {
           foreach ($relationships as $existing) {
             if ($relationship->approved && !$existing->approved) {
+              // approve the relationship
               $approved = user_relationships_relationship_load($existing->rid);
               $approved->approved = TRUE;
               user_relationships_update_relationship($existing, $approved);
+              // set the message informing the user (use requester and requestee from original relationship)
+              $requester = user_load(array('uid' => $relationship->requester_id));
+              $requestee = user_load(array('uid' => $relationship->requestee_id));
+              drupal_set_message(user_relationships_get_message('accepted', array(
+                '!requester'                => theme('username', $requester),
+                '!requestee'                => theme('username', $requestee),
+                '%relationship_name'        => $approved->name,
+                '%relationship_plural_name' => $approved->plural_name,
+              )));
             }
           }
         }
@@ -213,8 +223,18 @@ function user_relationship_implications_user_relationships($type, &$relationship
         foreach ($relationships as $existing) {
           $rtype = user_relationships_relationship_type_load(array('rtid' => $existing->rtid));
           if (!$rtype->is_oneway || $relationship->requester_id == $user->uid) {
+            // delete the relationship
             $relationship_to_delete = user_relationships_relationship_load($existing->rid);
             user_relationships_delete_relationship($relationship_to_delete, $relationship->deleted_by, $category);
+            // set the message informing the user (use requester and requestee from original relationship)
+            $requester = user_load(array('uid' => $relationship->requester_id));
+            $requestee = user_load(array('uid' => $relationship->requestee_id));
+            drupal_set_message(user_relationships_get_message('removed', array(
+              '!requester'                => theme('username', $requester),
+              '!requestee'                => theme('username', $requestee),
+              '%relationship_name'        => $relationship_to_delete->name,
+              '%relationship_plural_name' => $relationship_to_delete->plural_name,
+            )));
           }
         }
       }
