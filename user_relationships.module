@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships.module,v 1.13 2007-10-11 18:55:32 sprsquish Exp $
+// $Id: user_relationships.module,v 1.14 2007-12-18 02:40:28 sprsquish Exp $
 
 /**
  *
@@ -7,12 +7,12 @@
  * Please consult either the other files for public functions
  *
  */
-
-$ur_include_files = array(
+foreach (array(
   'api', 'theme', 'hooks', 'pages', 'forms', 'actions'//, 'views'
-);
-foreach ($ur_include_files as $file_to_include) {
-  include_once("user_relationships_{$file_to_include}.inc");
+  ) as $file_to_include
+) { 
+  $modulepath = drupal_get_path('module', 'user_relationships');
+  include_once("{$modulepath}/user_relationships_{$file_to_include}.inc");
 }
 
 /**

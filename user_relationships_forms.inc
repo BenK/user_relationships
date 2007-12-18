@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_forms.inc,v 1.10 2007-10-04 22:42:37 gwen Exp $
+// $Id: user_relationships_forms.inc,v 1.11 2007-12-18 02:40:28 sprsquish Exp $
 
 /**
  * User Relationships forms
@@ -81,7 +81,7 @@ function user_relationships_settings() {
  * Relationship type edit page.
  */
 function user_relationships_type_edit($rtid = NULL) {
-  if (arg(3) == "edit" && $rid >= 0) {
+  if (arg(3) == "edit" && $rtid >= 0) {
     $relationship_type = user_relationships_relationship_type_load(array('rtid' => $rtid));
   }
 
