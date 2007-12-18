@@ -1,4 +1,4 @@
-/* $Id: README.txt,v 1.3 2007-10-11 19:27:04 jbchristy Exp $ */
+/* $Id: README.txt,v 1.4 2007-12-18 02:47:02 sprsquish Exp $ */
 
 User Relationships Module
 -------------------------
@@ -108,33 +108,49 @@ Database Schema
 MySQL
 =====
 
--- 
+--
 -- Table structure for table `user_relationships`
--- 
+--
 CREATE TABLE IF NOT EXISTS `user_relationships` (
-  `rid` int(10) unsigned NOT NULL default '0',
-  `requester_id` int(11) NOT NULL default '0',
-  `requestee_id` int(11) NOT NULL default '0',
-  `rtid` int(11) NOT NULL default '0',
-  `approved` tinyint(1) NOT NULL default '0',
-  `created_at` datetime NOT NULL,
-  `updated_at` timestamp NOT NULL,
-  PRIMARY KEY  (`rid`),
-  KEY `requester_id` (`requester_id`),
-  KEY `requestee_id` (`requestee_id`),
-  KEY `rtid` (`rtid`)
+`rid` int(10) unsigned NOT NULL default '0',
+`requester_id` int(11) NOT NULL default '0',
+`requestee_id` int(11) NOT NULL default '0',
+`rtid` int(11) NOT NULL default '0',
+`approved` tinyint(1) NOT NULL default '0',
+`created_at` datetime NOT NULL,
+`updated_at` timestamp NOT NULL,
+PRIMARY KEY (`rid`),
+KEY `requester_id` (`requester_id`),
+KEY `requestee_id` (`requestee_id`),
+KEY `rtid` (`rtid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
--- 
+--
 -- Table structure for table `user_relationship_types`
--- 
+--
 CREATE TABLE IF NOT EXISTS `user_relationship_types` (
-  `rtid` int(10) unsigned NOT NULL default '0',
-  `name` varchar(255) NOT NULL default '',
-  `is_oneway` tinyint(1) NOT NULL default '0',
-  `requires_approval` tinyint(1) NOT NULL default '0',
-  PRIMARY KEY  (`rtid`),
-  UNIQUE KEY `name` (`name`)
+`rtid` int(10) unsigned NOT NULL default '0',
+`name` varchar(255) NOT NULL default '',
+`plural_name` varchar(255) NOT NULL default '',
+`is_oneway` tinyint(1) NOT NULL default '0',
+`requires_approval` tinyint(1) NOT NULL default '0',
+`expires_val` int(10) unsigned NOT NULL default 0,
+PRIMARY KEY (`rtid`),
+UNIQUE KEY `name` (`name`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+--
+-- Table structure for table `cache_user_relationships`
+--
+CREATE TABLE IF NOT EXISTS `cache_user_relationships` (
+`cid` varchar(255) NOT NULL default '',
+`data` longblob,
+`expire` int(11) NOT NULL default 0,
+`created` int(11) NOT NULL default 0,
+`headers` text,
+`serialized` int(1) NOT NULL default 0,
+PRIMARY KEY (`cid`),
+KEY `expire` (`expire`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
