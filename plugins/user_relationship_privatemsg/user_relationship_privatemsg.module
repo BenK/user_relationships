@@ -1,0 +1,18 @@
+<?php
+// $Id: user_relationship_privatemsg.module,v 1.1 2007-12-20 18:24:09 sprsquish Exp $
+
+function user_relationship_privatemsg_form_alter($form_id, &$form) {
+  global $user;
+
+  switch ($form_id) {
+  case 'privatemsg_new':
+    $relationships = user_relationships_load(array('requester_id' => $user->uid));
+    $contacts = array();
+    foreach ($relationships as $relationship) {
+      $contacts[$relationship->name][$relationship->requestee_name] = $relationship->requestee_name;
+    }
+
+    $form['quick']['#options'] = array_merge($form['quick']['#options'], $contacts);
+    break;
+  }
+}

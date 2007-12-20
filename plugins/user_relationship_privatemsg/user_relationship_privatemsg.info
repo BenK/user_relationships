@@ -1,0 +1,5 @@
+; $Id: user_relationship_privatemsg.info,v 1.1 2007-12-20 18:24:09 sprsquish Exp $
+name = User Relationship Privatemsg
+description = "Integrates User Relationships with Privatemsg"
+dependencies = user_relationships privatemsg
+package = "User Relationships"
