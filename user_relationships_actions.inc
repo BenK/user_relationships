@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_actions.inc,v 1.15 2007-12-20 17:28:57 sprsquish Exp $
+// $Id: user_relationships_actions.inc,v 1.16 2007-12-20 23:55:47 sprsquish Exp $
 
 /**
  * User Relationships Actions
@@ -163,11 +163,12 @@ function user_relationships_request_submit($form_id, &$form_values) {
   $requestee          = $form_values['requestee'];
   $relationship_type  = user_relationships_type_load(array('rtid' => $form_values['rtid']));
   
-  user_relationships_request_relationship($requester, $requestee, $relationship_type);
+  $relationship = user_relationships_request_relationship($requester, $requestee, $relationship_type);
 
   $relationship->requester = $requester;
   $relationship->requestee = $requestee;
   $relationship->type = $relationship_type;
+
   drupal_set_message(user_relationships_get_message(($relationship->approved ? 'pre_approved' : 'submitted'), $relationship));
 
   return 'user';

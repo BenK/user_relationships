@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships.module,v 1.15 2007-12-20 17:28:57 sprsquish Exp $
+// $Id: user_relationships.module,v 1.16 2007-12-20 23:55:47 sprsquish Exp $
 
 /**
  *
@@ -275,7 +275,13 @@ function _user_relationships_generate_query($param = array(), $order = NULL, $li
   if (!empty($order)) { $cond .= " ORDER BY {$order}"; }
   if (!empty($limit)) { $cond .= " LIMIT {$limit}"; }
   return array(
-    'query'     => "SELECT ur.rid, ur.*, urt.* FROM {user_relationships} ur INNER JOIN {user_relationship_types} urt ON ur.rtid = urt.rtid WHERE {$cond}",
+    'query'     => 
+      "SELECT ur.rid, ur.*, urt.*, requesters.name AS requester_name, requestees.name AS requestee_name
+       FROM {user_relationships} ur 
+        INNER JOIN {user_relationship_types} urt ON ur.rtid = urt.rtid 
+        LEFT JOIN users requesters ON ur.requester_id = requesters.uid
+        LEFT JOIN users requestees ON ur.requestee_id = requestees.uid
+      WHERE {$cond}",
     'count'     => "SELECT COUNT(rid) FROM {user_relationships} ur WHERE {$cond}",
     'arguments' => $arguments,
   );
