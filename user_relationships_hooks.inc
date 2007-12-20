@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_hooks.inc,v 1.12 2007-12-20 17:28:57 sprsquish Exp $
+// $Id: user_relationships_hooks.inc,v 1.13 2007-12-20 18:16:30 sprsquish Exp $
 
 /**
  * User Relationships hook implementations
@@ -197,7 +197,7 @@ function user_relationships_menu($may_cache) {
         'title'               => t('Remove relationship'),
         'access'              => $edit_access,
         'callback'            => 'drupal_get_form',
-        'callback arguments'  => array('user_relationships_remove', $id, arg(3)),
+        'callback arguments'  => array('user_relationships_remove', $id, arg(4)),
         'type'                => MENU_CALLBACK,
       );
 
