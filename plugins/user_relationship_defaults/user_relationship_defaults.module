@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_defaults.module,v 1.2 2007-08-23 14:08:37 sprsquish Exp $
+// $Id: user_relationship_defaults.module,v 1.3 2007-12-20 17:28:58 sprsquish Exp $
 
 /**
  * Drupal Module: User Relationship Defaults
@@ -24,7 +24,7 @@ function user_relationship_defaults_load($rdid) {
   $default = db_fetch_object(db_query("SELECT * FROM {user_relationship_defaults} WHERE rdid = %d", $rdid));
 
   $default->user              = user_load(array('uid' => $default->uid));
-  $default->relationship_type = user_relationships_relationship_type_load(array('rtid' => $default->rtid));
+  $default->relationship_type = user_relationships_type_load(array('rtid' => $default->rtid));
 
   return $default;
 }
@@ -41,7 +41,7 @@ function user_relationship_defaults_relationships_load() {
   $defaults = array();
   while ($default = db_fetch_object($results)) {
     $default->user              = user_load(array('uid' => $default->uid));
-    $default->relationship_type = user_relationships_relationship_type_load(array('rtid' => $default->rtid));
+    $default->relationship_type = user_relationships_type_load(array('rtid' => $default->rtid));
 
     $defaults[] = $default;
   }
@@ -131,7 +131,7 @@ function user_relationship_defaults_add_form_validate($form_id, &$form_values) {
  */
 function user_relationship_defaults_add_form_submit($form_id, &$form_values) {
   $user               = user_load(array('name' => $form_values['username']));
-  $relationship_type  = user_relationships_relationship_type_load(array('name' => $form_values['relationship_type_name']));
+  $relationship_type  = user_relationships_type_load(array('name' => $form_values['relationship_type_name']));
 
   db_query(
     "INSERT INTO {user_relationship_defaults} (rdid, uid, rtid) VALUES (%d, %d, %d)", 
@@ -142,7 +142,7 @@ function user_relationship_defaults_add_form_submit($form_id, &$form_values) {
     '%relationship_name'  => $relationship_type->name,
   ));
   drupal_set_message($message);
-  watchdog('userreltnships', $message, WATCHDOG_NOTICE, l(t('view'), 'admin/user/relationships'));
+  watchdog('u_relationship', $message, WATCHDOG_NOTICE, l(t('view'), 'admin/user/relationships'));
 
   return 'admin/user/relationships';
 }
@@ -196,7 +196,7 @@ function user_relationship_defaults_delete_form_submit($form_id, &$form_values) 
   ));
 
   drupal_set_message($message);
-  watchdog('userreltnships', $message, WATCHDOG_NOTICE);
+  watchdog('u_relationship', $message, WATCHDOG_NOTICE);
 
   return 'admin/user/relationships';
 }

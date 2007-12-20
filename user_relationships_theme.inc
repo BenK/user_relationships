@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_theme.inc,v 1.10 2007-10-11 19:27:04 jbchristy Exp $
+// $Id: user_relationships_theme.inc,v 1.11 2007-12-20 17:28:57 sprsquish Exp $
 
 /**
  * User Relationships theme-able functions
@@ -8,7 +8,7 @@
 /**
  * Categorized list of relationships for a given user
  */
-function theme_user_relationships_page($uid = NULL, $relationship = NULL) {
+function theme_user_relationships_page($uid = NULL, $rtid = NULL) {
   global $user;
 
   if (empty($uid) || $uid == $user->uid) {
@@ -24,21 +24,20 @@ function theme_user_relationships_page($uid = NULL, $relationship = NULL) {
     exit();
   }
 
-  $query = 
-     "SELECT r.*, rt.name, rt.plural_name, rt.is_oneway 
-      FROM {user_relationships} r, {user_relationship_types} rt 
-      WHERE (requester_id = %d OR requestee_id = %d) 
-        AND r.rtid = rt.rtid 
-        AND r.approved = 1";
-  $args = array($viewed_user->uid, $viewed_user->uid);
-
-  if (isset($relationship->rtid)) {
-    $query .= " AND r.rtid = %d";
-    $args[] = $relationship->rtid;
+  $args = array('user' => $viewed_user->uid);
+  if (isset($rtid) && is_numeric($rtid)) {
+    $relationship_type = user_relationships_type_load($rtid);
+    $args['rtid'] = $rtid;
   }
 
-  $relationships_per_page = variable_get('user_relationships_relationships_per_page', 16);
-  $result = $relationships_per_page ? pager_query($query, $relationships_per_page, 0, NULL, $args) : db_query($query, $args);
+  // To Page or not to Page
+  $query = _user_relationships_generate_query($args);
+  if ($relationships_per_page = variable_get('user_relationships_relationships_per_page', 16)) {
+    $result = pager_query($query['query'], $relationships_per_page, 0, $query['count'], $query['arguments']);
+  }
+  else {
+    $result = db_query($query['query'], $query['arguments']);
+  }
 
   if (db_num_rows($result)) {
     $edit_access = ($user->uid == $viewed_user->uid && user_access('maintain relationships')) || user_access('administer users');
@@ -55,17 +54,20 @@ function theme_user_relationships_page($uid = NULL, $relationship = NULL) {
         $edit_access ? theme('user_relationships_remove_link', $viewed_user->uid, $relation) : '&nbsp;',
       );
     }
-    $output .= theme('table', array(), $rows);
+
+    $output .= 
+      theme('table', array(), $rows) .
+      theme('pager', NULL, $relationships_per_page);
   }
   else {
     $output .= t('No relationships found');
   }
 
-  $output .= theme('pager', NULL, $relationships_per_page);
-
-  drupal_set_title(t("%username's %relationships", array(
-    '%username' => $viewed_user->name, 
-    '%relationships' => $relationship->plural_name ? $relationship->plural_name : $relationship->name
+  $msg = $relationship_type ? "%username's %relationships" : "All %username's relationships";
+    
+  drupal_set_title(t($msg, array(
+    '%username'       => $viewed_user->name, 
+    '%relationships'  => $relationship_type->plural_name ? $relationship_type->plural_name : $relationship_type->name
   )));
 
   return $output;
@@ -74,9 +76,6 @@ function theme_user_relationships_page($uid = NULL, $relationship = NULL) {
 /**
  * List of pending requests from other users
  */
-define('RECEIVED_PAGER', 0);
-define('SENT_PAGER', 1);
-
 function theme_user_relationships_pending_requests_page($uid = NULL) {
   global $user;
 
@@ -90,70 +89,46 @@ function theme_user_relationships_pending_requests_page($uid = NULL) {
 
   drupal_set_title(t("%username's pending relationships", array('%username' => $account->name)));
 
-  $output = '';
   $relationships_per_page = variable_get('user_relationships_relationships_per_page', 16);
-  $args = array($account->uid);
 
-  /**
-   * Sent Requests
-   */
-  $sql = 
-    "SELECT u.*, r.*, rt.name as rname 
-     FROM {user_relationships} r, {user_relationship_types} rt, {users} u
-     WHERE  r.requester_id = %d 
-       AND r.approved = 0 
-       AND rt.rtid = r.rtid
-       AND r.requestee_id = u.uid";
+  foreach (array(
+    array(0, 'requester_id', t('Sent Requests')),
+    array(1, 'requestee_id', t('Received Requests')),
+  ) as $list_args) {
 
-  $requests = $relationships_per_page ? pager_query($sql, $relationships_per_page, SENT_PAGER, NULL, $args) : db_query($sql, $args);
-
-  if (db_num_rows($requests)) {
-    $rows[] = array(array('data' => t('Sent Requests'), 'header' => true, 'colspan' => 2));
-
-    while ($relationship = db_fetch_object($requests)) {
-      $links     = theme('user_relationships_pending_request_cancel_link', $account->uid, $relationship->rid);
-      $rows[]    = array(theme('username', $relationship) . ' is a ' . $relationship->rname, $links);
+    $query = _user_relationships_generate_query(array($list_args[1] => $account->uid, 'approved' => FALSE));
+    if ($relationships_per_page = variable_get('user_relationships_relationships_per_page', 16)) {
+      $result = pager_query($query['query'], $relationships_per_page, $list_args[0], $query['count'], $query['arguments']);
+    }
+    else {
+      $result = db_query($query['query'], $query['arguments']);
     }
 
-    $output .= theme('table', array(), $rows);
+    if (db_num_rows($result)) {
+      $rows[] = array(array('data' => $list_args[2], 'header' => true, 'colspan' => 2));
 
-    if ($relationships_per_page) {
-      $output .= theme('pager', NULL, $relationships_per_page, SENT_PAGER);
+      while ($relationship = db_fetch_object($result)) {
+        if ($list_args[1] == 'requester_id') {
+          $links  = theme('user_relationships_pending_request_cancel_link', $account->uid, $relationship->rid);
+          
+        }
+        else {
+          $links =
+          	theme('user_relationships_pending_request_approve_link',    $uid, $relationship->rid) . ' | ' .
+          	theme('user_relationships_pending_request_disapprove_link', $uid, $relationship->rid);
+        }
+        $related    = user_load(array('uid' => ($relationship->requester_id == $account->uid ? $relationship->requestee_id : $relationship->requester_id)));
+        $rows[]     = array(theme('username', $related) . ' is a ' . $relationship->name, $links);
+      }
+
+      $output .= theme('table', array(), $rows);
+
+      if ($relationships_per_page) {
+        $output .= theme('pager', NULL, $relationships_per_page, $list_args[0]);
+      }
+
+      unset($rows);
     }
-
-    unset($rows);
-  }
-
-  /**
-   * Received Requests
-   */
-  $sql = 
-    "SELECT u.*, r.*, rt.name as rname 
-     FROM {user_relationships} r, {user_relationship_types} rt, {users} u
-     WHERE  r.requestee_id = %d 
-       AND r.approved = 0 
-       AND rt.rtid = r.rtid
-       AND r.requester_id = u.uid";
-
-  $requests = $relationships_per_page ? pager_query($sql, $relationships_per_page, RECEIVED_PAGER, NULL, $args) : db_query($sql, $args);
-
-  if (db_num_rows($requests)) {
-    $rows[] = array(array('data' => t('Received Requests'), 'header' => true, 'colspan' => 2));
-
-    while ($relationship = db_fetch_object($requests)) {
-      $links =
-      	theme('user_relationships_pending_request_approve_link',    $uid, $relationship->rid) . ' | ' .
-      	theme('user_relationships_pending_request_disapprove_link', $uid, $relationship->rid);
-      $rows[] = array(theme('username', $relationship) . ' is a ' . $relationship->rname, $links);
-    }
-
-    $output .= theme('table', array(), $rows);
-
-    if ($relationships_per_page) {
-      $output .= theme('pager', NULL, $relationships_per_page, RECEIVED_PAGER);
-    }
-
-    unset($rows);
   }
 
   if ($output == '') {
@@ -167,41 +142,41 @@ function theme_user_relationships_pending_requests_page($uid = NULL) {
  * Create relationship link
  */
 function theme_user_relationships_request_relationship_link(&$relate_to) {
-  return l(t('Create a relationship with %name', array('%name' => $relate_to->name)), 'relationship/request/' . $relate_to->uid, NULL, drupal_get_destination(), NULL, FALSE, TRUE);
+  return l(t('Create a relationship with %name', array('%name' => $relate_to->name)), "relationship/request/{$relate_to->uid}", NULL, drupal_get_destination(), NULL, FALSE, TRUE);
 }
 
 /**
  * Remove relationship link
  */
 function theme_user_relationships_remove_link($uid, &$relationship) {
-  return l(t('Remove'), "relationship/{$uid}/remove/$relationship->rid", NULL, drupal_get_destination(), NULL, FALSE, TRUE);
+  return l(t('Remove'), "user/{$uid}/relationship/remove/$relationship->rid", NULL, drupal_get_destination(), NULL, FALSE, TRUE);
 }
 
 /**
  * Approve to pending relationship link
  */
 function theme_user_relationships_pending_request_approve_link($uid, $relationship) {
-  return l(t('Approve'), "relationships/$uid/requested/approve/$relationship", array('title' => t('Approve')), drupal_get_destination(), NULL, FALSE, TRUE);
+  return l(t('Approve'), "user/{$uid}/relationships/requested/approve/{$relationship}", array('title' => t('Approve')), drupal_get_destination(), NULL, FALSE, TRUE);
 }
 
 /**
  * Disapprove to pending relationship link
  */
 function theme_user_relationships_pending_request_disapprove_link($uid, $relationship) {
-  return l(t('Disapprove'), "relationships/$uid/requested/disapprove/$relationship", array('title' => t('Disapprove')), drupal_get_destination(), NULL, FALSE, TRUE);
+  return l(t('Disapprove'), "user/{$uid}/relationships/requested/disapprove/{$relationship}", array('title' => t('Disapprove')), drupal_get_destination(), NULL, FALSE, TRUE);
 }
 
 /**
  * Cancel request link
  */
 function theme_user_relationships_pending_request_cancel_link($uid, $relationship) {
-  return l(t('Cancel'), "relationships/$uid/requested/cancel/$relationship", array('title' => t('Cancel')), drupal_get_destination(), NULL, FALSE, TRUE);
+  return l(t('Cancel'), "user/{$uid}/relationships/requested/cancel/{$relationship}", array('title' => t('Cancel')), drupal_get_destination(), NULL, FALSE, TRUE);
 }
 
 /**
  * Link to user page (use usernode if it's available)
  */
-function theme_user_relationship_user_link($uid) {
+function theme_user_relationships_user_link($uid) {
   if (module_exists('usernode')) {
     $nid  = usernode_get_node_id($uid);
     $url  = "node/$nid";
@@ -213,77 +188,7 @@ function theme_user_relationship_user_link($uid) {
   return url($url, NULL, NULL, TRUE); 
 }
 
-/**
- * Generate the title of a My/User Relationships block
- */
-function theme_user_relationships_relationships_block_subject($viewing_user, $relationships, $rtid, $all_types) {
-  global $user;
-  $user_name = ($viewing_user->uid == $user->uid) ? 'My' : $viewing_user->name . "'s";
-  if ($all_types) {
-    $type_name = 'Relationships';
-  }
-  else {
-    $rtype = user_relationships_relationship_type_load(array('rtid' => $rtid));
-    $type_name = drupal_ucfirst($rtype->plural_name);
-  }
-  $output = t('@user @type', array('@user' => $user_name, '@type' => $type_name));
-  return $output;
-}
 
-/**
- * Generate the content of a (non-empty) My/User Relationships block
- *
- * Only called if there are relationships to display
- */
-function theme_user_relationships_relationships_block_content($viewing_user, $relationships, $rtid, $all_types) {
-  $rows[] = array();
-
-  if ($all_types) {
-    // build an array of relationship type names indexed by rtid
-    $rtypes = user_relationships_relationship_types_load();
-    $relationship_type = array();
-    foreach ($rtypes as $rtype) {
-      $relationship_type[$rtype->rtid] = $rtype->name;
-    }
-  }
-
-  foreach ($relationships as $relationship) {
-    $relatee_id = ($viewing_user->uid == $relationship->requester_id) ? $relationship->requestee_id : $relationship->requester_id;
-    $relatee = user_load(array('uid' => $relatee_id));
-    if ($all_types) {
-      $rows[] = array(
-        t('!name', array('!name' => theme('username', $relatee))),
-        t('@type', array('@type' => $relationship_type[$relationship->rtid]))
-      );
-    }
-    else {
-      $rows[] = array(t('!name', array('!name' => theme('username', $relatee))));
-    }
-  }
-  $output = theme('table', array(), $rows);
-
-  return $output;
-}
-
-/**
- * Generate the content of an empty My/User Relationships block
- */
-function theme_user_relationships_relationships_block_empty($viewing_user, $rtid, $all_types) {
-  global $user;
-
-  if ($all_types) {
-    $rtype_name = 'relationships';
-  }
-  else {
-    $rtype = user_relationships_relationship_type_load(array('rtid' => $rtid));
-    $rtype_name = $rtype->plural_name;
-  }
-
-  if ($viewing_user->uid == $user->uid) {
-    return t('You have no @rels', array('@rels' => $rtype_name));
-  }
-  else {
-    return t('!name has no @rels', array('!name' => theme('username', $viewing_user), '@rels' => $rtype_name));
-  }
-  
+function theme_user_relationships_approval_status($approved) {
+  return isset($approved) ? ($approved ? t('Approved') : t('Not Approved')) : t('Unknown');
 }

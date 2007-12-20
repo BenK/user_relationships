@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_mailer.module,v 1.9 2007-12-18 02:40:28 sprsquish Exp $
+// $Id: user_relationship_mailer.module,v 1.10 2007-12-20 17:28:58 sprsquish Exp $
 
 if (!variable_get('user_relationship_mailer_ops', FALSE)) {
   variable_set('user_relationship_mailer_ops', array('request', 'cancel', 'approve', 'disapprove', 'remove'));
@@ -83,10 +83,10 @@ function user_relationship_mailer_send_email($op, &$relationship) {
 
     $replacements = array('%type' => $op, '%username' => $related->name);
     if (drupal_mail("user_relationship_mailer_user_$op", $target['address'], $subject, $message, $site_mail)) {
-      watchdog('userreltnships', t('%type message was sent to %username', $replacements));
+      watchdog('u_relationship', t('%type message was sent to %username', $replacements));
     }
     else {
-      watchdog('userreltnships', t('There was a problem sending the %type message to %username', $replacements), WATCHDOG_WARNING);
+      watchdog('u_relationship', t('There was a problem sending the %type message to %username', $replacements), WATCHDOG_WARNING);
     }
   }
 }
@@ -115,7 +115,7 @@ function user_relationship_mailer_form_alter($form_id, &$form) {
   switch ($form_id) {
   case 'user_relationships_settings':
     global $user;
-    $relationship = user_relationships_relationship_types_load();
+    $relationship = user_relationships_types_load();
     $relationship = array_pop($relationship);
 
     $form['mail'] = array(

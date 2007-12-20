@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships.module,v 1.14 2007-12-18 02:40:28 sprsquish Exp $
+// $Id: user_relationships.module,v 1.15 2007-12-20 17:28:57 sprsquish Exp $
 
 /**
  *
@@ -7,13 +7,59 @@
  * Please consult either the other files for public functions
  *
  */
+
+// Load all needed files
 foreach (array(
-  'api', 'theme', 'hooks', 'pages', 'forms', 'actions'//, 'views'
+  'api', 'theme', 'hooks', 'pages', 'forms', 'actions'
   ) as $file_to_include
 ) { 
   $modulepath = drupal_get_path('module', 'user_relationships');
   include_once("{$modulepath}/user_relationships_{$file_to_include}.inc");
 }
+
+
+/**
+ * Returns a nested array of default messages
+ */
+function user_relationships_default_messages() {
+  return array(
+    'informational' => array(
+      'submitted'     => 'Your request to be a %relationship_name of !requestee has been submitted.',
+      'accepted'      => 'You are now a %relationship_name of !requestee.',
+      'denied'        => "!requester's request to be a %relationship_name of !requestee has been removed.",
+      'default'       => 'No action has been taken.',
+      'removed'       => '!requester is no longer a %relationship_name of !requestee.',
+      'pending'       => '!requester believes they are a %relationship_name of yours.  Please view your !pending_relationship_requests to approve them.',
+      'pre_approved'  => "You're request to be %relationship_name of !requestee has been automatically approved. You are now a %relationship_name of !requestee."
+    ),
+    'error' => array(
+      'too_many_relationships'  => 'You already relate to this user in every possible way.',
+      'existing_request'        => 'You have already requested to be a %relationship_name of !requestee',
+      'existing_relationship'   => 'You are already a %relationship_name of !requestee',
+      'not_accepting_requests'  => 'This user is not accepting relationship requests.',
+      'self_request'            => 'You are not allowed to create a relationship to yourself.',
+      'non_existant_user'       => 'This user does not exist.',
+    ),
+  );
+}
+
+
+/**
+ * Recursively search an array for a key and return the value attached to it
+ */
+function _user_relationships_get_from_array($needle, &$haystack) {
+  foreach ($haystack as $key => $value) {
+    if ($key == $needle) {
+      return $value;
+    }
+    else if (is_array($value)) {
+      if ($msg = _user_relationships_get_from_array($needle, $value)) {
+        return $msg;
+      }
+    }
+  }
+}
+
 
 /**
  * Invoke hook_user_relationships()
@@ -56,18 +102,14 @@ function _user_relationships_set_notifications(&$account) {
   $notifications = drupal_get_messages('status', FALSE);
   $notifications = $notifications['status'] ? $notifications['status'] : array();
 
-  $account_relationships = user_relationships_load_all_for_user($account->uid);
-  foreach ($account_relationships as $relationship) {
-    if (!$relationship->approved && $account->uid != $relationship->requester_id) {
-        $msg = user_relationships_get_message('pending', array(
-        '!requester'                      => theme('username', user_load(array('uid' => $relationship->requester_id))),
-        '%relationship_name'              => $relationship->name,
-        '%relationship_plural_name'       => $relationship->plural_name,
-        '!pending_relationship_requests'  => l(t('pending relationship requests'), 'relationships/'. $account->uid .'/requests')
-      ));
-      if (!in_array($msg, $notifications)) {
-        drupal_set_message($msg);
-      }
+  $relationships = user_relationships_load(array('requestee_id' => $account->uid, 'approved' => FALSE));
+  foreach ($relationships as $relationship) {
+    $msg = user_relationships_get_message('pending', $relationship, array(
+      '!pending_relationship_requests'  => l(t('pending relationship requests'), 'relationships/'. $account->uid .'/requests')
+    ));
+
+    if (!in_array($msg, $notifications)) {
+      drupal_set_message($msg);
     }
   }
 }
@@ -79,13 +121,12 @@ function _user_relationships_set_notifications(&$account) {
 function _user_relationships_between(&$viewer, &$viewed) {
   $list = array();
 
-  $viewer_relationships = user_relationships_load_all_for_user($viewer->uid);
-  foreach ($viewer_relationships as $relationship) {
-    $related = $relationship->requestee_id == $viewed->uid || ($relationship->is_oneway ? FALSE : $relationship->requester_id == $viewed->uid);
-    if ($relationship->approved && $related) {
-      $list[] = t('%relationship_name (!remove_link)', array(
+  $relationships = user_relationships_load(array('requester_id' => $viewer->uid, 'requestee_id' => $viewed->uid));
+  foreach ($relationships as $relationship) {
+    if ($relationship->approved && !$list[$relationship->rid]) {
+      $list[$relationship->rid] = t('%relationship_name (!remove_link)', array(
         '%relationship_name'  => $relationship->name,
-        '!remove_link'        => theme('user_relationships_remove_link', $viewed->uid, $relationship)
+        '!remove_link'        => theme('user_relationships_remove_link', $viewer->uid, $relationship)
       ));
     }
   }
@@ -103,142 +144,33 @@ function _user_relationships_actions_between(&$viewer, &$viewed) {
   }
 
   $list = array();
-  $viewer_relationships = user_relationships_load_all_for_user($viewer->uid);
-  foreach ($viewer_relationships as $relationship) {
-    if (!$relationship->approved) {
-      // Viewer is the requester
-      if ($relationship->requestee_id == $viewed->uid) {
-        $list[] = t('You have requested to be a %relationship_name of this user. (!pending_requests)', array(
-          '%relationship_name'  => $relationship->name,
-          '!pending_requests'   => l(t('pending requests'), "relationships/$viewer->uid/requests"),
-        ));
-      }
-      // Viewer is the requestee
-      else if ($relationship->requester_id == $viewed->uid) {
-        $list[] = t('This user believes that they are a %relationship_name of yours. (!pending_requests)', array(
-          '%relationship_name'  => $relationship->name,
-          '!pending_requests'   => l(t('pending requests'), "relationships/$viewer->uid/requests"),
-        ));
-      }
-    }
+
+  $relationships = user_relationships_load(array('requester_id' => $viewer->uid, 'approved' => FALSE));
+  foreach ($relationships as $relationship) {
+    $list[] = t('You have requested to be a %relationship_name of this user. (!pending_requests)', array(
+      '%relationship_name'  => $relationship->name,
+      '!pending_requests'   => l(t('pending requests'), "relationships/{$viewer->uid}/requests"),
+    ));
   }
 
-  $count = 0;
-  foreach ($viewer_relationships as $relationship) {
-    if ($relationship->requester_id == $viewed->uid || $relationship->requestee_id == $viewed->uid) {
-      $count++;
-    }
+  $relationships = user_relationships_load(array('requester_id' => $viewed->uid, 'approved' => FALSE));
+  foreach ($relationships as $relationship) {
+    $list[] = t('This user believes that they are a %relationship_name of yours. (!pending_requests)', array(
+      '%relationship_name'  => $relationship->name,
+      '!pending_requests'   => l(t('pending requests'), "relationships/{$viewer->uid}/requests"),
+    ));
   }
-  $size = db_result(db_query("SELECT COUNT(*) FROM {user_relationship_types}"));
 
-  if (variable_get('user_relationships_allow_multiple', TRUE) && $count < $size) {
+  if (
+    variable_get('user_relationships_allow_multiple', TRUE) && 
+    (user_relationships_load(array('requester_id' => $viewer->uid, 'requestee_id' => $viewed->uid), TRUE) < (int)db_result(db_query("SELECT COUNT(*) FROM {user_relationship_types}")))
+  ) {
     $list[] = theme('user_relationships_request_relationship_link', $viewed);
   }
 
   return $list;
 }
 
-
-function _user_relationships_current_relationships(&$requester, &$requestee) {
-  $current_relationships = array();
-  $requester_relationships = user_relationships_load_all_for_user($requester->uid);
-  foreach ($requester_relationships as $relationship) {
-    if (
-      $relationship->requestee_id == $requestee->uid || 
-      ($relationship->is_oneway ? FALSE : $relationship->requester_id == $requestee->uid)
-    ) {
-      $current_relationships[$relationship->rtid] = $relationship;
-    }
-  }
-
-  return $current_relationships;
-}
-
-
-/*
- * Returns an array of posible actions (html) for the viewing user,
- * e.g. a link to request a relationship with the user
- */
-function user_relationships_get_relationship_actions(&$viewing_user, &$viewed_user) {
-  $actions = array();
-  if (!user_access('maintain relationships') || !user_access('can have relationship', $viewing_user) || !user_access('can have relationship', $viewed_user) || $viewing_user->uid == $viewed_user->uid) {
-    return $actions;
-  }
-
-  $relationships = user_relationships_get_relationships_for($viewing_user->uid, $viewed_user->uid);
-
-  if (variable_get('user_relationships_require_approval', TRUE)) {
-    $requests   = user_relationships_get_requests($viewing_user->uid, $viewed_user->uid);
-    $requestees = user_relationships_get_requestees($viewing_user->uid, $viewed_user->uid);
-
-    if (sizeof($requests) > 0) {
-      foreach($requests as $relationship => $request) {
-        $actions[] = t('You have requested to be a %relationship_name of this user. (See !your_pending_requests)', array(
-          '%relationship_name'      => $relationship,
-          '!your_pending_requests'  => l(t('your pending requests'), 'relationships/'. $viewing_user->uid .'/requests'),
-        ));
-      }
-    }
-    
-    if (sizeof($requestees) > 0) {
-      foreach($requestees as $requestee) {
-        $actions[] = t('This user believes that they are a %relationship_name of yours. (See !your_pending_requests)', array(
-          '%relationship_name' => $requestee->name,
-          '!your_pending_requests'  => l(t('your pending requests'), 'relationships/'. $viewing_user->uid .'/requests'),
-        ));
-      }
-    }
-  }
-
-  if (variable_get('user_relationships_allow_multiple', 1) || (sizeof($relationships) == 0)) {
-    $count = db_result(db_query("SELECT COUNT(*) AS size FROM {user_relationship_types}"));
-    if ((sizeof($requests) + sizeof($relationships)) < $count) {
-      $actions[] = theme('user_relationships_request_relationship_link', $viewed_user);
-    }
-  }
-
-  return $actions;
-}
-
-/**
- * Returns a nested array of default messages
- */
-function user_relationships_default_messages() {
-  return array(
-    'informational' => array(
-      'submitted' => 'Your request to be a %relationship_name of %requestee has been submitted.',
-      'accepted'  => 'You are now a %relationship_name of !requestee.',
-      'denied'    => "!requester's request to be a %relationship_name of !requestee has been removed.",
-      'default'   => 'No action has been taken.',
-      'removed'   => '!requester is no longer a %relationship_name of !requestee.',
-      'pending'   => '!requester believes they are a %relationship_name of yours.  Please view your !pending_relationship_requests to approve them.',
-    ),
-    'error' => array(
-      'too_many_relationships'  => 'You already relate to this user in every possible way.',
-      'existing_request'        => 'You have already requested to be a %relationship_name of %requestee',
-      'existing_relationship'   => 'You are already a %relationship_name of %requestee',
-      'not_accepting_requests'  => 'This user is not accepting relationship requests.',
-      'self_request'            => 'You are not allowed to create a relationship to yourself.',
-      'non_existant_user'       => 'This user does not exist.',
-    ),
-  );
-}
-
-/**
- * Recursively search an array for a key and return the value attached to it
- */
-function _user_relationships_get_from_array($needle, &$haystack) {
-  foreach ($haystack as $key => $value) {
-    if ($key == $needle) {
-      return $value;
-    }
-    else if (is_array($value)) {
-      if ($msg = _user_relationships_get_from_array($needle, $value)) {
-        return $msg;
-      }
-    }
-  }
-}
 
 /**
  * Helper function to build the settings form for the notification messages
@@ -262,4 +194,89 @@ function _user_relationships_message_settings_form(&$form, $defaults = array()) 
       );
     }
   }  
+}
+
+
+/**
+ * Create the new relationship
+ */
+function _user_relationships_save_relationship(&$relationship, $op = 'create') {
+  _user_relationships_invoke('pre-save', $relationship, $op);
+
+  $relationship->created_at = $relationship->created_at ? $relationship->created_at : time();
+
+  if ($relationship->rid) {
+    db_query("DELETE FROM {user_relationships} WHERE rid = %d", $relationship->rid);
+  }
+  else {
+    $relationship->rid = db_next_id('{user_relationships}_id');
+  }
+
+  $relationship_type = user_relationships_type_load($relationship->rtid);
+  $query = "INSERT INTO {user_relationships} (rid, requester_id, requestee_id, rtid, approved, created_at, updated_at) VALUES";
+  $insertions = "(%d, %d, %d, %d, %d, %d, %d)";
+  $arguments = array(
+    $relationship->rid,
+    $relationship->requester_id,
+    $relationship->requestee_id,
+    $relationship->rtid,
+    $relationship->approved,
+    $relationship->created_at,
+    time(),
+  );
+  if ($relationship->approved && !$relationship_type->is_oneway) {
+    $insertions .= ", {$insertions}";
+    $arguments = array_merge($arguments, $arguments);
+    $requester = $arguments[8];
+    $arguments[8] = $arguments[9];
+    $arguments[9] = $requester;
+  }
+
+  db_query("{$query} {$insertions}", $arguments);
+
+  _user_relationships_invoke('post-save', $relationship, $op);
+
+  return $relationship;
+}
+
+
+/**
+ * Helper function to generate queries from a list of parameters
+ */
+function _user_relationships_generate_query($param = array(), $order = NULL, $limit = NULL) {
+  // Turn the conditions into a query.
+  $group = FALSE;
+  foreach ($param as $key => $value) {
+    if (!isset($value)) { continue; }
+
+    switch ($key) {
+    case 'between':
+      $cond[] = 'ur.requester_id = %d';
+      $cond[] = 'ur.requestee_id = %d';
+      $arguments[] = (int)$value[0];
+      $arguments[] = (int)$value[1];
+      break;
+
+    case 'user':
+      $group = TRUE;
+      $cond[] = '(ur.requester_id = %d OR ur.requestee_id = %d)';
+      $arguments[] = (int)$value[0];
+      $arguments[] = (int)$value[0];
+      break;
+
+    default:
+      $cond[] = 'ur.'. db_escape_string($key) ." = %d";
+      $arguments[] = $value === FALSE ? 0 : ($value === TRUE ? 1 : (int)$value);
+    }
+  }
+
+  $cond = implode(' AND ', $cond);
+  if ($group) { $cond .= ' GROUP BY ur.rid'; }
+  if (!empty($order)) { $cond .= " ORDER BY {$order}"; }
+  if (!empty($limit)) { $cond .= " LIMIT {$limit}"; }
+  return array(
+    'query'     => "SELECT ur.rid, ur.*, urt.* FROM {user_relationships} ur INNER JOIN {user_relationship_types} urt ON ur.rtid = urt.rtid WHERE {$cond}",
+    'count'     => "SELECT COUNT(rid) FROM {user_relationships} ur WHERE {$cond}",
+    'arguments' => $arguments,
+  );
 }

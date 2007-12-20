@@ -1,4 +1,4 @@
-/* $Id: README.txt,v 1.2 2007-10-17 20:49:26 gwen Exp $ */
+/* $Id: README.txt,v 1.3 2007-12-20 17:28:58 sprsquish Exp $ */
 
 User Relationship Invites Module
 --------------------------------
@@ -6,7 +6,8 @@ This is a plugin module for the User Relationships and Invite modules.
 
 It allows users to invite friends and specify a relationship at invite time.
 
-Send comments to Jeff Smick: http://drupal.org/user/107579/contact
+Send comments to Jeff Smick: http://drupal.org/user/107579/contact, or post an issue at
+http://drupal.org/project/user_relationships.
 
 
 Requirements

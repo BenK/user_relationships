@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_forms.inc,v 1.11 2007-12-18 02:40:28 sprsquish Exp $
+// $Id: user_relationships_forms.inc,v 1.12 2007-12-20 17:28:57 sprsquish Exp $
 
 /**
  * User Relationships forms
@@ -82,7 +82,7 @@ function user_relationships_settings() {
  */
 function user_relationships_type_edit($rtid = NULL) {
   if (arg(3) == "edit" && $rtid >= 0) {
-    $relationship_type = user_relationships_relationship_type_load(array('rtid' => $rtid));
+    $relationship_type = user_relationships_type_load(array('rtid' => $rtid));
   }
 
   $form['name'] = array(
@@ -142,7 +142,7 @@ function user_relationships_type_edit($rtid = NULL) {
  * Relationship type delete page.
  */
 function user_relationships_type_delete($rtid = NULL) {
-  if ($relationship_type = user_relationships_relationship_type_load(array('rtid' =>$rtid))) {
+  if ($relationship_type = user_relationships_type_load(array('rtid' => $rtid))) {
     $form['relationship_type'] = array(
       '#type'   => 'value',
       '#value'  => $relationship_type,
@@ -167,12 +167,15 @@ function user_relationships_type_delete($rtid = NULL) {
  * Request new user to user relationship
  */
 function user_relationships_request_form(&$requester, &$requestee, $form_values = NULL) {
-  $current_relationships = _user_relationships_current_relationships($requester, $requestee);
+  $current_relationships = user_relationships_load(array('between' => array($requester->uid, $requestee->uid)), FALSE, 'rtid');
 
-  $results = db_query("SELECT * FROM {user_relationship_types}" . ($current_relationships ? " WHERE rtid NOT IN (%s) ORDER BY name" : ''), implode(',', array_keys($current_relationships)));
+  $results = db_query(
+    "SELECT * FROM {user_relationship_types}" . ($current_relationships ? " WHERE rtid NOT IN (%s) ORDER BY name" : ''), 
+    implode(',', array_keys($current_relationships))
+  );
   $relationships = array();
-  while($result = db_fetch_array($results)) {
-    $relationships[$result['rtid']] = $result['name'];
+  while($result = db_fetch_object($results)) {
+    $relationships[$result->rtid] = $result->name;
   }
 
   $form['rtid'] = array(
@@ -213,7 +216,7 @@ function user_relationships_request($requestee_id) {
   else {
     $form = user_relationships_request_form($requester, $requestee);
     if (!$form['rtid']['#options']) {
-      drupal_set_message(user_relationships_get_message('too_many_relationships'));
+      drupal_set_message(user_relationships_get_message('too_many_relationships'), 'error');
     }
     else {
       $form = confirm_form(
@@ -228,16 +231,17 @@ function user_relationships_request($requestee_id) {
       return $form;
     }
   }
+
   drupal_goto();
 }
-
 
 
 /**
  * Approve, Disapprove, or Cancel confirmation form
  */
 function user_relationships_pending_requested($action, $viewed_id, $relationship) {
-  $relationship = user_relationships_relationship_load($relationship);
+  $relationship = user_relationships_load($relationship);
+  $relationship = array_shift($relationship);
 
   $form['relationship'] = array(
     '#type'   => 'value',
@@ -255,11 +259,11 @@ function user_relationships_pending_requested($action, $viewed_id, $relationship
   $output = confirm_form(
     $form,
     t('@action relationship', array('@action' => ucfirst($action))),
-    'relationships/'.$viewed_id.'/requests',
+    "relationships/{$viewed_id}/requests",
     t("Are you sure you want to @action the request to create a %relationship_name relationship to !name?", array(
       '@action'             => $action,
       '%relationship_name'  => $relationship->name,
-      '!name'               => theme('username', $viewed_id == $relationship->requester_id ? $relationship->requestee : $relationship->requester)
+      '!name'               => theme('username', user_load(array('uid' => ($viewed_id == $relationship->requester_id ? $relationship->requestee_id : $relationship->requester_id))))
     )),
     t('Yes'), t('No'),
     'user_relationships_approve_confirm'
@@ -272,9 +276,8 @@ function user_relationships_pending_requested($action, $viewed_id, $relationship
  * Confirm relationship removal.
  */
 function user_relationships_remove($viewed_id, $relationship) {
-  $relationship = user_relationships_relationship_load($relationship);
-  $requester    = $relationship->requester;
-  $requestee    = $relationship->requestee;
+  $relationship = user_relationships_load($relationship);
+  $relationship = array_shift($relationship);
 
   $form['relationship'] = array(
     '#type'   => 'value',
@@ -290,7 +293,7 @@ function user_relationships_remove($viewed_id, $relationship) {
     'relationships/' . $viewed_id,
     t("Are you sure you no longer wish to be a %relationship_name of !name?", array(
       '%relationship_name'  => $relationship->name,
-      '!name'               => theme('username', $viewed_id == $requester->uid ? $requestee : $requester)
+      '!name'               => theme('username', user_load(array('uid' => ($viewed_id == $relationship->requester_id ? $relationship->requestee_id : $relationship->requester_id))))
     )),
     t('Yes'), t('No'),
     'user_relationships_remove_confirm'

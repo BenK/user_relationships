@@ -1,4 +1,4 @@
-/* $Id: README.txt,v 1.1 2007-08-15 20:20:01 sprsquish Exp $ */
+/* $Id: README.txt,v 1.2 2007-12-20 17:28:58 sprsquish Exp $ */
 
 User Relationship Defaults Module
 ---------------------------------
@@ -7,7 +7,8 @@ This is a plugin module for the User Relationships module.
 It allows admins to set default relationships that are created between users when a new user joins.
 Think of it like Tom from MySpace.
 
-Send comments to Jeff Smick: http://drupal.org/user/107579/contact
+Send comments to Jeff Smick: http://drupal.org/user/107579/contact, or post an issue at
+http://drupal.org/project/user_relationships.
 
 
 Requirements
@@ -18,7 +19,7 @@ User Relationships Module
 
 Installation
 ------------
-Enable User Relationship Invites in the "Site building -> modules" administration screen.
+Enable User Relationship Defaults in the "Site building -> modules" administration screen.
 
 
 Database Schema

@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_invites.module,v 1.3 2007-10-03 19:49:58 jbchristy Exp $
+// $Id: user_relationship_invites.module,v 1.4 2007-12-20 17:28:58 sprsquish Exp $
 
 /**
  * Drupal Module: User Relationship Invites
@@ -21,7 +21,7 @@
 function user_relationship_invites_get_invite($code) {
   if ($invite = db_fetch_object(db_query("SELECT * FROM {user_relationship_invites} WHERE invite_code = '%s'", $code))) {
     $invite->inviter = user_load(array('uid' => $invite->inviter_uid));
-    $invite->relationship_type = user_relationships_relationship_type_load(array('rtid' => $invite->rtid));
+    $invite->relationship_type = user_relationships_type_load(array('rtid' => $invite->rtid));
   }
 
   return $invite;
@@ -79,12 +79,10 @@ function user_relationship_invites_form_alter($form_id, &$form) {
     }
     break;
 
-  case '_invite_form':
-    if ($form['invite_form']) {
-      $user = user_load(array('uid' => $user->uid));
-      $new_user = drupal_anonymous_user();
-      $form['invite_form'] += user_relationships_request_form($user, $new_user, $form_values);
-    }
+  case 'invite_form':
+    $user = user_load(array('uid' => $user->uid));
+    $new_user = drupal_anonymous_user();
+    $form += user_relationships_request_form($user, $new_user, $form_values);
     break;
   }
 }

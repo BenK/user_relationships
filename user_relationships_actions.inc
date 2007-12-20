@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_actions.inc,v 1.14 2007-10-30 01:17:04 jbchristy Exp $
+// $Id: user_relationships_actions.inc,v 1.15 2007-12-20 17:28:57 sprsquish Exp $
 
 /**
  * User Relationships Actions
@@ -11,8 +11,17 @@
  */
 function user_relationships_type_edit_validate($form_id, &$form_values) {
   if (
-    ($form_values['relationship_type']->rtid && db_result(db_query("SELECT name FROM {user_relationship_types} WHERE LOWER(`name`) = LOWER('%s') AND rtid != %d", $form_values['name'], $form_values['relationship_type']->rtid))) ||
-    (!$form_values['relationship_type']->rtid && db_result(db_query("SELECT name FROM {user_relationship_types} WHERE LOWER(`name`) = LOWER('%s')", $form_values['name'])))
+    ($form_values['relationship_type']->rtid && 
+      db_result(db_query(
+        "SELECT name FROM {user_relationship_types} 
+         WHERE LOWER(`name`) = LOWER('%s') 
+           AND rtid != %d", 
+        $form_values['name'], $form_values['relationship_type']->rtid)
+      )
+    ) ||
+    (!$form_values['relationship_type']->rtid && 
+      db_result(db_query("SELECT name FROM {user_relationship_types} WHERE LOWER(`name`) = LOWER('%s')", $form_values['name']))
+    )
   ) {
     form_set_error('name', t('%name has already been used.', array('%name' => $form_values['name'])));
   }
@@ -46,7 +55,8 @@ function user_relationships_type_edit_submit($form_id, &$form_values) {
   if (arg(3) == 'add') {
     $form_values['rtid'] = db_next_id('{user_relationship_types}_id');
     db_query(
-      "INSERT INTO {user_relationship_types} (rtid, name, plural_name, is_oneway, requires_approval, expires_val) VALUES (%d, '%s', '%s', %d, %d, %d)", 
+      "INSERT INTO {user_relationship_types} (rtid, name, plural_name, is_oneway, requires_approval, expires_val) VALUES 
+       (%d, '%s', '%s', %d, %d, %d)", 
       $form_values['rtid'],
       $form_values['name'],
       $form_values['plural_name'],
@@ -55,15 +65,22 @@ function user_relationships_type_edit_submit($form_id, &$form_values) {
       $form_values['expires_val']
     );
 
-    $relationship_type = user_relationships_relationship_type_load(array('rtid' => $form_values['rtid']));
-    _user_relationships_invoke('insert type', $relationship_type);
+    $relationship_type = user_relationships_type_load(array('rtid' => $form_values['rtid']));
+    _user_relationships_invoke('insert', $relationship_type, 'type');
 
     drupal_set_message(t('Relationship %name has been added.', array('%name' => $form_values['name'])));
-    watchdog('userreltnships', t('User Relationships form: relationship %name added.', array('%name' => $form_values['name'])), WATCHDOG_NOTICE, l(t('view'), 'admin/user/user_relationship/types'));
+    watchdog(
+      'u_relationship', 
+      t('User Relationships form: relationship %name added.', array('%name' => $form_values['name'])), 
+      WATCHDOG_NOTICE, 
+      l(t('view'), 'admin/user/user_relationship/types')
+    );
   }
   else {
     db_query(
-      "UPDATE {user_relationship_types} SET name = '%s', plural_name = '%s', is_oneway = %d, requires_approval = %d, expires_val = %d WHERE rtid = %d", 
+      "UPDATE {user_relationship_types} 
+       SET name = '%s', plural_name = '%s', is_oneway = %d, requires_approval = %d, expires_val = %d 
+       WHERE rtid = %d", 
       $form_values['name'],
       $form_values['plural_name'],
       $form_values['is_oneway'], 
@@ -72,10 +89,15 @@ function user_relationships_type_edit_submit($form_id, &$form_values) {
       $form_values['relationship_type']->rtid
     );
 
-    _user_relationships_invoke('update type', $form_values['relationship_type']);
+    _user_relationships_invoke('update', $form_values['relationship_type'], 'type');
 
     drupal_set_message(t('Relationship %name has been updated.', array('%name' => $form_values['name'])));
-    watchdog('userreltnships', t('User Relationships form: relationship %name updated.', array('%name' => $form_values['name'])), WATCHDOG_NOTICE, l(t('view'), 'admin/user/user_relationship/types'));
+    watchdog(
+      'u_relationship', 
+      t('User Relationships form: relationship %name updated.', array('%name' => $form_values['name'])), 
+      WATCHDOG_NOTICE, 
+      l(t('view'), 'admin/user/relationships/types')
+    );
   }
 
   return 'admin/user/relationships';
@@ -88,15 +110,14 @@ function user_relationships_type_edit_submit($form_id, &$form_values) {
 function user_relationships_type_delete_submit($form_id, &$form_values) {
   $rtid = arg(4);
 
-  cache_clear_all("user_relationships", 'cache_user_relationships', TRUE);
   db_query("DELETE FROM {user_relationship_types} WHERE rtid = %d", $rtid);
   db_query("DELETE FROM {user_relationships} WHERE rtid = %d", $rtid);
 
-  _user_relationships_invoke('delete type', $form_values['relationship_type']);
+  _user_relationships_invoke('delete', $form_values['relationship_type'], 'type');
 
   drupal_set_message(t('Relationship %name has been deleted.', array('%name' => $form_values['name'])));
-  watchdog('userreltnships', t('User Relationships form: relationship %name deleted.', array('%name' => $form_values['name'])), WATCHDOG_NOTICE);
-
+  watchdog('u_relationship', t('User Relationships form: relationship %name deleted.', array('%name' => $form_values['name'])), WATCHDOG_NOTICE);
+            
   return 'admin/user/relationships';
 }
 
@@ -109,10 +130,13 @@ function user_relationships_request_validate($form_id, &$form_values) {
   $requestee = $form_values['requestee'];
 
   if (user_access('can have relationship', $requestee)) {
-    $current_relationships = _user_relationships_current_relationships($requester, $requestee);
+    $current_relationships = user_relationships_load(array('between' => array($requester->uid, $requestee->uid)));
 
-    if (!db_result(db_query("SELECT COUNT(*) FROM {user_relationship_types}" . ($current_relationships ? " WHERE rtid NOT IN (%s) ORDER BY name" : ''), implode(',', array_keys($current_relationships))))) {
-      drupal_set_message(user_relationships_get_message('too_many_relationships'));
+    if (!db_result(db_query(
+      "SELECT COUNT(*) FROM {user_relationship_types}" . ($current_relationships ? " WHERE rtid NOT IN (%s) ORDER BY name" : ''), 
+      implode(',', array_keys($current_relationships))
+    ))) {
+      drupal_set_message(user_relationships_get_message('too_many_relationships'), 'error');
       drupal_goto();
     }
     else if ($current_relationships[$form_values['rtid']]) {
@@ -137,15 +161,14 @@ function user_relationships_request_validate($form_id, &$form_values) {
 function user_relationships_request_submit($form_id, &$form_values) {
   $requester          = $form_values['requester'];
   $requestee          = $form_values['requestee'];
-  $relationship_type  = user_relationships_relationship_type_load(array('rtid' => $form_values['rtid']));
+  $relationship_type  = user_relationships_type_load(array('rtid' => $form_values['rtid']));
   
   user_relationships_request_relationship($requester, $requestee, $relationship_type);
-  drupal_set_message(user_relationships_get_message('submitted', array(
-    '%requester'                => $requester->name,
-    '%requestee'                => $requestee->name,
-    '%relationship_name'        => $relationship_type->name,
-    '%relationship_plural_name' => $relationship_type->plural_name,
-  )));
+
+  $relationship->requester = $requester;
+  $relationship->requestee = $requestee;
+  $relationship->type = $relationship_type;
+  drupal_set_message(user_relationships_get_message(($relationship->approved ? 'pre_approved' : 'submitted'), $relationship));
 
   return 'user';
 }
@@ -168,30 +191,20 @@ function user_relationships_pending_requested_submit($form_id, &$form_values) {
     $updated = $relationship;
     $updated->approved = TRUE;
     user_relationships_update_relationship($relationship, $updated);
-    drupal_set_message(user_relationships_get_message('accepted', array(
-      '!requester'                => theme('username', $requester),
-      '!requestee'                => theme('username', $requester),
-      '%relationship_name'        => $relationship->name,
-      '%relationship_plural_name' => $relationship->plural_name,
-    )));
+    drupal_set_message(user_relationships_get_message('accepted', $relationship));
     break;
 
   case 'cancel':
   case 'disapprove':
     user_relationships_delete_relationship($relationship, $user, $form_values['action']);
-    drupal_set_message(user_relationships_get_message('denied', array(
-      '!requester'                => theme('username', $requester),
-      '!requestee'                => theme('username', $requestee),
-      '%relationship_name'        => $relationship->name,
-      '%relationship_plural_name' => $relationship->plural_name,
-    )));
+    drupal_set_message(user_relationships_get_message('denied', $relationship));
     break;
 
   default:
     drupal_set_message(user_relationships_get_message('default'));
   }
 
-  return 'relationships/'. $form_values['viewed_id'] .'/requests';
+  return "relationships/{$form_values['viewed_id']}/requests";
 }
 
 
@@ -204,82 +217,7 @@ function user_relationships_remove_submit($form_id, &$form_values) {
   $relationship = $form_values['relationship'];
 
   user_relationships_delete_relationship($relationship, $user);
-  drupal_set_message(user_relationships_get_message('removed', array(
-    '!requester'                => $relationship->requester->name,
-    '!requestee'                => $relationship->requestee->name,
-    '%relationship_name'        => $relationship->name,
-    '%relationship_plural_name' => $relationship->plural_name,
-  )));
+  drupal_set_message(user_relationships_get_message('removed', $relationship));
 
-  return 'relationships/'. $form_values['viewed_id'];
-}
-
-/**
- * Validate settings on the block configuration page(s)
- */
-function user_relationships_block_num_rels_validate($form) {
-  $num_rels = $form['#value'];
-  if (!is_numeric($num_rels) || (int)$num_rels != $num_rels || (int)$num_rels <= 0) {
-    form_set_error('user_relationships_block_num_rels', t('Number of users must be an integer greater than 0.'));
-    return FALSE;
-  } 
-  return TRUE;
-}
-
-/**
- * function user_relationships_block_select_relationships
- *   given a $user object, select which of their relationships to display in the block
- * 
- * @param $user - user object of user whose relationships we want to select
- * @param $rtid - type id of relationships we're interested in, or 'ALL' for all relationships
- * @param $how_many - how many relationships to return
- * @param $options - array of (text) options presented to admins to allow them to select which n relationships to display
- * @param $options_index - index into the $options array indicating which option the admin has selected for this type
- *
- * @return array of relationship objects
- */
-function user_relationships_block_select_relationships($user, $rtid, $how_many, $options, $options_index) {
-  // build the query and the argument list
-  $query  = "SELECT * FROM {user_relationships} ";
-  $query .= " WHERE approved = 1 ";
-  $query .= "   AND rtid = %d ";
-  $query .= "   AND (requester_id = %d OR requestee_id = %d) ";
-  $args   = array($rtid, $user->uid, $user->uid);
-
-  switch (drupal_strtolower($options[$options_index])) {
-  case 'newest':
-    $query .= "ORDER BY updated_at DESC ";
-    break;
-  case 'oldest':
-    $query .= "ORDER BY updated_at ";
-    break;
-  case 'random':
-    $query .= "ORDER BY RAND() ";
-    break;
-  }
-
-  $query .= "LIMIT $how_many ";
-
-  // build the array of relationships to return
-  $relationships = array();
-  $results = db_query($query, $args);
-  while ($relationship = db_fetch_object($results)) {
-    $relationships[] = $relationship;
-  }
-
-  return $relationships;
-}
-
-/**
- * sort relationships by date in ascending order
- */
-function _user_relationships_compare_oldest_first($r1, $r2) {
-  return strcmp($r1->updated_at, $r2->updated_at);
-}
-
-/**
- * sort relationships by date in descending order
- */
-function _user_relationships_compare_newest_first($r1, $r2) {
-  return -strcmp($r1->updated_at, $r2->updated_at);
+  return "relationships/{$form_values['viewed_id']}";
 }

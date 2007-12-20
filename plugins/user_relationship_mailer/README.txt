@@ -1,4 +1,4 @@
-/* $Id: README.txt,v 1.1 2007-08-15 20:20:02 sprsquish Exp $ */
+/* $Id: README.txt,v 1.2 2007-12-20 17:28:58 sprsquish Exp $ */
 
 User Relationship Mailer Module
 -------------------------------
@@ -6,7 +6,8 @@ This is a plugin module for the User Relationships module.
 
 It provides the facility to email users notifications about relationship changes
 
-Send comments to Jeff Smick: http://drupal.org/user/107579/contact
+Send comments to Jeff Smick: http://drupal.org/user/107579/contact, or post an issue at
+http://drupal.org/project/user_relationships.
 
 
 Requirements

@@ -1,0 +1,5 @@
+; $Id: user_relationship_views.info,v 1.2 2007-12-20 17:28:58 sprsquish Exp $
+name = User Relationship Views
+description = "Integrates User Relationships with views"
+dependencies = user_relationships views
+package = "User Relationships"

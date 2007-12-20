@@ -1,0 +1,5 @@
+; $Id: user_relationship_blocks.info,v 1.2 2007-12-20 17:28:58 sprsquish Exp $
+name = User Relationship Blocks
+description = "Blocks that can be used with User Relationships"
+dependencies = user_relationships
+package = "User Relationships"
