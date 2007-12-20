@@ -1,0 +1,90 @@
+<?php
+// $Id: user_relationship_migrate.mysql,v 1.1 2007-12-20 16:39:20 sprsquish Exp $
+
+/**
+ * Process migrate relationship form submission.
+ */
+function user_relationship_migrate_form_submit($form_id, &$form_values) {
+  variable_del('user_relationship_migrate_last_run');
+
+  _user_relationship_migrate_run($form_values['migration_rtid']);
+
+  if ($form_values['migrate_pending']) {
+    $start = time();
+
+    $next_id = db_next_id('{user_relationships}_id');
+    db_query('LOCK TABLE {user_relationships} WRITE, {buddylist_pending_requests} READ');
+    db_query("SET @rid = %d", $next_id);
+    db_query(
+      "INSERT INTO {user_relationships} (rid, rtid, requester_id, requestee_id, approved, created_at)
+       SELECT (@rid := @rid+1), %d, requester_uid, requestee_uid, 0, %d FROM {buddylist_pending_requests}",
+       $rtid, time()
+    );
+    db_query('UNLOCK TABLES');
+
+    _user_relationship_set_next_id(db_result(db_query("SELECT MAX(rid) FROM {user_relationships}")));
+    drupal_set_message(t('Pending relationships migration successfully ran.'));
+
+    drupal_set_message(t('Pending Buddies Migration took @amount', array('@amount' => gmdate("H:i:s", time() - $start))));
+  }
+
+  if ($form_values['migrate_email']) {
+    $start = time();
+
+    db_query('LOCK TABLE {users} WRITE');
+    db_query('UPDATE {users} SET data = REPLACE(data, \'"buddylist_mail"\', \'"user_relationship_mailer_send_mail"\');');
+    db_query('UNLOCK TABLES');
+
+    drupal_set_message(t('Email settings successfully updated.'));
+    drupal_set_message(t('Email Preferences Migration took @amount', array('@amount' => gmdate("H:i:s", time() - $start))));
+  }
+
+  variable_set('user_relationship_migrate_last_run', time());
+
+  return 'admin/user/relationships/migrate';
+}
+
+
+/**
+ * Helper function to run the actual transactions
+ */
+function _user_relationship_migrate_run($rtid) {
+  $start = time();
+  db_query('LOCK TABLES {buddylist} READ, {user_relationships} WRITE');
+  db_query('CREATE TEMPORARY TABLE {user_relationship_migration} LIKE {user_relationships}');
+  db_query('SET @rid = 0');
+
+  db_query(
+    "INSERT INTO {user_relationship_migration} (rid, rtid, requester_id, requestee_id, created_at, updated_at, approved) 
+     SELECT @rid:=@rid+1, %d, IF( uid > buddy, uid, buddy ) AS uid, IF( uid < buddy, uid, buddy ) AS buddy, timestamp, %d, 1 
+     FROM {buddylist}
+     ON DUPLICATE KEY UPDATE approved = 1",
+    $rtid, time()
+  );
+
+  db_query(
+    'INSERT INTO {user_relationships} (rid, rtid, requester_id, requestee_id, created_at, updated_at, approved) 
+      SELECT rid, rtid, requester_id, requestee_id, created_at, updated_at, approved FROM {user_relationship_migration}'
+  );
+
+  db_query(
+    'INSERT INTO {user_relationships} (rid, rtid, requester_id, requestee_id, created_at, updated_at, approved) 
+      SELECT rid, rtid, requestee_id, requester_id, created_at, updated_at, approved FROM {user_relationship_migration}'
+  );
+
+  _user_relationship_set_next_id(db_result(db_query("SELECT MAX(rid) FROM {user_relationships}")));
+
+  db_query('DROP TABLE {user_relationship_migration}');
+  db_query('UNLOCK TABLES');
+
+  drupal_set_message(t('Buddies Migration took @amount', array('@amount' => gmdate("H:i:s", time() - $start))));
+
+  return $success;
+}
+
+function _user_relationship_set_next_id($id) {
+  $name = db_prefix_tables('{user_relationships}_id');
+  db_query('LOCK TABLES {sequences} WRITE');
+  db_query("REPLACE INTO {sequences} VALUES ('%s', %d)", $name, $id);
+  db_query('UNLOCK TABLES');
+}

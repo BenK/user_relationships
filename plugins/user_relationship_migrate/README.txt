@@ -1,4 +1,4 @@
-/* $Id: README.txt,v 1.2 2007-10-09 18:01:36 jbchristy Exp $ */
+/* $Id: README.txt,v 1.3 2007-12-20 16:39:20 sprsquish Exp $ */
 
 User Relationship Migrate Module
 ---------------------------------
@@ -6,7 +6,7 @@ User Relationship Migrate Module
 This is a plugin module for the User Relationships module. It allows admins to migrate
 Buddy List relationships to User Relationships.
 
-Send comments to JB Christy: http://drupal.org/user/174933, or post an issue at
+Send comments to Jeff Smick: http://drupal.org/user/107579/contact, or post an issue at
 http://drupal.org/project/user_relationships.
 
 
@@ -54,13 +54,9 @@ users, to minimize the likelihood that they manually recreate their relationship
 you migrating them.
 
 
-Database Schema
----------------
-N/A
-
-
 Credits
 -------
 Written by JB Christy.
+Refactored by Jeff Smick.
 Written originally for and financially supported by OurChart Inc. (http://www.ourchart.com)
 Thanks to Jeff Smick for the User Relationships module, and to the Buddy List folks.
