@@ -1,4 +1,5 @@
 <?php
+// $Id: user_relationship_mailer.install,v 1.2 2007-12-21 10:03:38 sprsquish Exp $
 
 function user_relationship_mailer_uninstall() {
   variable_del('user_relationship_mailer_send_mail');

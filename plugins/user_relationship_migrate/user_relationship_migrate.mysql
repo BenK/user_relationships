@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_migrate.mysql,v 1.2 2007-12-20 17:28:58 sprsquish Exp $
+// $Id: user_relationship_migrate.mysql,v 1.3 2007-12-21 10:03:38 sprsquish Exp $
 
 /**
  * Migrate pending relationships
@@ -42,10 +42,9 @@ function _user_relationship_migrate_run($rtid) {
   db_query('SET @rid = 0');
 
   db_query(
-    "INSERT INTO {user_relationship_migration} (rid, rtid, requester_id, requestee_id, created_at, updated_at, approved) 
+    "INSERT IGNORE INTO {user_relationship_migration} (rid, rtid, requester_id, requestee_id, created_at, updated_at, approved) 
      SELECT @rid:=@rid+1, %d, IF( uid > buddy, uid, buddy ) AS uid, IF( uid < buddy, uid, buddy ) AS buddy, timestamp, %d, 1 
-     FROM {buddylist}
-     ON DUPLICATE KEY UPDATE approved = 1",
+     FROM {buddylist}",
     $rtid, time()
   );
 

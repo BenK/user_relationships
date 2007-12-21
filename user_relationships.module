@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships.module,v 1.16 2007-12-20 23:55:47 sprsquish Exp $
+// $Id: user_relationships.module,v 1.17 2007-12-21 10:03:37 sprsquish Exp $
 
 /**
  *
@@ -251,8 +251,12 @@ function _user_relationships_generate_query($param = array(), $order = NULL, $li
 
     switch ($key) {
     case 'between':
-      $cond[] = 'ur.requester_id = %d';
-      $cond[] = 'ur.requestee_id = %d';
+      $cond[] = 
+        '(ur.requester_id = %d AND ur.requestee_id = %d)'.
+        ' OR '.
+        '(urt.is_oneway = 1 AND ur.requestee_id = %d AND ur.requester_id = %d)';
+      $arguments[] = (int)$value[0];
+      $arguments[] = (int)$value[1];
       $arguments[] = (int)$value[0];
       $arguments[] = (int)$value[1];
       break;
@@ -276,11 +280,17 @@ function _user_relationships_generate_query($param = array(), $order = NULL, $li
   if (!empty($limit)) { $cond .= " LIMIT {$limit}"; }
   return array(
     'query'     => 
-      "SELECT ur.rid, ur.*, urt.*, requesters.name AS requester_name, requestees.name AS requestee_name
+      "SELECT ur.rid, ur.*, urt.*, 
+         requesters.name AS requester_name, 
+         requestees.name AS requestee_name,
+         requesters.mail AS requester_mail, 
+         requestees.mail AS requestee_mail,
+         requesters.data AS requester_data, 
+         requestees.data AS requestee_data
        FROM {user_relationships} ur 
         INNER JOIN {user_relationship_types} urt ON ur.rtid = urt.rtid 
-        LEFT JOIN users requesters ON ur.requester_id = requesters.uid
-        LEFT JOIN users requestees ON ur.requestee_id = requestees.uid
+        LEFT JOIN {users} requesters ON ur.requester_id = requesters.uid
+        LEFT JOIN {users} requestees ON ur.requestee_id = requestees.uid
       WHERE {$cond}",
     'count'     => "SELECT COUNT(rid) FROM {user_relationships} ur WHERE {$cond}",
     'arguments' => $arguments,

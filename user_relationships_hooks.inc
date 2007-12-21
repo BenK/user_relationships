@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_hooks.inc,v 1.13 2007-12-20 18:16:30 sprsquish Exp $
+// $Id: user_relationships_hooks.inc,v 1.14 2007-12-21 10:03:37 sprsquish Exp $
 
 /**
  * User Relationships hook implementations

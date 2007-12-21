@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_forms.inc,v 1.12 2007-12-20 17:28:57 sprsquish Exp $
+// $Id: user_relationships_forms.inc,v 1.13 2007-12-21 10:03:37 sprsquish Exp $
 
 /**
  * User Relationships forms

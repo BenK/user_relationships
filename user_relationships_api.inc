@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.inc,v 1.19 2007-12-20 17:28:57 sprsquish Exp $
+// $Id: user_relationships_api.inc,v 1.20 2007-12-21 10:03:37 sprsquish Exp $
 
 /**
  *  User Relationships API
@@ -17,7 +17,7 @@
  *    object of the requested relationship type
  *
  */
-function user_relationships_type_load($param = array(), $reset = NULL) {
+function user_relationships_type_load($param = array()) {
   $types = user_relationships_types_load();
 
   if (is_numeric($param)) {
@@ -162,14 +162,25 @@ function user_relationships_delete_relationship(&$relationship, &$deleted_by, $o
   * Load relationship objects from the database.
   *
   * @param $param
-  *   Either the rid of the relationship or an array of conditions to match against in the database query
+  *   an array of parameters with the key being the column. There are two special keys now:
+  *     1) array("between" => array($uid1, $uid2)) will return all relationships between the two user ids.
+  *     2) array("user" => $uid) will return all relationships for the specified uid
   * @param $count
-  *   Should we only return the number of matched relationships?
+  *   a boolean stating whether or not the return value should be the number of relationships found
   * @param $sort
-  *   Key the array using the data from this column 
+  *   a string containing a valid column name which will become the key for the returned array of relationships
+  * @param $order
+  *   a string containing SQL stating the column and direction of the sort (ex. "requester_id ASC, rtid DESC")
+  * @param $limit 
+  *   a string containing SQL stating the limit (ex "10" or "10, 5")
   *
   * @return
-  *   A fully-populated set of relationships.
+  *   an array of relationships
+  *   if the key is "rid" the array will be a single dimention: array($rid => $relationship, $rid => $relationship)
+  *   otherwise it'll be multidimentional: array($rtid => array($relationship, $relationship))
+  *
+  *   each relationship will have the user's name, mail, and data attached as requester_name, requester_mail, requester_data
+  *   or requestee_name, requestee_mail, requestee_data
  */
 function user_relationships_load($param = array(), $count = FALSE, $sort = 'rid', $order = NULL, $limit = NULL) {
   static $relationships = array();
@@ -193,7 +204,12 @@ function user_relationships_load($param = array(), $count = FALSE, $sort = 'rid'
 
   $relationships = array();
   while ($relationship = db_fetch_object($results)) {
-    $relationships[$relationship->$sort] = $relationship;
+    if ($sort == 'rid') {
+      $relationships[$relationship->$sort] = $relationship;
+    }
+    else {
+      $relationships[$relationship->$sort][] = $relationship;
+    }
   }
 
   return $relationships;

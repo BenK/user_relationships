@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_invites.module,v 1.4 2007-12-20 17:28:58 sprsquish Exp $
+// $Id: user_relationship_invites.module,v 1.5 2007-12-21 10:03:38 sprsquish Exp $
 
 /**
  * Drupal Module: User Relationship Invites

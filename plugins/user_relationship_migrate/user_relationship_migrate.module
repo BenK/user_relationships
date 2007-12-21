@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_migrate.module,v 1.6 2007-12-20 20:27:20 sprsquish Exp $
+// $Id: user_relationship_migrate.module,v 1.7 2007-12-21 10:03:38 sprsquish Exp $
 
 /**
  * Drupal Module: User Relationship Migrate
@@ -13,7 +13,7 @@
 
 $db_type = $GLOBALS['db_type'];
 $db_type = strpos($db_type, 'mysql') !== FALSE ? 'mysql' : $db_type;
-$file = "user_relationship_migrate.{$GLOBALS['db_type']}";
+$file = "user_relationship_migrate.{$db_type}";
 include_once($file);
 
 /**
@@ -162,3 +162,4 @@ function user_relationship_migrate_form_submit($form_id, &$form_values) {
 
   return 'admin/user/relationships/migrate';
 }
+

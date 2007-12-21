@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_mailer.module,v 1.10 2007-12-20 17:28:58 sprsquish Exp $
+// $Id: user_relationship_mailer.module,v 1.11 2007-12-21 10:03:38 sprsquish Exp $
 
 if (!variable_get('user_relationship_mailer_ops', FALSE)) {
   variable_set('user_relationship_mailer_ops', array('request', 'cancel', 'approve', 'disapprove', 'remove'));

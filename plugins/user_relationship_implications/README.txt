@@ -1,4 +1,4 @@
-/* $Id: README.txt,v 1.3 2007-12-20 17:28:58 sprsquish Exp $ */
+/* $Id: README.txt,v 1.4 2007-12-21 10:03:37 sprsquish Exp $
 
 User Relationship Implications Module
 -------------------------------------
