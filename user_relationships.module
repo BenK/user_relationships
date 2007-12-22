@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships.module,v 1.18 2007-12-22 22:24:17 sprsquish Exp $
+// $Id: user_relationships.module,v 1.19 2007-12-22 22:58:03 sprsquish Exp $
 
 /**
  *
@@ -264,17 +264,8 @@ function _user_relationships_generate_query($param = array(), $order = NULL, $li
       break;
 
     case 'user':
-//      $group = TRUE;
       $cond[] = "(ur.requester_id {$operator} OR (ur.requestee_id {$operator} AND urt.is_oneway = 1))";
       $arguments[] = $value;
-      $arguments[] = $value;
-      break;
-
-    case 'name':
-    case 'plural_name':
-    case ''
-      $cond[] = "urt.%s {$operator}";
-      $arguments[] = $key;
       $arguments[] = $value;
       break;
 
