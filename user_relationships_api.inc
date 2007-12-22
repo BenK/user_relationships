@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.inc,v 1.20 2007-12-21 10:03:37 sprsquish Exp $
+// $Id: user_relationships_api.inc,v 1.21 2007-12-22 22:24:17 sprsquish Exp $
 
 /**
  *  User Relationships API
@@ -162,9 +162,15 @@ function user_relationships_delete_relationship(&$relationship, &$deleted_by, $o
   * Load relationship objects from the database.
   *
   * @param $param
-  *   an array of parameters with the key being the column. There are two special keys now:
+  *   an array of parameters with the key being the column. There are two special keys:
   *     1) array("between" => array($uid1, $uid2)) will return all relationships between the two user ids.
   *     2) array("user" => $uid) will return all relationships for the specified uid
+  *
+  *   arguments will process operators as well using the syntax: array(col => '> {value}'). 
+  *     example: show all relationships created in 2007 
+  *       $start_time = mktime(0,0,0,0,0,2007);
+  *       $end_time = mktime(0,0,0,0,0,2008);
+  *       user_relationships_load(array('created_at' => ">= {$start_time}", 'created_at' => '< {$end_time'}));
   * @param $count
   *   a boolean stating whether or not the return value should be the number of relationships found
   * @param $sort
@@ -182,7 +188,7 @@ function user_relationships_delete_relationship(&$relationship, &$deleted_by, $o
   *   each relationship will have the user's name, mail, and data attached as requester_name, requester_mail, requester_data
   *   or requestee_name, requestee_mail, requestee_data
  */
-function user_relationships_load($param = array(), $count = FALSE, $sort = 'rid', $order = NULL, $limit = NULL) {
+function user_relationships_load($param = array(), $count = FALSE, $sort = 'rid', $order = NULL, $limit = NULL, $include_user_info = FALSE) {
   static $relationships = array();
 
   $arguments = array();
@@ -194,7 +200,7 @@ function user_relationships_load($param = array(), $count = FALSE, $sort = 'rid'
     $param = array('rid' => $param);
   }
 
-  $query = _user_relationships_generate_query($param, $order, $limit);
+  $query = _user_relationships_generate_query($param, $order, $limit, $include_user_info);
 
   $results = db_query($query[($count ? 'count' : 'query')], $query['arguments']);
 
