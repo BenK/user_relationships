@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships.module,v 1.20 2007-12-23 10:02:19 sprsquish Exp $
+// $Id: user_relationships.module,v 1.21 2007-12-23 19:36:18 sprsquish Exp $
 
 /**
  *
@@ -25,7 +25,7 @@ function user_relationships_default_messages() {
   return array(
     'informational' => array(
       'submitted'     => 'Your request to be a %relationship_name of !requestee has been submitted.',
-      'accepted'      => 'You are now a %relationship_name of !requestee.',
+      'accepted'      => 'You are now a %relationship_name of !requester.',
       'denied'        => "!requester's request to be a %relationship_name of !requestee has been removed.",
       'default'       => 'No action has been taken.',
       'removed'       => '!requester is no longer a %relationship_name of !requestee.',
@@ -161,9 +161,10 @@ function _user_relationships_actions_between(&$viewer, &$viewed) {
     ));
   }
 
+  $types_count = (int)db_result(db_query("SELECT COUNT(*) FROM {user_relationship_types}"));
   if (
     variable_get('user_relationships_allow_multiple', TRUE) && 
-    (user_relationships_load(array('requester_id' => $viewer->uid, 'requestee_id' => $viewed->uid), TRUE) < (int)db_result(db_query("SELECT COUNT(*) FROM {user_relationship_types}")))
+    (user_relationships_load(array('between' => array($viewer->uid, $viewed->uid)), TRUE) < $types_count)
   ) {
     $list[] = theme('user_relationships_request_relationship_link', $viewed);
   }
@@ -256,7 +257,7 @@ function _user_relationships_generate_query($param = array(), $order = NULL, $li
       $cond[] = 
         "(ur.requester_id {$operator[0]} AND ur.requestee_id {$operator[1]})".
         ' OR '.
-        "(urt.is_oneway = 1 AND ur.requestee_id {$operator[0]} AND ur.requester_id {$operator[1]})";
+        "(ur.requestee_id {$operator[0]} AND ur.requester_id {$operator[1]})";
       $arguments[] = $value[0];
       $arguments[] = $value[1];
       $arguments[] = $value[0];
