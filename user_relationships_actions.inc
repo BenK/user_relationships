@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_actions.inc,v 1.18 2007-12-23 10:02:19 sprsquish Exp $
+// $Id: user_relationships_actions.inc,v 1.19 2007-12-23 20:27:42 sprsquish Exp $
 
 /**
  * User Relationships Actions
@@ -191,7 +191,7 @@ function user_relationships_pending_requested_submit($form_id, &$form_values) {
   case 'approve':
     $updated = $relationship;
     $updated->approved = TRUE;
-    user_relationships_update_relationship($relationship, $updated);
+    user_relationships_update_relationship($relationship, $updated, $form_values['action']);
     drupal_set_message(user_relationships_get_message('accepted', $relationship));
     break;
 

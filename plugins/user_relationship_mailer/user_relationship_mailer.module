@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_mailer.module,v 1.11 2007-12-21 10:03:38 sprsquish Exp $
+// $Id: user_relationship_mailer.module,v 1.12 2007-12-23 20:27:42 sprsquish Exp $
 
 if (!variable_get('user_relationship_mailer_ops', FALSE)) {
   variable_set('user_relationship_mailer_ops', array('request', 'cancel', 'approve', 'disapprove', 'remove'));
@@ -11,15 +11,19 @@ require_once('user_relationship_mailer_defaults.inc');
  * Sends mail to the appropriate user
  *
  * @param $op
- *    string of action to take [request|cancel|approve|disapprove|remove]
+ *    string of action to take [request|delete|cancel|approve|disapprove|remove]
  *
  * @param $relationship
  *    object of the relationship
  *
  */
 function user_relationship_mailer_send_email($op, &$relationship) {
-  $requester = $relationship->requester;
-  $requestee = $relationship->requestee;
+  if ($op == 'request' && $relationship->approved) { 
+    return; 
+  }
+
+  $relationship->requester = $requester = user_load(array('uid' => $relationship->requester_id));
+  $relationship->requestee = $requestee = user_load(array('uid' => $relationship->requestee_id));
 
   $send_to_requestee = isset($requestee->user_relationship_mailer_send_mail) ? $requestee->user_relationship_mailer_send_mail : TRUE;
   $send_to_requester = isset($requester->user_relationship_mailer_send_mail) ? $requester->user_relationship_mailer_send_mail : TRUE;
@@ -27,9 +31,6 @@ function user_relationship_mailer_send_email($op, &$relationship) {
   $send_to = array();
   switch ($op) {
   case 'request':
-    if ($relationship->approved) {
-      return;
-    }
   case 'cancel':
     $send_email = $send_to_requestee;
     $send_to[]['address'] = $requestee->mail;
@@ -44,7 +45,7 @@ function user_relationship_mailer_send_email($op, &$relationship) {
   case 'remove':
     $send_email = $send_to_requestee && $send_to_requester;
     $send_to[] = array ('address' => $requester->mail, 'uid' => $requester->uid,);
-    if (!$relationship->type->is_oneway) {
+    if (!$relationship->is_oneway) {
       $send_to[] = array ('address' => $requestee->mail, 'uid' => $requestee->uid,);
     }
     break;
@@ -53,10 +54,8 @@ function user_relationship_mailer_send_email($op, &$relationship) {
     return;
   }
 
-  $send_email = $send_email 
-    && variable_get('user_relationship_mailer_send_mail', FALSE) 
-    && variable_get("user_relationship_mailer_send_{$op}", TRUE);
-  
+  $send_email = variable_get('user_relationship_mailer_send_mail', FALSE) ? $send_email : variable_get("user_relationship_mailer_send_{$op}", TRUE);
+
   // sending email has been turned off
   if (!$send_email) {
     return;
@@ -68,7 +67,7 @@ function user_relationship_mailer_send_email($op, &$relationship) {
     }
 
     $message_function = "user_relationship_mailer_{$op}_default";
-    $subject = t(variable_get("user_relationship_mailer_{$op}_subject", $message_function()), $replacements);
+    $subject = t(variable_get("user_relationship_mailer_{$op}_subject", constant(strtoupper("user_relationship_mailer_{$op}_subject"))), $replacements);
     $message = t(variable_get("user_relationship_mailer_{$op}_message", $message_function()), $replacements);
 
     $site_mail = variable_get('site_mail', '');
@@ -96,10 +95,8 @@ function user_relationship_mailer_send_email($op, &$relationship) {
  */
 function user_relationship_mailer_user_relationships($type, &$relationship, $category = NULL) {
   switch ($type) {
-  case 'update':
-    $status = 'approve';
-  case 'insert':
-    user_relationship_mailer_send_email(($status ? $status : 'request'), $relationship);
+  case 'post-save':
+    user_relationship_mailer_send_email($category, $relationship);
     break;
 
   case 'delete':

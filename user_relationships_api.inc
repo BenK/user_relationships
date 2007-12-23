@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.inc,v 1.21 2007-12-22 22:24:17 sprsquish Exp $
+// $Id: user_relationships_api.inc,v 1.22 2007-12-23 20:27:42 sprsquish Exp $
 
 /**
  *  User Relationships API
@@ -11,7 +11,7 @@
  * @param $param
  *    The rtid or an associative array of attributes to search for in selecting the
  *    relationship, such as rtid or name. Attributes must match column names
- *    in the user_relationships table.
+ *    in the user_relationship_types table.
  *
  * @return
  *    object of the requested relationship type
@@ -129,12 +129,16 @@ function user_relationships_request_relationship($requester, $requestee, $type, 
  * @return
  *    object of the updated relationship
  */
-function user_relationships_update_relationship(&$current_relationship, &$updated_relationship) {
+function user_relationships_update_relationship($current_relationship, &$updated_relationship, $reason = 'update') {
+  if (is_numeric($current_relationship)) {
+    $current_relationship = user_relationships_load($current_relationship);
+  }
+
   // ensure data that shouldn't change doesn't
   $updated_relationship->rid        = $current_relationship->rid;
   $updated_relationship->created_at = $current_relationship->created_at;
 
-  _user_relationships_save_relationship($updated_relationship, 'update');
+  _user_relationships_save_relationship($updated_relationship, $reason);
 
   return $updated_relationship;
 }
@@ -196,7 +200,7 @@ function user_relationships_load($param = array(), $count = FALSE, $sort = 'rid'
     if (isset($relationships[$param])) {
       return is_object($relationships[$param]) ? drupal_clone($relationships[$param]) : $relationships[$param];
     }
-
+    $rid = $param;
     $param = array('rid' => $param);
   }
 
@@ -218,15 +222,21 @@ function user_relationships_load($param = array(), $count = FALSE, $sort = 'rid'
     }
   }
 
-  return $relationships;
+  return $rid ? $relationships[$rid] : $relationships;
 }
 
 
 /**
  * Public API for getting the set or default message
  *
+ * Use the relationship message system. This is set up to retrieve the admin's set messages or fall back on the default
+ * if those aren't set. It'll automatically replace specific tokens with information from $relationship. If you need to provide
+ * additional tokens, they can be sent through $replacements.
+ *
  * @param $key
  *    string message name
+ *    Check at the top of user_relationships.module in "user_relationships_default_messages()"
+ *    for the keys and default messages attached to those keys.
  * @param $replacements
  *    array replaceable tokens to append or replace default tokens
  *
