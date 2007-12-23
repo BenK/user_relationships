@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_theme.inc,v 1.13 2007-12-23 10:02:19 sprsquish Exp $
+// $Id: user_relationships_theme.inc,v 1.14 2007-12-23 19:37:22 sprsquish Exp $
 
 /**
  * User Relationships theme-able functions
@@ -24,7 +24,7 @@ function theme_user_relationships_page($uid = NULL, $rtid = NULL) {
     exit();
   }
 
-  $args = array('user' => $viewed_user->uid);
+  $args = array('user' => $viewed_user->uid, 'approved' => TRUE);
   if (isset($rtid) && is_numeric($rtid)) {
     $relationship_type = user_relationships_type_load($rtid);
     $args['rtid'] = $rtid;
@@ -149,7 +149,7 @@ function theme_user_relationships_request_relationship_link(&$relate_to) {
  * Remove relationship link
  */
 function theme_user_relationships_remove_link($uid, &$relationship) {
-  return l(t('Remove'), "user/{$uid}/relationship/remove/$relationship->rid", NULL, drupal_get_destination(), NULL, FALSE, TRUE);
+  return l(t('Remove'), "user/{$uid}/relationships/remove/$relationship->rid", NULL, drupal_get_destination(), NULL, FALSE, TRUE);
 }
 
 /**
