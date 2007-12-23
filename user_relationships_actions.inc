@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_actions.inc,v 1.17 2007-12-21 10:03:37 sprsquish Exp $
+// $Id: user_relationships_actions.inc,v 1.18 2007-12-23 10:02:19 sprsquish Exp $
 
 /**
  * User Relationships Actions
@@ -205,7 +205,7 @@ function user_relationships_pending_requested_submit($form_id, &$form_values) {
     drupal_set_message(user_relationships_get_message('default'));
   }
 
-  return "relationships/{$form_values['viewed_id']}/requests";
+  return "user/{$form_values['viewed_id']}/relationships/requests";
 }
 
 
@@ -220,5 +220,5 @@ function user_relationships_remove_submit($form_id, &$form_values) {
   user_relationships_delete_relationship($relationship, $user);
   drupal_set_message(user_relationships_get_message('removed', $relationship));
 
-  return "relationships/{$form_values['viewed_id']}";
+  return "user/{$form_values['viewed_id']}/relationships";
 }

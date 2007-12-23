@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_mailer_defaults.inc,v 1.5 2007-10-11 18:38:04 gwen Exp $
+// $Id: user_relationship_mailer_defaults.inc,v 1.6 2007-12-23 10:02:19 sprsquish Exp $
 
 /**
  * Default subject lines
@@ -21,16 +21,16 @@ function user_relationship_mailer_replacements(&$relationship) {
     '@site_url'                 => $GLOBALS['base_url'],
 
     '@requester_name'           => $requester->name,
-    '@requester_link'           => theme('user_relationship_user_link', $requester->uid),
+    '@requester_link'           => theme('user_relationships_user_link', $requester->uid),
     '@requester_uid'            => $requester->uid,
-    '@requester_list_link'      => url("relationships/$requester->uid/list", NULL, NULL, TRUE),
-    '@requester_pending_link'   => url("relationships/$requester->uid/requests", NULL, NULL, TRUE),
+    '@requester_list_link'      => url("user/{$requester->uid}/relationships/list", NULL, NULL, TRUE),
+    '@requester_pending_link'   => url("user/{$requester->uid}/relationships/requests", NULL, NULL, TRUE),
 
     '@requestee_name'           => $requestee->name,
-    '@requestee_link'           => theme('user_relationship_user_link', $requestee->uid),
+    '@requestee_link'           => theme('user_relationships_user_link', $requestee->uid),
     '@requestee_uid'            => $requestee->uid,
-    '@requestee_list_link'      => url("relationships/$requestee->uid/list", NULL, NULL, TRUE),
-    '@requestee_pending_link'   => url("relationships/$requestee->uid/requests", NULL, NULL, TRUE),
+    '@requestee_list_link'      => url("user/{$requestee->uid}/relationships/list", NULL, NULL, TRUE),
+    '@requestee_pending_link'   => url("user/{$requestee->uid}/relationships/requests", NULL, NULL, TRUE),
 
     '@relationship_name'        => $relationship->name,
     '@relationship_plural_name' => $relationship->plural_name,

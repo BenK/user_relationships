@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_theme.inc,v 1.12 2007-12-21 10:03:37 sprsquish Exp $
+// $Id: user_relationships_theme.inc,v 1.13 2007-12-23 10:02:19 sprsquish Exp $
 
 /**
  * User Relationships theme-able functions
@@ -174,21 +174,15 @@ function theme_user_relationships_pending_request_cancel_link($uid, $relationshi
 }
 
 /**
- * Link to user page (use usernode if it's available)
+ * Show the current status of a relationship
  */
-function theme_user_relationships_user_link($uid) {
-  if (module_exists('usernode')) {
-    $nid  = usernode_get_node_id($uid);
-    $url  = "node/$nid";
-  }
-  else {
-    $url = "user/$uid";
-  }
-
-  return url($url, NULL, NULL, TRUE); 
-}
-
-
 function theme_user_relationships_approval_status($approved) {
   return isset($approved) ? ($approved ? t('Approved') : t('Not Approved')) : t('Unknown');
+}
+
+/**
+ * Link to user's profile
+ */
+function theme_user_relationships_user_link($uid) {
+  return url("user/$uid", NULL, NULL, TRUE); 
 }

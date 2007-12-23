@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships.module,v 1.19 2007-12-22 22:58:03 sprsquish Exp $
+// $Id: user_relationships.module,v 1.20 2007-12-23 10:02:19 sprsquish Exp $
 
 /**
  *
@@ -105,7 +105,7 @@ function _user_relationships_set_notifications(&$account) {
   $relationships = user_relationships_load(array('requestee_id' => $account->uid, 'approved' => FALSE));
   foreach ($relationships as $relationship) {
     $msg = user_relationships_get_message('pending', $relationship, array(
-      '!pending_relationship_requests'  => l(t('pending relationship requests'), 'relationships/'. $account->uid .'/requests')
+      '!pending_relationship_requests'  => l(t('pending relationship requests'), "user/{$account->uid}/relationships/requests")
     ));
 
     if (!in_array($msg, $notifications)) {
@@ -149,7 +149,7 @@ function _user_relationships_actions_between(&$viewer, &$viewed) {
   foreach ($relationships as $relationship) {
     $list[] = t('You have requested to be a %relationship_name of this user. (!pending_requests)', array(
       '%relationship_name'  => $relationship->name,
-      '!pending_requests'   => l(t('pending requests'), "relationships/{$viewer->uid}/requests"),
+      '!pending_requests'   => l(t('pending requests'), "user/{$viewer->uid}/relationships/requests"),
     ));
   }
 
@@ -157,7 +157,7 @@ function _user_relationships_actions_between(&$viewer, &$viewed) {
   foreach ($relationships as $relationship) {
     $list[] = t('This user believes that they are a %relationship_name of yours. (!pending_requests)', array(
       '%relationship_name'  => $relationship->name,
-      '!pending_requests'   => l(t('pending requests'), "relationships/{$viewer->uid}/requests"),
+      '!pending_requests'   => l(t('pending requests'), "user/{$viewer->uid}/relationships/requests"),
     ));
   }
 

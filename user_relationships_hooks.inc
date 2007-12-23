@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_hooks.inc,v 1.14 2007-12-21 10:03:37 sprsquish Exp $
+// $Id: user_relationships_hooks.inc,v 1.15 2007-12-23 10:02:19 sprsquish Exp $
 
 /**
  * User Relationships hook implementations
@@ -102,6 +102,7 @@ function user_relationships_menu($may_cache) {
 
     $id = is_numeric(arg(1)) ? arg(1) : $user->uid;
     $edit_access = ($id == $user->uid && user_access('maintain relationships')) || user_access('administer users');
+    $view_access = (($id == $user->uid && user_access('maintain relationships')) || user_access('view user relationships'));
 
     $items[] = array(
       'path'                => 'relationships',
@@ -109,7 +110,7 @@ function user_relationships_menu($may_cache) {
       'access'              => ($id && user_access('maintain relationships')),
       'type'                => MENU_NORMAL_ITEM,
       'callback'            => 'theme',
-      'callback arguments'  => array('user_relationships_page'),
+      'callback arguments'  => array('user_relationships_page', $user->uid),
     );
       $items[] = array(
         'path'                => "relationships/list",
@@ -117,8 +118,6 @@ function user_relationships_menu($may_cache) {
         'access'              => $view_access,
         'type'                => MENU_NORMAL_ITEM|MENU_DEFAULT_LOCAL_TASK,
         'weight'              => -10,
-        'callback'            => 'theme',
-        'callback arguments'  => array('user_relationships_page', $user->id),
       );
       if (true || ($approval_required && $edit_access)) {
         $items[] = array(
@@ -142,7 +141,6 @@ function user_relationships_menu($may_cache) {
         );
       }
 
-      
     $items[] = array(
       'path'                => "relationship/request",
       'title'               => t('Create a relationship'),
@@ -152,32 +150,42 @@ function user_relationships_menu($may_cache) {
       'type'                => MENU_CALLBACK,
     );
 
-    // 'view only' tabs
-    $view_access = (($id == $user->uid && user_access('maintain relationships')) || user_access('view user relationships'));
+    $access = ($id && $id != $user->uid) && (user_access('administer user relationships') || user_access('administer users'));
 
     $items[] = array(
       'path'                => "user/{$id}/relationships",
       'title'               => t('Relationships'),
-      'access'              => ($view_access && $id),
+      'access'              => $access,
+      'callback'            => 'theme',
+      'callback arguments'  => array('user_relationships_page', $id),
     );
       $items[] = array(
-        'path'                => "relationships/{$id}/list",
+        'path'                => "user/{$id}/relationships/list",
         'title'               => t('All'),
-        'access'              => $view_access,
-        'type'                => MENU_DEFAULT_LOCAL_TASK,
+        'access'              => $access,
+        'type'                => MENU_NORMAL_ITEM|MENU_DEFAULT_LOCAL_TASK,
         'weight'              => -10,
-        'callback'            => 'theme',
-        'callback arguments'  => array('user_relationships_page', $id),
       );
       if (true || ($approval_required && $edit_access)) {
         $items[] = array(
           'path'                => "user/{$id}/relationships/requests",
           'title'               => t('Pending'),
-          'access'              => $edit_access,
+          'access'              => $access,
           'callback'            => 'theme',
-          'type'                => MENU_LOCAL_TASK,
+          'type'                => MENU_NORMAL_ITEM|MENU_LOCAL_TASK,
           'weight'              => -9,
           'callback arguments'  => array('user_relationships_pending_requests_page', $id)
+        );
+      }
+
+      foreach ($relationships as $rtid => $relationship) {
+        $items[] = array(
+          'path'                => "user/{$id}/relationships/{$rtid}",
+          'title'               => t($relationship->name),
+          'access'              => $access,
+          'type'                => MENU_NORMAL_ITEM|MENU_LOCAL_TASK,
+          'callback'            => 'theme',
+          'callback arguments'  => array('user_relationships_page', $id, $rtid),
         );
       }
 
@@ -186,7 +194,7 @@ function user_relationships_menu($may_cache) {
         $items[] = array(
           'path'                => "user/{$id}/relationships/requested",
           'title'               => t('Approve Relationship'),
-          'access'              => $edit_access,
+          'access'              => $access || ($id == $user->uid),
           'type'                => MENU_CALLBACK,
           'callback'            => 'drupal_get_form', 
           'callback arguments'  => array('user_relationships_pending_requested', arg(4), $id, arg(5)),
@@ -195,22 +203,11 @@ function user_relationships_menu($may_cache) {
       $items[] = array(
         'path'                => "user/{$id}/relationship/remove",
         'title'               => t('Remove relationship'),
-        'access'              => $edit_access,
+        'access'              => $access || ($id == $user->uid),
         'callback'            => 'drupal_get_form',
         'callback arguments'  => array('user_relationships_remove', $id, arg(4)),
         'type'                => MENU_CALLBACK,
       );
-
-      foreach ($relationships as $rtid => $relationship) {
-        $items[] = array(
-          'path'                => "user/{$id}/relationships/{$rtid}",
-          'title'               => t($relationship->name),
-          'access'              => $view_access,
-          'type'                => MENU_LOCAL_TASK,
-          'callback'            => 'theme',
-          'callback arguments'  => array('user_relationships_page', $id, $rtid),
-        );
-      }
     }
 
   return $items;
