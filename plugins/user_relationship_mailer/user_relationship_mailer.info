@@ -1,0 +1,6 @@
+; $Id: user_relationship_mailer.info,v 1.2.2.2 2008-02-01 23:43:25 sprsquish Exp $
+name = User Relationships Mailer
+description = "Gives the option to mail users when about relationship events (request, remove, disapprove, approve, etc)"
+dependencies[] = user_relationships
+package = "User Relationships"
+core = 6.x
