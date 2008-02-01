@@ -1,0 +1,255 @@
+<?php
+// $Id: user_relationship_blocks.module,v 1.3.2.2 2008-02-01 23:01:15 sprsquish Exp $
+
+/**
+ * Constants
+ */
+define('UR_BLOCK_ALL_TYPES',  'all');
+
+define('UR_BLOCK_SEPARATOR',  '-');
+
+define('UR_BLOCK_MY',   'my');
+define('UR_BLOCK_USER', 'user');
+
+define('UR_BLOCK_DEFAULT_SIZE', 10);
+define('UR_BLOCK_DEFAULT_SORT', 'newest');
+
+
+/**
+ * Implementation for hook_theme
+ */
+function user_relationship_blocks_theme() {
+  return array(
+    'user_relationship_block' => array(
+      'file'      => 'user_relationship_blocks_theme.inc',
+      'arguments' => array('account', 'relationships', 'block_type', 'rtid', 'extra')
+    ),
+    'user_relationship_block_subject' => array(
+      'file'      => 'user_relationship_blocks_theme.inc',
+      'arguments' => array('account', 'rtid', 'relationships')
+    ),
+    'user_relationship_block_content' => array(
+      'file'      => 'user_relationship_blocks_theme.inc',
+      'arguments' => array('viewing_user', 'rtid', 'relationships') 
+    ),
+    'user_relationship_block_empty' => array(
+      'file'      => 'user_relationship_blocks_theme.inc',
+      'arguments' => array('account', 'rtid')
+    ),
+    'user_relationship_block_pending' => array(
+      'file'      => 'user_relationship_blocks_theme.inc',
+      'arguments' => array('account', 'block_type', 'rtype', 'extra') 
+    ),
+    'user_relationship_block_actions' => array(
+      'file'      => 'user_relationship_blocks_theme.inc',
+      'arguments' => array('account', 'block_type', 'rtype', 'extra') 
+    ),
+  );
+}
+
+
+/**
+ * Implementation for hook_block
+ */
+function user_relationship_blocks_block($op = 'list', $delta = 0, $edit = array()) {
+  if ($op != 'list') {
+    list($block, $rtid, $extra) = explode(UR_BLOCK_SEPARATOR, $delta);
+  }
+
+  switch ($op) {
+    case 'list':      return _user_relationship_blocks_hook_list();
+    case 'configure': return _user_relationship_blocks_form($block, $rtid, $extra);
+    case 'save':      return _user_relationship_blocks_save($edit);
+    case 'view':      return _user_relationship_blocks_view($block, $rtid, $extra);
+  }
+}
+
+
+/**
+ * helper function user_relationship_blocks_block delegates to when $op == 'list'
+ */
+function _user_relationship_blocks_hook_list() {
+  $my   = UR_BLOCK_MY.UR_BLOCK_SEPARATOR;
+  $usr  = UR_BLOCK_USER.UR_BLOCK_SEPARATOR;
+  // return list of all blocks defined by the module
+  $blocks = array(
+    $my.UR_BLOCK_ALL_TYPES  => array('info' => t('My Relationships: All relationships')),
+    $usr.UR_BLOCK_ALL_TYPES => array('info' => t('User Relationships: All relationships')),
+    'pending' => array('info' => t('My Pending Relationships')),
+    'actions' => array('info' => t('User Relationships: Actions')),
+  );
+
+  $types = user_relationships_types_load();
+  foreach ($types as $type) {
+    $my_delta   = "{$my}{$type->rtid}";
+    $usr_delta  = "{$usr}{$type->rtid}";
+
+    $extras = array('' => '');
+    
+    if ($type->is_oneway) {
+      $extras = array(
+        UR_BLOCK_SEPARATOR.'you_to_them' => t('(You to Them)'), 
+        UR_BLOCK_SEPARATOR.'them_to_you' => t('(Them to You)'),
+      );
+    }
+
+    foreach ($extras as $token => $extra) {
+      $block_types = array(
+        "{$my_delta}{$token}"   => 'My Relationships: @type @extra',
+        "{$usr_delta}{$token}"  => 'User Relationships: @type @extra',
+      );
+      foreach ($block_types as $delta => $title) {
+        $blocks[$delta] = array(
+          'info' => t($title, array(
+            '@type'   => $type->plural_name,
+            '@extra'  => $extra
+          )),
+          'cache' => BLOCK_NO_CACHE,
+        );
+      }
+    }
+  }
+
+  return $blocks;
+}
+
+
+/**
+ * helper function user_relationship_blocks_block delegates to when $op == 'configure'
+ */
+function _user_relationship_blocks_form($block, $rtid, $extra) {
+  // No form for these so don't even bother
+  $no_form_blocks = array('pending', 'actions');
+  if (in_array($block, $no_form_blocks)) { return; }
+
+  if ($rtid == UR_BLOCK_ALL_TYPES) {
+    $relationship_name = 'All';
+  }
+  else {
+    $type = user_relationships_type_load($rtid);
+    $relationship_name = $type->name;
+  }
+  
+
+  $form = array();
+
+  $var = "user_relationships_block_{$block}_t_{$rtid}_size";
+  $form[$var] = array(
+    '#type'           => 'textfield',
+    '#title'          => t('Number of relationships to display in block'),
+    '#description'    => t('Enter the maximum number of relationships to display in this block.'),
+    '#size'           => 4,
+    '#default_value'  => variable_get($var, UR_BLOCK_DEFAULT_SIZE),
+    '#weight'         => 1,
+    '#required'       => TRUE,
+    '#validate'       => array('user_relationships_setting_validation' => array(array(
+      'is_numeric' => array('msg' => t('Number of users must be an integer greater than 0.'))
+    )))
+  );
+
+  $usr_msg = ($block == UR_BLOCK_MY) ? 'currently logged in user' : 'author whose node is being viewed';
+  $msg = "NOTE: This block displays @relationship_name relationships of the {$usr_msg}.";
+
+  if ($extra) {
+    $relation = $extra == 'you_to_them' ? t('requester') : t('requestee');
+    $msg .= "\nBecause this relationship is one-way this block will show relationships where the {$usr_msg} is the {$relation}";
+  }
+
+  $var = "user_relationships_block_{$block}_t_{$rtid}_sort";
+  $form[$var] = array(
+    '#type'          => 'radios',
+    '#title'         => t('Which relationships should be displayed'),
+    '#options'       => array( 
+      'newest' => t('Newest'), 
+      'oldest' => t('Oldest'), 
+      'random' => t('Random'),
+    ),
+    '#default_value' => variable_get($var, UR_BLOCK_DEFAULT_SORT),
+    '#required'      => TRUE,
+    '#weight'        => 3,
+    '#suffix'        => t($msg, array('@relationship_name' => $relationship_name)),
+  );
+
+  return $form;
+}
+
+
+/**
+ * helper function user_relationship_blocks_block delegates to when $op == 'save'
+ */
+function _user_relationship_blocks_save(&$edit) {
+  foreach ($edit as $key => $value) {
+    strpos($key, 'user_relationships_block_') !== FALSE ? variable_set($key, $value) : NULL;
+  }
+}
+
+
+/**
+ * helper function user_relationship_blocks_block delegates to when $op == 'view'
+ */
+function _user_relationship_blocks_view($block_type, $rtid, $extra) {
+  // determine which user's relationships to display
+  if (!($account = module_invoke_all('user_relationship_blocks', 'display', $block_type, $rtid, $extra))){
+    global $user;
+    if (in_array($block_type, array('pending', UR_BLOCK_MY)) && $user->uid) {
+      $account =& $user;
+    }
+    else {
+      if (arg(0) == 'node' && is_numeric(arg(1))) {
+        $node = node_load(arg(1));
+        $account = user_load(array('uid' => $node->uid));
+      }
+      else if (arg(0) == 'user' && is_numeric(arg(1))) {
+        $account = user_load(array('uid' => arg(1)));
+      }
+    }
+  }
+
+  $function = "_user_relationship_blocks_view_{$block_type}";
+  if (function_exists($function)) {
+    return $function($account, $block_type, $rtid, $extra);
+  }
+
+  // select the appropriate set of relationships based on admin's configuration settings
+  switch (variable_get("user_relationships_block_{$block_type}_t_{$rtid}_sort", 'newest')) {
+    case 'newest': $order = 'updated_at DESC'; break;
+    case 'oldest': $order = 'updated_at ASC'; break;
+    case 'random': $order = 'RAND()'; break;
+  }
+
+  $limit = variable_get("user_relationships_block_{$block_type}_t_{$rtid}_size", UR_BLOCK_DEFAULT_SIZE);
+
+  $key = $extra ? ($extra == 'you_to_them' ? 'requester_id' : 'requestee_id') : 'user';
+  $args = array($key => $account->uid, 'approved' => TRUE);
+
+  if ($rtid != UR_BLOCK_ALL_TYPES) { $args['rtid'] = $rtid; }
+
+  $relationships = user_relationships_load($args, FALSE, 'rid', $order, $limit);
+
+  // get the content of the block
+  return theme('user_relationship_block', $account, $relationships, $block_type, $rtid, $extra);
+}
+
+
+/**
+ * Show the pending relationships block
+ */
+function _user_relationship_blocks_view_pending($account, $block_type, $rtype, $extra) {
+  if (!$account) { return; }
+
+  return array(
+    'subject' => t('Pending Relationships'),
+    'content' => theme('user_relationship_block_pending', $account, $block_type, $rtype, $extra),
+  );
+}
+
+
+/**
+ * Show user relationship actions
+ */
+function _user_relationship_blocks_view_actions($account, $block_type, $rtype, $extra) {
+  return array(
+    'subject' => t('User Relationship Actions'),
+    'content' => theme('user_relationship_block_actions', $account, $block_type, $rtype, $extra),
+  );
+}
