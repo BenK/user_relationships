@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.inc,v 1.22 2007-12-23 20:27:42 sprsquish Exp $
+// $Id: user_relationships_api.inc,v 1.23 2008-02-01 02:29:50 sprsquish Exp $
 
 /**
  *  User Relationships API
@@ -54,10 +54,10 @@ function user_relationships_type_load($param = array()) {
  * @return
  *    array of relationship_type objects
  */
-function user_relationships_types_load() {
+function user_relationships_types_load($reset = NULL) {
   static $relationship_types_list = array();
 
-  if (!sizeof($relationship_types_list)) {
+  if ($reset || !sizeof($relationship_types_list)) {
     $results = db_query("SELECT * FROM {user_relationship_types}");  
     while ($relationship = db_fetch_object($results)) {
       _user_relationships_invoke('load', $relationship, 'type');
@@ -138,7 +138,9 @@ function user_relationships_update_relationship($current_relationship, &$updated
   $updated_relationship->rid        = $current_relationship->rid;
   $updated_relationship->created_at = $current_relationship->created_at;
 
-  _user_relationships_save_relationship($updated_relationship, $reason);
+  if (_user_relationships_save_relationship($updated_relationship, $reason) === FALSE) {
+    return FALSE;
+  }
 
   return $updated_relationship;
 }
@@ -166,7 +168,10 @@ function user_relationships_delete_relationship(&$relationship, &$deleted_by, $o
   * Load relationship objects from the database.
   *
   * @param $param
-  *   an array of parameters with the key being the column. There are two special keys:
+  *   an array of parameters with the key being the column. columns from both the user_relationships and user_relationship_types tables will work
+  *     columns from user_relationships: rid, requester_id, requestee_id, rtid, approved, created_at, updated_at, flags
+  *     columns from user_relationship_types: name, plural_name, is_oneway, requires_approval, expires_val
+  *   There are two special keys:
   *     1) array("between" => array($uid1, $uid2)) will return all relationships between the two user ids.
   *     2) array("user" => $uid) will return all relationships for the specified uid
   *
@@ -220,11 +225,11 @@ function user_relationships_load($param = array(), $count = FALSE, $sort = 'rid'
     else {
       $relationships[$relationship->$sort][] = $relationship;
     }
+    
   }
 
   return $rid ? $relationships[$rid] : $relationships;
 }
-
 
 /**
  * Public API for getting the set or default message

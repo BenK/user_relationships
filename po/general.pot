@@ -1,0 +1,1102 @@
+# $Id: general.pot,v 1.2 2008-02-01 02:29:50 sprsquish Exp $
+#
+# LANGUAGE translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  user_relationships_actions.inc,v 1.14.4.9 2008/01/15 01:01:21 sprsquish
+#  user_relationship_defaults.module,v 1.2.4.2 2007/12/21 00:25:29 sprsquish
+#  user_relationship_mailer.module,v 1.9.4.8 2008/01/15 00:21:16 sprsquish
+#  user_relationships_api.inc,v 1.18.4.8 2008/01/15 01:01:21 sprsquish
+#  user_relationships_forms.inc,v 1.11.4.4 2007/12/23 20:35:12 sprsquish
+#  user_relationships_pages.inc,v 1.4.4.2 2007/12/21 00:25:29 sprsquish
+#  n/a
+#  user_relationships_theme.inc,v 1.10.4.5 2008/01/11 23:24:39 sprsquish
+#  user_relationship_invites.module,v 1.3.4.3 2007/12/28 18:53:25 sprsquish
+#  user_relationships_hooks.inc,v 1.11.4.8 2008/01/11 23:24:39 sprsquish
+#  user_relationship_blocks.module,v 1.1.2.7 2008/01/11 23:24:39 sprsquish
+#  user_relationship_implications.module,v 1.17.4.5 2008/01/14 21:38:12 sprsquish
+#  user_relationships.module,v 1.14.4.19 2008/01/27 04:10:32 sprsquish
+#  user_relationships.install,v 1.6.4.6 2008/01/17 01:47:51 jbchristy
+#  user_relationships.info,v 1.1 2007/08/15 20:20:01 sprsquish
+#  user_relationship_blocks.info,v 1.1.2.1 2007/12/20 08:37:20 sprsquish
+#  user_relationship_defaults.info,v 1.1 2007/08/15 20:20:01 sprsquish
+#  user_relationship_implications.info,v 1.1 2007/08/15 20:20:01 sprsquish
+#  user_relationship_invites.info,v 1.1 2007/08/15 20:20:01 sprsquish
+#  user_relationship_mailer.info,v 1.1 2007/08/15 20:20:02 sprsquish
+#  user_relationship_migrate.info,v 1.1 2007/09/28 21:52:20 jbchristy
+#  user_relationship_privatemsg.info,v 1.1.2.2 2007/12/20 19:12:07 sprsquish
+#  user_relationship_views.info,v 1.1.2.1 2007/12/20 08:37:21 sprsquish
+#  user_relationship_defaults.install,v 1.1.4.1 2008/01/14 23:01:25 sprsquish
+#  user_relationship_implications.install,v 1.1.4.2 2008/01/14 23:01:25 sprsquish
+#  user_relationship_invites.install,v 1.1.4.1 2008/01/14 23:01:25 sprsquish
+#  user_relationship_migrate.module,v 1.3.4.4 2007/12/21 09:46:51 sprsquish
+#  user_relationship_privatemsg.module,v 1.2.2.3 2007/12/28 19:39:37 sprsquish
+#  user_relationship_views.module,v 1.1.2.1 2007/12/20 08:37:21 sprsquish
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2008-01-26 20:36-0800\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: user_relationships_actions.inc:26
+msgid "%name has already been used."
+msgstr ""
+
+#: user_relationships_actions.inc:31
+msgid "Expiration period must be an integer greater than or equal to 0."
+msgstr ""
+
+#: user_relationships_actions.inc:71
+msgid "Relationship %name has been added."
+msgstr ""
+
+#: user_relationships_actions.inc:74
+msgid "User Relationships form: relationship %name added."
+msgstr ""
+
+#: user_relationships_actions.inc:76;99 plugins/user_relationship_defaults/user_relationship_defaults.module:145
+msgid "view"
+msgstr ""
+
+#: user_relationships_actions.inc:94
+msgid "Relationship %name has been updated."
+msgstr ""
+
+#: user_relationships_actions.inc:97
+msgid "User Relationships form: relationship %name updated."
+msgstr ""
+
+#: user_relationships_actions.inc:118
+msgid "Relationship %name has been deleted."
+msgstr ""
+
+#: user_relationships_actions.inc:119
+msgid "User Relationships form: relationship %name deleted."
+msgstr ""
+
+#: user_relationships_api.inc:97
+msgid "Users are not allowed to have multiple relationships"
+msgstr ""
+
+#: user_relationships_api.inc:102
+msgid "This relationship already exists"
+msgstr ""
+
+#: user_relationships_forms.inc:15
+msgid "General"
+msgstr ""
+
+#: user_relationships_forms.inc:20
+msgid "Allow Multiple Relationships"
+msgstr ""
+
+#: user_relationships_forms.inc:21
+msgid "Give users the option to create more than one relationship to each other."
+msgstr ""
+
+#: user_relationships_forms.inc:26
+msgid "Allow users to auto approve"
+msgstr ""
+
+#: user_relationships_forms.inc:27
+msgid "This will provide an the options for users to set an \"auto-approve\" option to automatically approve to all requested relationships."
+msgstr ""
+
+#: user_relationships_forms.inc:32
+msgid "Relationships per page"
+msgstr ""
+
+#: user_relationships_forms.inc:34
+msgid "Number of relationships to show per page. If set to 0 all will be shown."
+msgstr ""
+
+#: user_relationships_forms.inc:37
+msgid "The relationships per page setting is not an integer"
+msgstr ""
+
+#: user_relationships_forms.inc:50;68
+msgid "Messages"
+msgstr ""
+
+#: user_relationships_forms.inc:52;70
+msgid "Notifications to users. Replaceable tokens are: @replaceables"
+msgstr ""
+
+#: user_relationships_forms.inc:90 user_relationships_pages.inc:15
+msgid "Name"
+msgstr ""
+
+#: user_relationships_forms.inc:93
+msgid "Example: buddy, friend, coworker, spouse."
+msgstr ""
+
+#: user_relationships_forms.inc:99
+msgid "Plural name"
+msgstr ""
+
+#: user_relationships_forms.inc:102
+msgid "Example: buddies, friends, coworkers, spouses."
+msgstr ""
+
+#: user_relationships_forms.inc:107
+msgid "This is a one-way relationship"
+msgstr ""
+
+#: user_relationships_forms.inc:109
+msgid "Check this if this relationship should only go one way (ex Manager, Subscriber)"
+msgstr ""
+
+#: user_relationships_forms.inc:114 user_relationships_pages.inc:15
+msgid "Requires Approval"
+msgstr ""
+
+#: user_relationships_forms.inc:116
+msgid "Check this if the requestee must approve the relationship"
+msgstr ""
+
+#: user_relationships_forms.inc:120
+msgid "Request expires in"
+msgstr ""
+
+#: user_relationships_forms.inc:121
+msgid "days"
+msgstr ""
+
+#: user_relationships_forms.inc:125
+msgid "After how many days should a request of this type be removed? (0 for never)"
+msgstr ""
+
+#: user_relationships_forms.inc:134 plugins/user_relationship_defaults/user_relationship_defaults.module:108
+msgid "Submit"
+msgstr ""
+
+#: user_relationships_forms.inc:153
+msgid "Are you sure you want to delete %name?"
+msgstr ""
+
+#: user_relationships_forms.inc:155 plugins/user_relationship_defaults/user_relationship_defaults.module:176
+msgid "This action cannot be undone."
+msgstr ""
+
+#: user_relationships_forms.inc:156 plugins/user_relationship_acl/user_relationship_acl.module:30 plugins/user_relationship_defaults/user_relationship_defaults.module:177
+msgid "Delete"
+msgstr ""
+
+#: user_relationships_forms.inc:156;227 user_relationships_theme.inc:181;181 plugins/user_relationship_defaults/user_relationship_defaults.module:177
+msgid "Cancel"
+msgstr ""
+
+#: user_relationships_forms.inc:182
+msgid "My relationship is"
+msgstr ""
+
+#: user_relationships_forms.inc:224
+msgid "How do you relate to %name?"
+msgstr ""
+
+#: user_relationships_forms.inc:227
+msgid "Create"
+msgstr ""
+
+#: user_relationships_forms.inc:260
+msgid "@action relationship"
+msgstr ""
+
+#: user_relationships_forms.inc:263
+msgid "Are you sure you want to @action the request to create a %relationship_name relationship to !name?"
+msgstr ""
+
+#: user_relationships_forms.inc:268;300 plugins/user_relationship_invites/user_relationship_invites.module:56
+msgid "Yes"
+msgstr ""
+
+#: user_relationships_forms.inc:268;300 plugins/user_relationship_invites/user_relationship_invites.module:56
+msgid "No"
+msgstr ""
+
+#: user_relationships_forms.inc:293 user_relationships_hooks.inc:147;232
+msgid "Remove relationship"
+msgstr ""
+
+#: user_relationships_forms.inc:296
+msgid "Are you sure you no longer wish to be a %relationship_name of !name?"
+msgstr ""
+
+#: user_relationships_hooks.inc:14
+msgid "This module allows you to create relationship types that users can use to connect to each other."
+msgstr ""
+
+#: user_relationships_hooks.inc:18
+msgid "This page lets you setup user relationship types."
+msgstr ""
+
+#: user_relationships_hooks.inc:43;169;281
+msgid "Relationships"
+msgstr ""
+
+#: user_relationships_hooks.inc:44
+msgid "Create relationship types"
+msgstr ""
+
+#: user_relationships_hooks.inc:50
+msgid "List"
+msgstr ""
+
+#: user_relationships_hooks.inc:57
+msgid "Add type"
+msgstr ""
+
+#: user_relationships_hooks.inc:66
+msgid "Edit type"
+msgstr ""
+
+#: user_relationships_hooks.inc:74
+msgid "Delete type"
+msgstr ""
+
+#: user_relationships_hooks.inc:82
+msgid "Settings"
+msgstr ""
+
+#: user_relationships_hooks.inc:92
+msgid "User Relationships Autocomplete"
+msgstr ""
+
+#: user_relationships_hooks.inc:107
+msgid "My relationships"
+msgstr ""
+
+#: user_relationships_hooks.inc:115;176
+msgid "All"
+msgstr ""
+
+#: user_relationships_hooks.inc:123;184
+msgid "Pending"
+msgstr ""
+
+#: user_relationships_hooks.inc:157
+msgid "Create a relationship"
+msgstr ""
+
+#: user_relationships_hooks.inc:223
+msgid "Approve Relationship"
+msgstr ""
+
+#: user_relationships_hooks.inc:266 plugins/user_relationship_blocks/user_relationship_blocks.module:377
+msgid "Your relationships to this user"
+msgstr ""
+
+#: user_relationships_hooks.inc:274 plugins/user_relationship_blocks/user_relationship_blocks.module:381
+msgid "Relationship actions"
+msgstr ""
+
+#: user_relationships_hooks.inc:296
+msgid "Relationship settings"
+msgstr ""
+
+#: user_relationships_hooks.inc:309
+msgid "Automatically approve the following relationship requests"
+msgstr ""
+
+#: user_relationships_hooks.inc:312
+msgid "Check off the types of relationships you'd like to automatically approve."
+msgstr ""
+
+#: user_relationships_pages.inc:15
+msgid "Plural"
+msgstr ""
+
+#: user_relationships_pages.inc:15
+msgid "Type"
+msgstr ""
+
+#: user_relationships_pages.inc:15
+msgid "Expiration"
+msgstr ""
+
+#: user_relationships_pages.inc:15 plugins/user_relationship_defaults/user_relationship_defaults.module:246
+msgid "Operations"
+msgstr ""
+
+#: user_relationships_pages.inc:24
+msgid "one way"
+msgstr ""
+
+#: user_relationships_pages.inc:24
+msgid "mutual"
+msgstr ""
+
+#: user_relationships_pages.inc:25
+msgid "yes"
+msgstr ""
+
+#: user_relationships_pages.inc:25
+msgid "no"
+msgstr ""
+
+#: user_relationships_pages.inc:26
+msgid "Never"
+msgstr ""
+
+#: user_relationships_pages.inc:27
+msgid "edit"
+msgstr ""
+
+#: user_relationships_pages.inc:28 plugins/user_relationship_defaults/user_relationship_defaults.module:232
+msgid "delete"
+msgstr ""
+
+#: user_relationships_pages.inc:38
+msgid "No relationships available."
+msgstr ""
+
+#: user_relationships_pages.inc:43
+msgid "Relationship Types"
+msgstr ""
+
+#: user_relationships_pages.inc:26
+msgid "1 day"
+msgid_plural "@count days"
+msgstr[0] ""
+msgstr[1] ""
+
+#: user_relationships_theme.inc:53 plugins/user_relationship_implications/user_relationship_implications.module:338
+msgid "online"
+msgstr ""
+
+#: user_relationships_theme.inc:53 plugins/user_relationship_implications/user_relationship_implications.module:338
+msgid "not online"
+msgstr ""
+
+#: user_relationships_theme.inc:63 plugins/user_relationship_implications/user_relationship_implications.module:345
+msgid "No relationships found"
+msgstr ""
+
+#: user_relationships_theme.inc:90
+msgid "%username's pending relationships"
+msgstr ""
+
+#: user_relationships_theme.inc:95
+msgid "Sent Requests"
+msgstr ""
+
+#: user_relationships_theme.inc:96
+msgid "Received Requests"
+msgstr ""
+
+#: user_relationships_theme.inc:135
+msgid "No pending relationships found"
+msgstr ""
+
+#: user_relationships_theme.inc:145
+msgid "Create a relationship with %name"
+msgstr ""
+
+#: user_relationships_theme.inc:152
+msgid "Remove"
+msgstr ""
+
+#: user_relationships_theme.inc:160;160
+msgid "Ban"
+msgstr ""
+
+#: user_relationships_theme.inc:167;167
+msgid "Approve"
+msgstr ""
+
+#: user_relationships_theme.inc:174;174
+msgid "Disapprove"
+msgstr ""
+
+#: user_relationships_theme.inc:188
+msgid "Approved"
+msgstr ""
+
+#: user_relationships_theme.inc:188
+msgid "Not Approved"
+msgstr ""
+
+#: user_relationships_theme.inc:188
+msgid "Unknown"
+msgstr ""
+
+#: user_relationships.module:114
+msgid "pending relationship requests"
+msgstr ""
+
+#: user_relationships.module:133
+msgid "%relationship_name (!remove_link)"
+msgstr ""
+
+#: user_relationships.module:156
+msgid "You have requested to be a %relationship_name of this user. (!pending_requests)"
+msgstr ""
+
+#: user_relationships.module:158;166
+msgid "pending requests"
+msgstr ""
+
+#: user_relationships.module:164
+msgid "This user believes that they are a %relationship_name of yours. (!pending_requests)"
+msgstr ""
+
+#: user_relationships.module:0
+msgid "user_relationships"
+msgstr ""
+
+#: user_relationships.install:6
+msgid "User Relationships module updated successfully."
+msgstr ""
+
+#: user_relationships.install:9
+msgid "The update of the User Relationships module was unsuccessful."
+msgstr ""
+
+#: user_relationships.install:27
+msgid "Unsupported database."
+msgstr ""
+
+#: user_relationships.install:69
+msgid "User Relationships module installed successfully."
+msgstr ""
+
+#: user_relationships.install:72
+msgid "The installation of the User Relationships module was unsuccessful."
+msgstr ""
+
+#: user_relationships.info:0;0 plugins/user_relationship_access/user_relationship_access.info:0 plugins/user_relationship_acl/user_relationship_acl.info:0 plugins/user_relationship_blocks/user_relationship_blocks.info:0 plugins/user_relationship_defaults/user_relationship_defaults.info:0 plugins/user_relationship_implications/user_relationship_implications.info:0 plugins/user_relationship_invites/user_relationship_invites.info:0 plugins/user_relationship_mailer/user_relationship_mailer.info:0 plugins/user_relationship_migrate/user_relationship_migrate.info:0 plugins/user_relationship_privatemsg/user_relationship_privatemsg.info:0 plugins/user_relationship_views/user_relationship_views.info:0
+msgid "User Relationships"
+msgstr ""
+
+#: user_relationships.info:0
+msgid "Lets users create named relationships between each other."
+msgstr ""
+
+#: plugins/user_relationship_access/user_relationship_access.module:0
+msgid "user_relationship_access"
+msgstr ""
+
+#: plugins/user_relationship_access/user_relationship_access.install:17
+msgid "User Relationship Access module installed successfully."
+msgstr ""
+
+#: plugins/user_relationship_access/user_relationship_access.install:20
+msgid "The installation of the User Relationship Access module as unsuccessful."
+msgstr ""
+
+#: plugins/user_relationship_access/user_relationship_access.info:0
+msgid "User Relationship Access"
+msgstr ""
+
+#: plugins/user_relationship_access/user_relationship_access.info:0
+msgid "Allows users to control access to node types according to relationships"
+msgstr ""
+
+#: plugins/user_relationship_acl/user_relationship_acl.module:11
+msgid "(Me to Them)"
+msgstr ""
+
+#: plugins/user_relationship_acl/user_relationship_acl.module:12
+msgid "(Them to Me)"
+msgstr ""
+
+#: plugins/user_relationship_acl/user_relationship_acl.module:18
+msgid "@relationship @me_to_them"
+msgstr ""
+
+#: plugins/user_relationship_acl/user_relationship_acl.module:19
+msgid "@relationship @them_to_me"
+msgstr ""
+
+#: plugins/user_relationship_acl/user_relationship_acl.module:28
+msgid "View"
+msgstr ""
+
+#: plugins/user_relationship_acl/user_relationship_acl.module:29
+msgid "Edit"
+msgstr ""
+
+#: plugins/user_relationship_acl/user_relationship_acl.module:34
+msgid "Access Control based on User Relationship"
+msgstr ""
+
+#: plugins/user_relationship_acl/user_relationship_acl.module:0
+msgid "user_relationship_acl"
+msgstr ""
+
+#: plugins/user_relationship_acl/user_relationship_acl.info:0
+msgid "User Relationship ACL"
+msgstr ""
+
+#: plugins/user_relationship_acl/user_relationship_acl.info:0
+msgid "Allows users to control node access according to relationships"
+msgstr ""
+
+#: plugins/user_relationship_blocks/user_relationship_blocks.module:44
+msgid "My Relationships: All relationships"
+msgstr ""
+
+#: plugins/user_relationship_blocks/user_relationship_blocks.module:45
+msgid "User Relationships: All relationships"
+msgstr ""
+
+#: plugins/user_relationship_blocks/user_relationship_blocks.module:46
+msgid "My Pending Relationships"
+msgstr ""
+
+#: plugins/user_relationship_blocks/user_relationship_blocks.module:47
+msgid "User Relationships: Actions"
+msgstr ""
+
+#: plugins/user_relationship_blocks/user_relationship_blocks.module:59
+msgid "(You to Them)"
+msgstr ""
+
+#: plugins/user_relationship_blocks/user_relationship_blocks.module:60
+msgid "(Them to You)"
+msgstr ""
+
+#: plugins/user_relationship_blocks/user_relationship_blocks.module:107
+msgid "Number of relationships to display in block"
+msgstr ""
+
+#: plugins/user_relationship_blocks/user_relationship_blocks.module:108
+msgid "Enter the maximum number of relationships to display in this block."
+msgstr ""
+
+#: plugins/user_relationship_blocks/user_relationship_blocks.module:114
+msgid "Number of users must be an integer greater than 0."
+msgstr ""
+
+#: plugins/user_relationship_blocks/user_relationship_blocks.module:122
+msgid "requester"
+msgstr ""
+
+#: plugins/user_relationship_blocks/user_relationship_blocks.module:122
+msgid "requestee"
+msgstr ""
+
+#: plugins/user_relationship_blocks/user_relationship_blocks.module:129
+msgid "Which relationships should be displayed"
+msgstr ""
+
+#: plugins/user_relationship_blocks/user_relationship_blocks.module:131
+msgid "Newest"
+msgstr ""
+
+#: plugins/user_relationship_blocks/user_relationship_blocks.module:132
+msgid "Oldest"
+msgstr ""
+
+#: plugins/user_relationship_blocks/user_relationship_blocks.module:133
+msgid "Random"
+msgstr ""
+
+#: plugins/user_relationship_blocks/user_relationship_blocks.module:209
+msgid "Pending Relationships"
+msgstr ""
+
+#: plugins/user_relationship_blocks/user_relationship_blocks.module:220
+msgid "User Relationship Actions"
+msgstr ""
+
+#: plugins/user_relationship_blocks/user_relationship_blocks.module:260
+msgid "@user @type"
+msgstr ""
+
+#: plugins/user_relationship_blocks/user_relationship_blocks.module:276
+msgid " (You to Them)"
+msgstr ""
+
+#: plugins/user_relationship_blocks/user_relationship_blocks.module:280
+msgid " (Them to You)"
+msgstr ""
+
+#: plugins/user_relationship_blocks/user_relationship_blocks.module:314
+msgid "You have no @rels"
+msgstr ""
+
+#: plugins/user_relationship_blocks/user_relationship_blocks.module:317
+msgid "!name has no @rels"
+msgstr ""
+
+#: plugins/user_relationship_blocks/user_relationship_blocks.module:337
+msgid "From You"
+msgstr ""
+
+#: plugins/user_relationship_blocks/user_relationship_blocks.module:342
+msgid "To You"
+msgstr ""
+
+#: plugins/user_relationship_blocks/user_relationship_blocks.module:347
+msgid "!username (!controls)"
+msgstr ""
+
+#: plugins/user_relationship_blocks/user_relationship_blocks.module:361
+msgid "No Pending Requests"
+msgstr ""
+
+#: plugins/user_relationship_blocks/user_relationship_blocks.module:0
+msgid "user_relationship_blocks"
+msgstr ""
+
+#: plugins/user_relationship_blocks/user_relationship_blocks.info:0
+msgid "User Relationship Blocks"
+msgstr ""
+
+#: plugins/user_relationship_blocks/user_relationship_blocks.info:0
+msgid "Blocks that can be used with User Relationships"
+msgstr ""
+
+#: plugins/user_relationship_defaults/user_relationship_defaults.module:62
+msgid "Add default"
+msgstr ""
+
+#: plugins/user_relationship_defaults/user_relationship_defaults.module:73
+msgid "Delete default"
+msgstr ""
+
+#: plugins/user_relationship_defaults/user_relationship_defaults.module:90
+msgid "Username"
+msgstr ""
+
+#: plugins/user_relationship_defaults/user_relationship_defaults.module:93
+msgid "Start typing the name of a user to automatically create a relationship to"
+msgstr ""
+
+#: plugins/user_relationship_defaults/user_relationship_defaults.module:99;246
+msgid "Relationship"
+msgstr ""
+
+#: plugins/user_relationship_defaults/user_relationship_defaults.module:102
+msgid "Start typing the name of a relationship to use"
+msgstr ""
+
+#: plugins/user_relationship_defaults/user_relationship_defaults.module:119
+msgid "You must enter an existing user's name."
+msgstr ""
+
+#: plugins/user_relationship_defaults/user_relationship_defaults.module:124
+msgid "You must enter an existing relationship's name."
+msgstr ""
+
+#: plugins/user_relationship_defaults/user_relationship_defaults.module:140
+msgid "Default relationship %relationship_name of %username has been added."
+msgstr ""
+
+#: plugins/user_relationship_defaults/user_relationship_defaults.module:171
+msgid "Are you sure you want to delete the default relationship %relationship of %name?"
+msgstr ""
+
+#: plugins/user_relationship_defaults/user_relationship_defaults.module:183
+msgid "Default relationship not found."
+msgstr ""
+
+#: plugins/user_relationship_defaults/user_relationship_defaults.module:193
+msgid "Default relationship %relationship of %name has been deleted."
+msgstr ""
+
+#: plugins/user_relationship_defaults/user_relationship_defaults.module:237
+msgid "No default relationships available."
+msgstr ""
+
+#: plugins/user_relationship_defaults/user_relationship_defaults.module:242
+msgid "Default Relationships"
+msgstr ""
+
+#: plugins/user_relationship_defaults/user_relationship_defaults.module:246
+msgid "User"
+msgstr ""
+
+#: plugins/user_relationship_defaults/user_relationship_defaults.module:0
+msgid "user_relationship_defaults"
+msgstr ""
+
+#: plugins/user_relationship_defaults/user_relationship_defaults.install:19
+msgid "User Relationships Defaults module installed successfully."
+msgstr ""
+
+#: plugins/user_relationship_defaults/user_relationship_defaults.install:22
+msgid "The installation of the User Relationships Defaults module as unsuccessful."
+msgstr ""
+
+#: plugins/user_relationship_defaults/user_relationship_defaults.info:0
+msgid "User Relationship Defaults"
+msgstr ""
+
+#: plugins/user_relationship_defaults/user_relationship_defaults.info:0
+msgid "Allows admins to specify relationships that are automatically created when a new user joins"
+msgstr ""
+
+#: plugins/user_relationship_implications/user_relationship_implications.module:74
+msgid "This relationship implies"
+msgstr ""
+
+#: plugins/user_relationship_implications/user_relationship_implications.module:79
+msgid "Users will automatically have these relationships created between them when the implying relationship is created. \n        (ex: Manager implies Coworker).<br />\n        When the implied relationship is removed the implying relationship will not be removed. (ex: removing Coworker WILL NOT remove Manager)<br />\n        If \"strict\" is set the implying relationship will be removed when the implied relationship is removed. (ex: removing Coworker WILL remove Manager)"
+msgstr ""
+
+#: plugins/user_relationship_implications/user_relationship_implications.module:120
+msgid "Relationship Type"
+msgstr ""
+
+#: plugins/user_relationship_implications/user_relationship_implications.module:120
+msgid "Strict"
+msgstr ""
+
+#: plugins/user_relationship_implications/user_relationship_implications.module:273
+msgid "Implies"
+msgstr ""
+
+#: plugins/user_relationship_implications/user_relationship_implications.module:350
+msgid "%username's %relationships"
+msgstr ""
+
+#: plugins/user_relationship_implications/user_relationship_implications.module:352
+msgid "relationships"
+msgstr ""
+
+#: plugins/user_relationship_implications/user_relationship_implications.module:0
+msgid "user_relationship_implications"
+msgstr ""
+
+#: plugins/user_relationship_implications/user_relationship_implications.install:20
+msgid "User Relationship Implications module installed successfully."
+msgstr ""
+
+#: plugins/user_relationship_implications/user_relationship_implications.install:23
+msgid "The installation of the User Relationship Implications module as unsuccessful."
+msgstr ""
+
+#: plugins/user_relationship_implications/user_relationship_implications.install:37
+msgid "User Relationship Implications module updated successfully."
+msgstr ""
+
+#: plugins/user_relationship_implications/user_relationship_implications.install:40
+msgid "The update of the User Relationship Implications module as unsuccessful."
+msgstr ""
+
+#: plugins/user_relationship_implications/user_relationship_implications.info:0
+msgid "User Relationships Implications"
+msgstr ""
+
+#: plugins/user_relationship_implications/user_relationship_implications.info:0
+msgid "Lets admins create implied relationships. For example 'Manager implies Coworker'"
+msgstr ""
+
+#: plugins/user_relationship_invites/user_relationship_invites.module:51
+msgid "Are you a %relationship_name of !name?"
+msgstr ""
+
+#: plugins/user_relationship_invites/user_relationship_invites.module:0
+msgid "user_relationship_invites"
+msgstr ""
+
+#: plugins/user_relationship_invites/user_relationship_invites.install:17
+msgid "User Relationship Invite module installed successfully."
+msgstr ""
+
+#: plugins/user_relationship_invites/user_relationship_invites.install:20
+msgid "The installation of the User Relationship Invite module as unsuccessful."
+msgstr ""
+
+#: plugins/user_relationship_invites/user_relationship_invites.info:0
+msgid "User Relationships Invite"
+msgstr ""
+
+#: plugins/user_relationship_invites/user_relationship_invites.info:0
+msgid "Gives users the option of specifying a relationship when inviting new users"
+msgstr ""
+
+#: plugins/user_relationship_mailer/user_relationship_mailer.module:81
+msgid "You should create an administrator mail address for your site! <a href=\"%url\">Do it here</a>."
+msgstr ""
+
+#: plugins/user_relationship_mailer/user_relationship_mailer.module:88
+msgid "%type message was sent to %username"
+msgstr ""
+
+#: plugins/user_relationship_mailer/user_relationship_mailer.module:91
+msgid "There was a problem sending the %type message to %username"
+msgstr ""
+
+#: plugins/user_relationship_mailer/user_relationship_mailer.module:123
+msgid "Email Options"
+msgstr ""
+
+#: plugins/user_relationship_mailer/user_relationship_mailer.module:128
+msgid "Allow users to turn off relationship messages"
+msgstr ""
+
+#: plugins/user_relationship_mailer/user_relationship_mailer.module:130
+msgid "If you check this, users will have a new setting on their account edit page."
+msgstr ""
+
+#: plugins/user_relationship_mailer/user_relationship_mailer.module:144
+msgid "Send @op messages"
+msgstr ""
+
+#: plugins/user_relationship_mailer/user_relationship_mailer.module:149
+msgid "@Op relationship email subject"
+msgstr ""
+
+#: plugins/user_relationship_mailer/user_relationship_mailer.module:154
+msgid "@Op relationship email message"
+msgstr ""
+
+#: plugins/user_relationship_mailer/user_relationship_mailer.module:156
+msgid "Replacement strings are: %macros"
+msgstr ""
+
+#: plugins/user_relationship_mailer/user_relationship_mailer.module:176
+msgid "Relationship email settings"
+msgstr ""
+
+#: plugins/user_relationship_mailer/user_relationship_mailer.module:181
+msgid "Receive relationship email notifications"
+msgstr ""
+
+#: plugins/user_relationship_mailer/user_relationship_mailer.module:184
+msgid "Check this if you'd like to receive relationship related email notifications"
+msgstr ""
+
+#: plugins/user_relationship_mailer/user_relationship_mailer.module:0
+msgid "user_relationship_mailer"
+msgstr ""
+
+#: plugins/user_relationship_mailer/user_relationship_mailer.info:0
+msgid "User Relationships Mailer"
+msgstr ""
+
+#: plugins/user_relationship_mailer/user_relationship_mailer.info:0
+msgid "Gives the option to mail users when about relationship events (request, remove, disapprove, approve, etc)"
+msgstr ""
+
+#: plugins/user_relationship_migrate/user_relationship_migrate.module:29
+msgid "Migrate from buddylist"
+msgstr ""
+
+#: plugins/user_relationship_migrate/user_relationship_migrate.module:38
+msgid "Migrating from buddylist error"
+msgstr ""
+
+#: plugins/user_relationship_migrate/user_relationship_migrate.module:51
+msgid "You ran this migration %date"
+msgstr ""
+
+#: plugins/user_relationship_migrate/user_relationship_migrate.module:72
+msgid "%count buddylist records await your import."
+msgstr ""
+
+#: plugins/user_relationship_migrate/user_relationship_migrate.module:76
+msgid "Don't do the main migration"
+msgstr ""
+
+#: plugins/user_relationship_migrate/user_relationship_migrate.module:79
+msgid "Check this if you've already done the main migration and don't want to re-run it."
+msgstr ""
+
+#: plugins/user_relationship_migrate/user_relationship_migrate.module:82
+msgid "Relationship type for migrated relationships"
+msgstr ""
+
+#: plugins/user_relationship_migrate/user_relationship_migrate.module:91
+msgid "Migrate %count pending requests"
+msgstr ""
+
+#: plugins/user_relationship_migrate/user_relationship_migrate.module:96
+msgid "Migrate users' email settings"
+msgstr ""
+
+#: plugins/user_relationship_migrate/user_relationship_migrate.module:101
+msgid "Migrate!"
+msgstr ""
+
+#: plugins/user_relationship_migrate/user_relationship_migrate.module:114
+msgid "You must enter the name of an existing relationship type."
+msgstr ""
+
+#: plugins/user_relationship_migrate/user_relationship_migrate.module:129
+msgid "Buddylist migration successfully ran."
+msgstr ""
+
+#: plugins/user_relationship_migrate/user_relationship_migrate.module:130
+msgid "Buddies Migration took @amount"
+msgstr ""
+
+#: plugins/user_relationship_migrate/user_relationship_migrate.module:133
+msgid "There was an error migrating the buddylist."
+msgstr ""
+
+#: plugins/user_relationship_migrate/user_relationship_migrate.module:141
+msgid "Pending relationships migration successfully ran."
+msgstr ""
+
+#: plugins/user_relationship_migrate/user_relationship_migrate.module:142
+msgid "Pending Buddies Migration took @amount"
+msgstr ""
+
+#: plugins/user_relationship_migrate/user_relationship_migrate.module:145
+msgid "There was a problem migrating pending relationships"
+msgstr ""
+
+#: plugins/user_relationship_migrate/user_relationship_migrate.module:153
+msgid "Email settings successfully updated."
+msgstr ""
+
+#: plugins/user_relationship_migrate/user_relationship_migrate.module:154
+msgid "Email Preferences Migration took @amount"
+msgstr ""
+
+#: plugins/user_relationship_migrate/user_relationship_migrate.module:157
+msgid "There was an error migrating email preferences."
+msgstr ""
+
+#: plugins/user_relationship_migrate/user_relationship_migrate.module:0
+msgid "user_relationship_migrate"
+msgstr ""
+
+#: plugins/user_relationship_migrate/user_relationship_migrate.info:0
+msgid "User Relationship Migrate"
+msgstr ""
+
+#: plugins/user_relationship_migrate/user_relationship_migrate.info:0
+msgid "Allows admins to migrate buddylist relationships to user relationships"
+msgstr ""
+
+#: plugins/user_relationship_privatemsg/user_relationship_privatemsg.module:35;52
+msgid "Write private message"
+msgstr ""
+
+#: plugins/user_relationship_privatemsg/user_relationship_privatemsg.module:48
+msgid "With selected:"
+msgstr ""
+
+#: plugins/user_relationship_privatemsg/user_relationship_privatemsg.module:0
+msgid "user_relationship_privatemsg"
+msgstr ""
+
+#: plugins/user_relationship_privatemsg/user_relationship_privatemsg.info:0
+msgid "User Relationship Privatemsg"
+msgstr ""
+
+#: plugins/user_relationship_privatemsg/user_relationship_privatemsg.info:0
+msgid "Integrates User Relationships with Privatemsg"
+msgstr ""
+
+#: plugins/user_relationship_views/user_relationship_views.module:36
+msgid "User Relationships: Author's Relationships to Current User"
+msgstr ""
+
+#: plugins/user_relationship_views/user_relationship_views.module:41;56
+msgid "Any"
+msgstr ""
+
+#: plugins/user_relationship_views/user_relationship_views.module:42;57
+msgid "Only Approved"
+msgstr ""
+
+#: plugins/user_relationship_views/user_relationship_views.module:43;58
+msgid "Only Non-Approved"
+msgstr ""
+
+#: plugins/user_relationship_views/user_relationship_views.module:48
+msgid "This will display the relationships between the author and the current user."
+msgstr ""
+
+#: plugins/user_relationship_views/user_relationship_views.module:51
+msgid "User Relationships: Current User's Relationships to Author"
+msgstr ""
+
+#: plugins/user_relationship_views/user_relationship_views.module:63
+msgid "This will display the relationships between the current user and the author."
+msgstr ""
+
+#: plugins/user_relationship_views/user_relationship_views.module:66
+msgid "User Relationships: Approval Status"
+msgstr ""
+
+#: plugins/user_relationship_views/user_relationship_views.module:69
+msgid "Display the approval state of the relationship (really only useful if you've filtered by a relationship)."
+msgstr ""
+
+#: plugins/user_relationship_views/user_relationship_views.module:72
+msgid "User Relationships: Relationship Creation Date"
+msgstr ""
+
+#: plugins/user_relationship_views/user_relationship_views.module:75
+msgid "Display the date the relationship was created (really only useful if you've filtered by a relationship)."
+msgstr ""
+
+#: plugins/user_relationship_views/user_relationship_views.module:82
+msgid "User Relationships: Author's relationship with Username"
+msgstr ""
+
+#: plugins/user_relationship_views/user_relationship_views.module:83
+msgid "Allows you to filter by how the author relates to the user (provided in \"options\")."
+msgstr ""
+
+#: plugins/user_relationship_views/user_relationship_views.module:98
+msgid "User Relationships: Author's relationship with the Current User"
+msgstr ""
+
+#: plugins/user_relationship_views/user_relationship_views.module:99
+msgid "Allows you to filter by the author's relationship to the currently logged in user."
+msgstr ""
+
+#: plugins/user_relationship_views/user_relationship_views.module:120
+msgid "Is"
+msgstr ""
+
+#: plugins/user_relationship_views/user_relationship_views.module:121
+msgid "Is (Approved)"
+msgstr ""
+
+#: plugins/user_relationship_views/user_relationship_views.module:122
+msgid "Is (Not Approved)"
+msgstr ""
+
+#: plugins/user_relationship_views/user_relationship_views.module:124
+msgid "Is Not"
+msgstr ""
+
+#: plugins/user_relationship_views/user_relationship_views.module:125
+msgid "Is Not (Approved)"
+msgstr ""
+
+#: plugins/user_relationship_views/user_relationship_views.module:126
+msgid "Is Not (Not Approved)"
+msgstr ""
+
+#: plugins/user_relationship_views/user_relationship_views.module:234
+msgid "User Relationships: UID is related to Author"
+msgstr ""
+
+#: plugins/user_relationship_views/user_relationship_views.module:243
+msgid "User Relationships: Author is related to UID through RTID"
+msgstr ""
+
+#: plugins/user_relationship_views/user_relationship_views.module:253
+msgid "User Relationships: UID to Author is (Non-)Approved"
+msgstr ""
+
+#: plugins/user_relationship_views/user_relationship_views.module:0
+msgid "user_relationship_views"
+msgstr ""
+
+#: plugins/user_relationship_views/user_relationship_views.info:0
+msgid "User Relationship Views"
+msgstr ""
+
+#: plugins/user_relationship_views/user_relationship_views.info:0
+msgid "Integrates User Relationships with views"
+msgstr ""
+

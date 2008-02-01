@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships.module,v 1.21 2007-12-23 19:36:18 sprsquish Exp $
+// $Id: user_relationships.module,v 1.22 2008-02-01 02:29:50 sprsquish Exp $
 
 /**
  *
@@ -8,9 +8,13 @@
  *
  */
 
+define('UR_OK', 0x0);
+define('UR_BANNED', 0x1);
+
+
 // Load all needed files
 foreach (array(
-  'api', 'theme', 'hooks', 'pages', 'forms', 'actions'
+  'api', 'hooks', 'pages', 'forms', 'actions'
   ) as $file_to_include
 ) { 
   $modulepath = drupal_get_path('module', 'user_relationships');
@@ -26,7 +30,8 @@ function user_relationships_default_messages() {
     'informational' => array(
       'submitted'     => 'Your request to be a %relationship_name of !requestee has been submitted.',
       'accepted'      => 'You are now a %relationship_name of !requester.',
-      'denied'        => "!requester's request to be a %relationship_name of !requestee has been removed.",
+      'disapproved'   => "!requester's request to be a %relationship_name of !requestee has been removed.",
+      'cancel'        => 'Your request to be a %relationship_name of !requestee has been canceled.',
       'default'       => 'No action has been taken.',
       'removed'       => '!requester is no longer a %relationship_name of !requestee.',
       'pending'       => '!requester believes they are a %relationship_name of yours.  Please view your !pending_relationship_requests to approve them.',
@@ -39,6 +44,8 @@ function user_relationships_default_messages() {
       'not_accepting_requests'  => 'This user is not accepting relationship requests.',
       'self_request'            => 'You are not allowed to create a relationship to yourself.',
       'non_existant_user'       => 'This user does not exist.',
+      'non_existant_type'       => 'That relationship type does not exist',
+      'unknown_error'           => 'An unknown error occurred. Please contact the site administrator',
     ),
   );
 }
@@ -79,7 +86,7 @@ function _user_relationships_invoke($type, &$relationship, $category = NULL) {
 function _user_relationships_autocomplete_types($string = '') {
   $matches = array();
   if ($string) {
-    $result = db_query_range("SELECT name FROM {user_relationship_types} WHERE LOWER(name) LIKE LOWER('%%%s%%')", $string, 0, 10);
+    $result = db_query_range("SELECT name FROM {user_relationship_types} WHERE LOWER(name) LIKE LOWER('%%%s%%')", strtolower($string), 0, 10);
     while ($relationship = db_fetch_object($result)) {
       $matches[$relationship->name] = check_plain($relationship->name);
    }
@@ -105,7 +112,7 @@ function _user_relationships_set_notifications(&$account) {
   $relationships = user_relationships_load(array('requestee_id' => $account->uid, 'approved' => FALSE));
   foreach ($relationships as $relationship) {
     $msg = user_relationships_get_message('pending', $relationship, array(
-      '!pending_relationship_requests'  => l(t('pending relationship requests'), "user/{$account->uid}/relationships/requests")
+      '!pending_relationship_requests'  => l(t('pending relationship requests'), "relationships/requests")
     ));
 
     if (!in_array($msg, $notifications)) {
@@ -126,7 +133,7 @@ function _user_relationships_between(&$viewer, &$viewed) {
     if ($relationship->approved && !$list[$relationship->rid]) {
       $list[$relationship->rid] = t('%relationship_name (!remove_link)', array(
         '%relationship_name'  => $relationship->name,
-        '!remove_link'        => theme('user_relationships_remove_link', $viewer->uid, $relationship)
+        '!remove_link'        => theme('user_relationships_remove_link', $viewer->uid, $relationship->rid)
       ));
     }
   }
@@ -145,15 +152,15 @@ function _user_relationships_actions_between(&$viewer, &$viewed) {
 
   $list = array();
 
-  $relationships = user_relationships_load(array('requester_id' => $viewer->uid, 'approved' => FALSE));
+  $relationships = user_relationships_load(array('requester_id' => $viewer->uid, 'requestee_id' => $viewed->uid, 'approved' => FALSE));
   foreach ($relationships as $relationship) {
     $list[] = t('You have requested to be a %relationship_name of this user. (!pending_requests)', array(
       '%relationship_name'  => $relationship->name,
-      '!pending_requests'   => l(t('pending requests'), "user/{$viewer->uid}/relationships/requests"),
+      '!pending_requests'   => l(t('pending requests'), "relationships/requests"),
     ));
   }
 
-  $relationships = user_relationships_load(array('requester_id' => $viewed->uid, 'approved' => FALSE));
+  $relationships = user_relationships_load(array('requester_id' => $viewed->uid, 'requestee_id' => $viewer->uid, 'approved' => FALSE));
   foreach ($relationships as $relationship) {
     $list[] = t('This user believes that they are a %relationship_name of yours. (!pending_requests)', array(
       '%relationship_name'  => $relationship->name,
@@ -202,6 +209,8 @@ function _user_relationships_message_settings_form(&$form, $defaults = array()) 
  * Create the new relationship
  */
 function _user_relationships_save_relationship(&$relationship, $op = 'create') {
+  if (!isset($relationship->flags)) { $relationship->flags = UR_OK; }
+
   _user_relationships_invoke('pre-save', $relationship, $op);
 
   if (!$relationship->created_at) { $relationship->created_at = time(); }
@@ -210,30 +219,25 @@ function _user_relationships_save_relationship(&$relationship, $op = 'create') {
     db_query("DELETE FROM {user_relationships} WHERE rid = %d", $relationship->rid);
   }
   else {
-    $relationship->rid = db_next_id('{user_relationships}_id');
+    $relationship->rid = db_result(db_query("SELECT MAX(rid) FROM {user_relationships}")) + 1;
+  }
+
+  $relationship->updated_at = time();
+
+  if (!drupal_write_record('user_relationships', $relationship)) {
+    return FALSE;
   }
 
   $relationship_type = user_relationships_type_load($relationship->rtid);
-  $query = "INSERT INTO {user_relationships} (rid, requester_id, requestee_id, rtid, approved, created_at, updated_at) VALUES";
-  $insertions = "(%d, %d, %d, %d, %d, %d, %d)";
-  $arguments = array(
-    $relationship->rid,
-    $relationship->requester_id,
-    $relationship->requestee_id,
-    $relationship->rtid,
-    $relationship->approved,
-    $relationship->created_at,
-    time(),
-  );
   if ($relationship->approved && !$relationship_type->is_oneway) {
-    $insertions .= ", {$insertions}";
-    $arguments = array_merge($arguments, $arguments);
-    $requester = $arguments[8];
-    $arguments[8] = $arguments[9];
-    $arguments[9] = $requester;
-  }
+    // PHP 4 doens't have the "clone" keyword
+    $relationship_copy = version_compare(phpversion(), '5', '>=') ? clone $relationship : $relationship;
 
-  db_query("{$query} {$insertions}", $arguments);
+    $relationship_copy->requester_id = $relationship->requestee_id;
+    $relationship_copy->requestee_id = $relationship->requester_id;
+
+    drupal_write_record('user_relationships', $relationship_copy);
+  }
 
   _user_relationships_invoke('post-save', $relationship, $op);
 
@@ -246,7 +250,6 @@ function _user_relationships_save_relationship(&$relationship, $op = 'create') {
  */
 function _user_relationships_generate_query($param = array(), $order = NULL, $limit = NULL, $include_user_info = FALSE) {
   // Turn the conditions into a query.
-  $group = FALSE;
   foreach ($param as $key => $value) {
     if (!isset($value)) { continue; }
 
@@ -255,9 +258,9 @@ function _user_relationships_generate_query($param = array(), $order = NULL, $li
     switch ($key) {
     case 'between':
       $cond[] = 
-        "(ur.requester_id {$operator[0]} AND ur.requestee_id {$operator[1]})".
+        "((ur.requester_id {$operator[0]} AND ur.requestee_id {$operator[1]})".
         ' OR '.
-        "(ur.requestee_id {$operator[0]} AND ur.requester_id {$operator[1]})";
+        "((urt.is_oneway = 1 OR ur.approved = 0) AND ur.requestee_id {$operator[0]} AND ur.requester_id {$operator[1]}))";
       $arguments[] = $value[0];
       $arguments[] = $value[1];
       $arguments[] = $value[0];
@@ -280,9 +283,12 @@ function _user_relationships_generate_query($param = array(), $order = NULL, $li
   }
 
   $selects = array('ur.rid', 'ur.*', 'urt.*');
-  $joins = array('LEFT JOIN {user_relationship_types} urt ON ur.rtid = urt.rtid');
+  $joins = array('LEFT JOIN {user_relationship_types} urt USING(rtid)');
 
-  if ($include_user_data) {
+  // We wont need anything after this point for the count SQL
+  $count_joins = implode(' ', $joins);
+
+  if ($include_user_info) {
     $selects = array_merge($selects, array(
       'requesters.name AS requester_name',
       'requestees.name AS requestee_name',
@@ -290,9 +296,11 @@ function _user_relationships_generate_query($param = array(), $order = NULL, $li
       'requestees.mail AS requestee_mail',
       'requesters.data AS requester_data',
       'requestees.data AS requestee_data',
+      'requesters.picture AS requester_picture',
+      'requestees.picture AS requestee_picture',
     ));
 
-    $joins = array_merge($join, array(
+    $joins = array_merge($joins, array(
       'LEFT JOIN {users} requesters ON ur.requester_id = requesters.uid',
       'LEFT JOIN {users} requestees ON ur.requestee_id = requestees.uid'
     ));
@@ -301,12 +309,9 @@ function _user_relationships_generate_query($param = array(), $order = NULL, $li
   $selects = implode(',', $selects);
   $joins = implode(' ', $joins);
 
-  $cond = $cond ? 'WHERE '.implode(' AND ', $cond) : ''; 
+  $cond = $cond ? 'WHERE '.implode(' AND ', $cond) : '';
 
   $extra = array();
-  if ($group) { 
-    $extra[] = 'GROUP BY ur.rid'; 
-  }
   if (!empty($order)) { 
     $extra[] = "ORDER BY {$order}"; 
   }
@@ -317,7 +322,7 @@ function _user_relationships_generate_query($param = array(), $order = NULL, $li
 
   return array(
     'query'     => "SELECT {$selects} FROM {user_relationships} ur {$joins} {$cond} {$extra}",
-    'count'     => "SELECT COUNT(rid) FROM {user_relationships} ur {$joins} {$cond}",
+    'count'     => "SELECT COUNT(rid) AS count FROM {user_relationships} ur {$count_joins} {$cond}",
     'arguments' => $arguments,
   );
 }
@@ -335,8 +340,14 @@ function _user_relationship_process_query_argument($key, &$value) {
   }
 
   if (is_array($value)) {
-    $value = implode(',', $value);
-    return 'IN (%s)';
+    if (count($value) == 1) {
+      $value = array_shift($value);
+      return _user_relationship_process_query_argument($key, $value);
+    }
+    else {
+      $value = implode(',', $value);
+      return 'IN (%s)';
+    }
   }
   else if (is_numeric($value) || is_bool($value)) {
     $value = (int)$value;
@@ -358,3 +369,50 @@ function _user_relationship_process_query_argument($key, &$value) {
   }
 }
 
+/**
+ * Check access callback
+ */
+function user_relationships_check_access($types, $account = NULL) {
+  global $user;
+
+  if (user_access('administer users')) { 
+    return TRUE;
+  }
+
+  $access = FALSE;
+  if (!is_array($types)) {
+    $types = array($types);
+  }
+
+  foreach ($types as $type) {
+    switch ($type) {
+    case 'view': $access = ($access || user_access('maintain relationships') | user_access('view user relationships'));
+    case 'edit': $access = ($access || user_access('maintain relationships') & user_access('can have relationship'));
+    case 'user': $access = ($access || ($account->uid == $user->uid));
+    }
+  }
+
+  return $access;
+}
+
+/**
+ * Menu Argument; %relationship_type
+ */
+function relationship_type_load($rtid) {
+  if (is_numeric($rtid)) {
+    return user_relationships_type_load($rtid);
+  }
+
+  return FALSE;
+}
+
+/**
+ * Menu Argument; %relationship
+ */
+function relationship_load($rid) {
+  if (is_numeric($rid)) {
+    return user_relationships_load($rid);
+  }
+
+  return FALSE;
+}

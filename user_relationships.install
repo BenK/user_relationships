@@ -1,164 +1,55 @@
 <?php
-// $Id: user_relationships.install,v 1.8 2007-12-21 10:03:37 sprsquish Exp $
+// $Id: user_relationships.install,v 1.9 2008-02-01 02:29:50 sprsquish Exp $
 
-function _user_relationships_installation_query($mysql = array(), $pgsql = array()) {
-  global $db_type;
 
-  $success = TRUE;
-  $queries = array();
+/**
+ * User Relationships Schema
+ */
+function user_relationships_schema() {
+  $schema['user_relationships'] = array(
+    'fields' => array(
+      'rid'           => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
+      'requester_id'  => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
+      'requestee_id'  => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
+      'rtid'          => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
+      'approved'      => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0, 'size' => 'tiny'),
+      'created_at'    => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
+      'updated_at'    => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
+      'flags'         => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
+    ),
+    'unique keys' => array(
+      'relationship' => array('requester_id', 'requestee_id', 'rtid'),
+    ),
+    'indexes' => array(
+      'rid' => array('rid'),
+      'requester_id' => array('requester_id'),
+      'requestee_id' => array('requestee_id'),
+      'rtid' => array('rtid'),
+    ),
+  );
 
-  if (strpos($db_type, 'mysql') !== FALSE && $mysql) {
-    $queries = $mysql;
-  }
-  else if ($db_type == 'pgsql' && $pgsql) {
-    $queries = $pgsql;
-  }
-  else {
-    $success = FALSE;
-    drupal_set_message(t('Unsupported database.'));
-  }
+  $schema['user_relationship_types'] = array(
+    'fields' => array(
+      'rtid'              => array('type' => 'serial', 'unsigned' => TRUE, 'not null' => TRUE),
+      'name'              => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'default' => ''),
+      'plural_name'       => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'default' => ''),
+      'is_oneway'         => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0, 'size' => 'tiny'),
+      'requires_approval' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0, 'size' => 'tiny'),
+      'expires_val'       => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
+    ),
+    'unique keys' => array(
+      'name'  => array('name'),
+    ),
+    'primary key' => array('rtid')
+  );
 
-  foreach ($queries as $query) {
-    if (!db_query($query)) {
-      $success = FALSE;
-      break;
-    }
-  }
-
-  if ($success) {
-    drupal_set_message(t('User Relationships module installed successfully.'));
-    return TRUE;
-  }
-  else {
-    drupal_set_message(t('The installation of the User Relationships module was unsuccessful.'), 'error');
-    return FALSE;
-  }
+  return $schema;
 }
 
+/**
+ * Install
+ */
 function user_relationships_install() {
-  $queries = array(
-    "CREATE TABLE {user_relationship_types} (
-      `rtid` int(11) unsigned NOT NULL default 0,
-      `name` varchar(255) NOT NULL default '',
-      `plural_name` varchar(255) NOT NULL default '',
-      `is_oneway` tinyint(1) NOT NULL default 0,
-      `requires_approval` tinyint(1) NOT NULL default 0,
-      `expires_val` int(11) unsigned NOT NULL default 0,
-      PRIMARY KEY (`rtid`),
-      UNIQUE KEY `name` (`name`)
-    ) /*!40100 DEFAULT CHARACTER SET utf8*/;",
-
-    "CREATE TABLE {user_relationships} (
-      `rid` int(11) unsigned NOT NULL default 0,
-      `requester_id` int(11) NOT NULL default 0,
-      `requestee_id` int(11) NOT NULL default 0,
-      `rtid` int(11) NOT NULL default 0,
-      `approved` tinyint(1) NOT NULL default 0,
-      `created_at` int(11) NOT NULL,
-      `updated_at` int(11) NOT NULL,
-      UNIQUE KEY `relationship` (`requester_id`,`requestee_id`,`rtid`),
-      KEY `rid` (`rid`),
-      KEY `requester_id` (`requester_id`),
-      KEY `requestee_id` (`requestee_id`),
-      KEY `rtid` (`rtid`)
-    ) /*!40100 DEFAULT CHARACTER SET utf8*/;",
-  );
-  _user_relationships_installation_query($queries);
-}
-  
-/**
- * Implementation of hook_uninstall().
- */
-function user_relationships_uninstall() {
-  db_query('DROP TABLE {user_relationships}');
-  db_query('DROP TABLE {user_relationship_types}');
-
-  variable_del('user_relationships_require_approval');
-  variable_del('user_relationships_allow_multiple');
-  variable_del('user_relationships_show_online_status');
-  variable_del('user_relationships_user_mail');
-  variable_del('user_relationships_profile_relationships');
-}
-
-/**
- * Update 1: Add timestamp to allow expiring unanswered requests
- */
-function user_relationships_update_1() {
-  $queries = array(
-    "ALTER TABLE {user_relationships} ADD `created_at` DATETIME NOT NULL;",
-    "ALTER TABLE {user_relationships} ADD `updated_at` TIMESTAMP NOT NULL;",
-    "UPDATE {user_relationships} SET `created_at` = NOW();",
-  );
-  _user_relationships_installation_query($queries);
-}
-
-/**
- * Update 2: Add expiration of relationship requests
- */
-function user_relationships_update_2() {
-  _user_relationships_installation_query(array(
-    "ALTER TABLE {user_relationship_types} ADD `expires_val` int(11) unsigned NOT NULL default 0;"
-  ));
-}
-
-/**
- * Update 3: Add plural form of relationship type name
- */
-function user_relationships_update_3() {
-  _user_relationships_installation_query(array(
-    "ALTER TABLE {user_relationship_types} ADD `plural_name` varchar(255) NOT NULL default '' after name;"
-  ));
-}
-
-/**
- * Update 4: Add separate cache table for user relationship data
- */
-function user_relationships_update_4() {
-  _user_relationships_installation_query(array(
-    "CREATE TABLE {cache_user_relationships} (
-      `cid` varchar(255) NOT NULL default '',
-      `data` longblob,
-      `expire` int(11) NOT NULL default 0,
-      `created` int(11) NOT NULL default 0,
-      `headers` text,
-      `serialized` int(1) NOT NULL default 0,
-      PRIMARY KEY (`cid`),
-      KEY `expire` (`expire`)
-    ) /*!40100 DEFAULT CHARACTER SET utf8*/;"
-  ));
-}
-
-function user_relationships_update_5() {
-  _user_relationships_installation_query(array(
-    // Kill off the cache table
-    'DROP TABLE {cache_user_relationships}',
-
-    // drop rid as a primary key as it'll have duplicates
-    'ALTER TABLE {user_relationships} DROP PRIMARY KEY',
-
-    // migrate approved two-way relationships to be double entered
-    'INSERT INTO {user_relationships} (`rid`, `requester_id`, `requestee_id`, `rtid`, `approved`, `created_at`, `updated_at`)
-      SELECT `rid`, `requestee_id`, `requester_id`, ur.`rtid`, `approved`, `created_at`, `updated_at` 
-      FROM {user_relationships} ur INNER JOIN {user_relationship_types} urt ON ur.`rtid` = urt.`rtid`
-      WHERE urt.`is_oneway` = 0 AND ur.`approved` = 1',
-
-    // create temporary created_at and updated_at fields and populate them with the current
-    // created_at and updated_at values
-    'ALTER TABLE {user_relationships} ADD `tmp_created_at` DATETIME',
-    'ALTER TABLE {user_relationships} ADD `tmp_updated_at` DATETIME',
-    'UPDATE {user_relationships} SET `tmp_created_at` = `created_at`, `tmp_updated_at` = `updated_at`',
-
-    // alter the created_at and updated_at fields to be int(11) to hold unix timestamps
-    // update the newly altered fields with the current data in unix timestamp format
-    'ALTER TABLE {user_relationships} CHANGE  `created_at`  `created_at` INT(11) UNSIGNED NOT NULL',
-    'ALTER TABLE {user_relationships} CHANGE  `updated_at`  `updated_at` INT(11) UNSIGNED NOT NULL',
-    'UPDATE {user_relationships} SET `created_at` = UNIX_TIMESTAMP(`tmp_created_at`), `updated_at` = UNIX_TIMESTAMP(`tmp_updated_at`)',
-
-    // remove the temporary fields
-    'ALTER TABLE `user_relationships` DROP `tmp_created_at`',
-    'ALTER TABLE `user_relationships` DROP `tmp_updated_at`',
-
-    // add a uniqueness checker on the three main fields
-    'ALTER IGNORE TABLE {user_relationships} ADD UNIQUE `relationship` (`requester_id`, `requestee_id`, `rtid`)',
-  ));
+  drupal_install_schema('user_relationship_types');
+  drupal_install_schema('user_relationships');
 }
