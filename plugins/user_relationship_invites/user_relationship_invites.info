@@ -1,5 +1,0 @@
-; $Id: user_relationship_invites.info,v 1.1 2007-08-15 20:20:01 sprsquish Exp $
-name = User Relationships Invite
-description = "Gives users the option of specifying a relationship when inviting new users"
-dependencies = user_relationships invite
-package = "User Relationships"
