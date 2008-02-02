@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships.module,v 1.22 2008-02-01 02:29:50 sprsquish Exp $
+// $Id: user_relationships.module,v 1.22.2.1 2008-02-02 00:14:07 sprsquish Exp $
 
 /**
  *
@@ -393,26 +393,4 @@ function user_relationships_check_access($types, $account = NULL) {
   }
 
   return $access;
-}
-
-/**
- * Menu Argument; %relationship_type
- */
-function relationship_type_load($rtid) {
-  if (is_numeric($rtid)) {
-    return user_relationships_type_load($rtid);
-  }
-
-  return FALSE;
-}
-
-/**
- * Menu Argument; %relationship
- */
-function relationship_load($rid) {
-  if (is_numeric($rid)) {
-    return user_relationships_load($rid);
-  }
-
-  return FALSE;
 }

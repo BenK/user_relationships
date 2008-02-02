@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_hooks.inc,v 1.17 2008-02-01 02:29:50 sprsquish Exp $
+// $Id: user_relationships_hooks.inc,v 1.17.2.1 2008-02-02 00:14:07 sprsquish Exp $
 
 /**
  * User Relationships hook implementations
@@ -61,7 +61,7 @@ function user_relationships_menu() {
       'access callback'   => 'user_access',
       'access arguments'  => array('administer user relationships'),
     );
-    $items['admin/user/relationships/%relationship_type/edit'] = array(
+    $items['admin/user/relationships/%user_relationships_type/edit'] = array(
       'title'             => t('Edit type'),
       'type'              => MENU_CALLBACK,
       'page callback'     => 'drupal_get_form',
@@ -69,7 +69,7 @@ function user_relationships_menu() {
       'access callback'   => 'user_access',
       'access arguments'  => array('administer user relationships'),
     );
-    $items['admin/user/relationships/%relationship_type/delete'] = array(
+    $items['admin/user/relationships/%user_relationships_type/delete'] = array(
       'title'             => t('Delete type'),
       'type'              => MENU_CALLBACK,
       'page callback'     => 'drupal_get_form',
@@ -130,7 +130,7 @@ function user_relationships_menu() {
       );
     }
 
-    $items['relationships/%relationship/remove'] = array(
+    $items['relationships/%user_relationships/remove'] = array(
       'title'             => t('Remove relationship'),
       'type'              => MENU_CALLBACK,
       'access callback'   => 'user_relationships_check_access',
@@ -185,7 +185,7 @@ function user_relationships_menu() {
     }
 
     foreach (array('approve', 'disapprove', 'cancel') as $action) {
-      $items["user/%user/relationships/requested/%relationship/{$action}"] = array(
+      $items["user/%user/relationships/requested/%user_relationships/{$action}"] = array(
         'title'             => t('Approve Relationship'),
         'type'              => MENU_CALLBACK,
         'access callback'   => 'user_relationships_check_access',
@@ -195,7 +195,7 @@ function user_relationships_menu() {
       );
     }
 
-    $items['user/%user/relationships/%relationship/remove'] = array(
+    $items['user/%user/relationships/%user_relationships/remove'] = array(
       'title'             => t('Remove relationship'),
       'type'              => MENU_CALLBACK,
       'access callback'   => 'user_relationships_check_access',
