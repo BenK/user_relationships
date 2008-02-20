@@ -1,0 +1,34 @@
+<?php
+// $Id: user_relationship_implications.install,v 1.2.2.2 2008-02-20 01:18:24 sprsquish Exp $
+
+function user_relationship_implications_schema() {
+  $schema['user_relationship_implications'] = array(
+    'fields'  => array(
+      'riid'          => array('type' => 'serial', 'unsigned' => TRUE, 'not null' => TRUE),
+      'rtid'          => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
+      'implies_rtid'  => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
+      'strict'        => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0, 'size' => 'tiny'),
+    ),
+    'indexes' => array(
+      'rtid'          => array('rtid'),
+      'implies_rtid'  => array('implies_rtid'),
+    ),
+    'primary key' => array('riid'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Install
+ */
+function user_relationship_implications_install() {
+  drupal_install_schema('user_relationship_implications');
+}
+
+/**
+ * Uninstall
+ */
+function user_relationship_implications_uninstall() {
+  db_query('DROP TABLE {user_relationship_implications}');
+}
