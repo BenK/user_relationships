@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.inc,v 1.23 2008-02-01 02:29:50 sprsquish Exp $
+// $Id: user_relationships_api.inc,v 1.23.2.1 2008-02-20 01:17:29 sprsquish Exp $
 
 /**
  *  User Relationships API
@@ -32,10 +32,14 @@ function user_relationships_type_load($param = array()) {
 
       if ($column == 'name' || $column == 'plural_name') {
         $value = strtolower($value);
+        $col_val = strtolower($type->$column);
+      }
+      else {
+        $col_val = $type->$column;
       }
 
       // mismatch, move to the next type
-      if ($type->$column != $value) {
+      if ($col_val != $value) {
         $found = FALSE;
         break;
       }

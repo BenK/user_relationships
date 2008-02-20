@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_forms.inc,v 1.16 2008-02-01 02:29:50 sprsquish Exp $
+// $Id: user_relationships_forms.inc,v 1.16.2.1 2008-02-20 01:17:29 sprsquish Exp $
 
 /**
  * User Relationships forms
@@ -125,6 +125,11 @@ function user_relationships_type_edit(&$form_state, $relationship_type = NULL) {
     '#type'   => 'value',
     '#value'  => (int)$relationship_type->rtid,
   );
+  $form['action'] = array(
+    '#type'   => 'value',
+    '#value'  => ($relationship_type ? 'edit' : 'add'),
+  );
+
   $form['submit'] = array(
     '#type'   => 'submit',
     '#value'  => t('Submit'),

@@ -1,4 +1,4 @@
-/* $Id: README.txt,v 1.6 2007-12-21 10:03:37 sprsquish Exp $
+/* $Id: README.txt,v 1.6.2.1 2008-02-20 01:17:29 sprsquish Exp $
 
 User Relationships Module
 -------------------------
@@ -14,7 +14,7 @@ http://drupal.org/project/user_relationships.
 
 Requirements
 ------------
-Drupal 5
+Drupal 6
 
 
 Installation
@@ -104,5 +104,5 @@ UNIQUE KEY `name` (`name`)
 Credits
 -------
 Written by Jeff Smick.
-Written originally for and financially supported by OurChart Inc. (http://www.ourchart.com)
+Originally written for and financially supported by OurChart Inc. (http://www.ourchart.com)
 Thanks to the BuddyList module team for their inspiration

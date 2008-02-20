@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships.install,v 1.9 2008-02-01 02:29:50 sprsquish Exp $
+// $Id: user_relationships.install,v 1.9.2.1 2008-02-20 01:17:29 sprsquish Exp $
 
 
 /**
@@ -52,4 +52,12 @@ function user_relationships_schema() {
 function user_relationships_install() {
   drupal_install_schema('user_relationship_types');
   drupal_install_schema('user_relationships');
+}
+
+/**
+ * Uninstall
+ */
+function user_relationships_uninstall() {
+  db_query('DROP TABLE {user_relationship_types}');
+  db_query('DROP TABLE {user_relationships}');
 }

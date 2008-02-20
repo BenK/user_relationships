@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_actions.inc,v 1.20 2008-02-01 02:29:50 sprsquish Exp $
+// $Id: user_relationships_actions.inc,v 1.20.2.1 2008-02-20 01:17:29 sprsquish Exp $
 
 /**
  * User Relationships Actions
@@ -53,9 +53,11 @@ function user_relationships_setting_validation($element, $validations) {
  */
 function user_relationships_type_edit_submit($form, &$form_state) {
   $relationship_type = (object)$form_state['values'];
+  // TODO: This should be taken care of in the form itself.. set $form_state['action']
   if (arg(3) == 'add') {
     drupal_write_record('user_relationship_types', $relationship_type);
 
+    $form_state['values']['rtid'] = $relationship_type->rtid;
     $relationship_type = user_relationships_type_load($relationship_type->rtid);
     _user_relationships_invoke('insert', $relationship_type, 'type');
 
@@ -92,7 +94,7 @@ function user_relationships_type_edit_submit($form, &$form_state) {
  * Process relationship delete form submission.
  */
 function user_relationships_type_delete_submit($form, &$form_state) {
-  $relationship_type = user_relationships_type_load($form_state['values']['relationship_type']);
+  $relationship_type = user_relationships_type_load($form_state['values']['rtid']);
 
   db_query("DELETE FROM {user_relationship_types} WHERE rtid = %d", $relationship_type->rtid);
   db_query("DELETE FROM {user_relationships} WHERE rtid = %d", $relationship_type->rtid);

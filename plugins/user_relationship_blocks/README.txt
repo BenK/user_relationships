@@ -1,4 +1,4 @@
-/* $Id: README.txt,v 1.3.2.2 2008-02-01 23:01:15 sprsquish Exp $ */
+/* $Id: README.txt,v 1.3.2.3 2008-02-20 01:17:29 sprsquish Exp $ */
 
 User Relationship Blocks Module
 -------------------------
@@ -10,7 +10,7 @@ http://drupal.org/project/user_relationships.
 
 Requirements
 ------------
-Drupal 5
+Drupal 6
 User Relationships
 
 
