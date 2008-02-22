@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_blocks.module,v 1.3.2.3 2008-02-01 23:14:51 sprsquish Exp $
+// $Id: user_relationship_blocks.module,v 1.3.2.4 2008-02-22 16:23:02 sprsquish Exp $
 
 /**
  * Constants
@@ -188,20 +188,22 @@ function _user_relationship_blocks_save(&$edit) {
  * helper function user_relationship_blocks_block delegates to when $op == 'view'
  */
 function _user_relationship_blocks_view($block_type, $rtid, $extra) {
+  global $user;
+  if (($block_type == UR_BLOCK_MY || $block_type == 'pending') && !$user->uid) { return; }
+
   // determine which user's relationships to display
   if (!($account = module_invoke_all('user_relationship_blocks', 'display', $block_type, $rtid, $extra))){
-    global $user;
-    if (in_array($block_type, array('pending', UR_BLOCK_MY)) && $user->uid) {
+    if (($block_type == 'pending' || $block_type == UR_BLOCK_MY) && $user->uid) {
       $account =& $user;
     }
     else {
       // TODO: using the URL arguments like this is bad. find a better way
       if (arg(0) == 'node' && is_numeric(arg(1))) {
         $node = node_load(arg(1));
-        $account = user_load($node->uid);
+        $account = user_load(array('uid' => $node->uid));
       }
       else if (arg(0) == 'user' && is_numeric(arg(1))) {
-        $account = user_load(arg(1));
+        $account = user_load(array('uid' => arg(1)));
       }
     }
   }

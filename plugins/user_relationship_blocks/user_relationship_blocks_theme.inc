@@ -48,20 +48,25 @@ function theme_user_relationship_block_content($viewing_user, $rtid, $relationsh
 
   $rows = array();
   foreach ($relationships as $relationship) {
-    $type = user_relationships_type_load($relationship->rtid);
-
     if ($viewing_user->uid == $relationship->requester_id) {
-      $extra = $type->is_oneway ? t(" (You to Them)") : NULL;
+      $extra = $relationship->is_oneway ? t(" (You to Them)") : NULL;
       $relatee = user_load(array('uid' => $relationship->requestee_id));
     }
     else {
-      $extra = $type->is_oneway ? t(" (Them to You)") : NULL;
+      $extra = $relationship->is_oneway ? t(" (Them to You)") : NULL;
       $relatee = user_load(array('uid' => $relationship->requester_id));
     }
 
-    $title = "{$type->plural_name}{$extra}";
-    $rows[$title]['data'] = $title;
-    $rows[$title]['children'][] = theme('username', $relatee);
+    $title = "{$relationship->plural_name}{$extra}";
+
+    $username = theme('username', $relatee);
+    if ($rtid == UR_BLOCK_ALL_TYPES) {
+      $rows[$title]['data'] = $title;
+      $rows[$title]['children'][] = $username;
+    }
+    else {
+      $rows[$title][] = $username;
+    }
   }
 
   foreach ($rows as $title => $users) {

@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.inc,v 1.23.2.2 2008-02-20 01:38:44 sprsquish Exp $
+// $Id: user_relationships_api.inc,v 1.23.2.3 2008-02-22 16:23:02 sprsquish Exp $
 
 /**
  *  User Relationships API

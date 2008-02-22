@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_implications.install,v 1.2.2.3 2008-02-20 01:38:44 sprsquish Exp $
+// $Id: user_relationship_implications.install,v 1.2.2.4 2008-02-22 16:23:02 sprsquish Exp $
 
 function user_relationship_implications_schema() {
   $schema['user_relationship_implications'] = array(
