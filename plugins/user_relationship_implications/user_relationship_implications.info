@@ -1,4 +1,4 @@
-; $Id: user_relationship_implications.info,v 1.2.2.4 2008-02-22 16:23:02 sprsquish Exp $
+; $Id: user_relationship_implications.info,v 1.2.2.5 2008-02-22 18:08:17 sprsquish Exp $
 name = User Relationships Implications
 description = "Lets admins create implied relationships. For example 'Manager implies Coworker'"
 dependencies[] = user_relationships

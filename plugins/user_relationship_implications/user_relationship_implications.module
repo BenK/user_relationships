@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_implications.module,v 1.20.2.4 2008-02-22 16:23:02 sprsquish Exp $
+// $Id: user_relationship_implications.module,v 1.20.2.5 2008-02-22 18:08:17 sprsquish Exp $
 
 /**
  * Drupal Module: User Relationship Implications
@@ -101,10 +101,13 @@ function user_relationship_implications_form_user_relationships_type_edit_alter(
   $implied_by = array();
   if ($relationship_type) {      
     foreach ($relationship_type->implies as $rtid => $implies) {
-      $values[$rtid] = (bool)$implies->strict;
+      $values[$rtid]['strict'] = $implies->strict;
+      $values[$rtid]['reverse'] = $implies->reverse;
     }
     foreach ($relationship_type->implied_by as $implied) {
-      $implied_by[] = $implied->rtid;
+      if(!$implied->reverse) {
+        $implied_by[] = $implied->rtid;
+      }
     }
   }
 
@@ -118,11 +121,18 @@ function user_relationship_implications_form_user_relationships_type_edit_alter(
         '#default_value'  => isset($form['#post'][$imp_name]) || isset($values[$type->rtid]),
       );
 
-      $dep_name = "implied_{$type->rtid}_dependent";
-      $form['implications']['opts'][$type->rtid][$dep_name] = array(
+      $strict_name = "implied_{$type->rtid}_strict";
+      $form['implications']['opts'][$type->rtid][$strict_name] = array(
         '#type'           => 'checkbox',
         '#return_value'   => $type->rtid,
-        '#default_value'  => isset($form['#post'][$dep_name]) || $values[$type->rtid],
+        '#default_value'  => isset($form['#post'][$strict_name]) || $values[$type->rtid]['strict'],
+      );
+
+      $opp_name = "implied_{$type->rtid}_reverse";
+      $form['implications']['opts'][$type->rtid][$opp_name] = array(
+        '#type'           => 'checkbox',
+        '#return_value'   => $type->rtid,
+        '#default_value'  => isset($form['#post'][$opp_name]) || $values[$type->rtid]['reverse'],
       );
     }
   }
@@ -134,12 +144,14 @@ function user_relationship_implications_form_user_relationships_type_edit_alter(
       '#weight'         => 0,
       '#tree'           => TRUE,
       '#theme'          => 'user_relationship_implications_form_table',
-      '#description'    => t(
-        'Users will automatically have these relationships created between them when the implying relationship is created. 
-        (ex: Manager implies Coworker).<br />
-        When the implied relationship is removed the implying relationship will not be removed. (ex: removing Coworker WILL NOT remove Manager)<br />
-        If "strict" is set the implying relationship will be removed when the implied relationship is removed. (ex: removing Coworker WILL remove Manager)'
-      ),
+      '#description'    => t('
+        <ul>
+          <li>Users will automatically have these relationships created between them when the implying relationship is created. (ex: Manager implies Coworker).</li>
+          <li>When the implied relationship is removed the implying relationship will not be removed. (ex: removing Coworker WILL NOT remove Manager)</li>
+          <li>If "strict" is set the implying relationship will be removed when the implied relationship is removed. (ex: removing Coworker WILL remove Manager)</li>
+          <li>Reverse is really only useful for one-way relationships. It allows things like Parent implies Offspring to work in the right direction</li>
+        </ul>
+      '),
     );
     $form['implications'] = array_merge($form['implications'], $implications_form);
     $form['#submit'][] = 'user_relationship_implications_edit_submit';
@@ -147,12 +159,13 @@ function user_relationship_implications_form_user_relationships_type_edit_alter(
 }
 
 function theme_user_relationship_implications_form_table(&$form) {
-  $headers = array(t('Relationship Type'), t('Strict'));
+  $headers = array(t('Relationship Type'), t('Strict'), t('Reverse'));
   $rows = array();
 
   foreach ($form['opts'] as $rtid => $elements) {
     if (!is_numeric($rtid)) { continue; }
     $rows[$rtid] = array(
+      drupal_render(array_shift($elements)),
       drupal_render(array_shift($elements)),
       drupal_render(array_shift($elements)),
     );
@@ -174,7 +187,8 @@ function user_relationship_implications_edit_submit($form, &$form_state) {
       $implication = array(
         'rtid'          => $rtid,
         'implies_rtid'  => $implies_rtid,
-        'strict'        => (bool)$elements["implied_{$implies_rtid}_dependent"],
+        'strict'        => (bool)$elements["implied_{$implies_rtid}_strict"],
+        'reverse'       => (bool)$elements["implied_{$implied_rtid}_reverse"],
       );
       drupal_write_record('user_relationship_implications', $implication);
     }
@@ -232,19 +246,21 @@ function user_relationship_implications_user_relationships($type, $relationship,
       $current_type = user_relationships_type_load($relationship->rtid);
 
       // nothing else matters if there aren't implications involved
-      if (!$current_type->implied_by) { break; }
+      $reversed = array_filter($current_type->implies, '_user_relationship_implications_filter_for_reverse');
+      if (!$current_type->implied_by && !$reversed) { break; }
 
       // load relationships that imply this relationship
+      $rids = array_merge(array_keys($current_type->implied_by), array_keys($reversed));
       $relationships = user_relationships_load(array(
         'between' => array($relationship->requester_id, $relationship->requestee_id),
-        'rtid'    => array_keys($current_type->implied_by)
+        'rtid'    => $rids
       ), FALSE, 'rtid');
 
       foreach ($relationships as $rtid => $relationship) {
         $relationship = array_shift($relationship);
 
         // the relationship being deleted (current_type) is implied by this relationship (only matters if "strict" is set)
-        if ($current_type->implied_by[$rtid]->strict) {
+        if ($current_type->implied_by[$rtid]->strict || $reversed[$rtid]->strict) {
           user_relationships_delete_relationship($relationship, $current_type->deleted_by, $category);
           drupal_set_message(user_relationships_get_message($category, $relationship));
         }
@@ -266,8 +282,11 @@ function user_relationship_implications_user_relationships($type, $relationship,
 
         // if there aren't any, create one with the same approved status as the relationship we're inserting/updateing
         if (sizeof($relationships) == 0) {
+          $users = array($relationship->requester_id, $relationship->requestee_id);
+          if ($implied->reverse) { $users = array_reverse($users); }
+
           $implied = user_relationships_type_load($implied->implies_rtid);
-          user_relationships_request_relationship($relationship->requester_id, $relationship->requestee_id, $implied, $relationship->approved);
+          user_relationships_request_relationship($users[0], $users[1], $implied, $relationship->approved);
         }
         // if there are some, then if we're approving this relationship, approve the pre-existing one(s) too
         else {
@@ -322,7 +341,7 @@ function theme_user_relationship_implications_page($uid = NULL, $relationship = 
     $viewed_user =& $user;
   }
   else {
-    $viewed_user = user_load($uid);
+    $viewed_user = user_load(array('uid' => $uid));
   }
 
   // Check that the uid is valid, not the anonymous user, and the user exists
@@ -331,32 +350,30 @@ function theme_user_relationship_implications_page($uid = NULL, $relationship = 
     exit();
   }
 
-  $query = 
-     "SELECT r.*, rt.name, rt.is_oneway 
-      FROM {user_relationships} r, {user_relationship_types} rt
-      WHERE (requester_id = %d OR requestee_id = %d)
-        AND r.approved = 1
-        AND r.rtid = rt.rtid";
-  $args = array($viewed_user->uid, $viewed_user->uid);
-
+  $params = array('user' => $viewed_user->uid);
   if (isset($relationship->rtid)) {
-    $query .= " AND r.rtid = %d";
-    $args[] = $relationship->rtid;
+    $params['rtid'] = $relationship->rtid;
   }
 
-  $relationships_per_page = variable_get('user_relationships_relationships_per_page', 16);
-  $result = $relationships_per_page ? pager_query($query, $relationships_per_page, 0, NULL, $args) : db_query($query, $args);
+  $query = _user_relationships_generate_query($params);
 
-  if (db_num_rows($result)) {
+  if ($relationships_per_page = variable_get('user_relationships_relationships_per_page', 16)) {
+    $results = pager_query($query['query'], $relationships_per_page, 0, $query['count'], $query['arguments']);
+  }
+  else {
+    $results = db_query($query['query'], $query['arguments']);
+  }
+
+  if (db_num_rows($results)) {
     $edit_access = ($user->uid == $uid && user_access('maintain relationships')) || user_access('administer users');
     $online_interval = time() - variable_get('user_block_seconds_online', 180);
 
-    while ($relation = db_fetch_object($result)) {
+    while ($relation = db_fetch_object($results)) {
       $this_user = $viewed_user->uid == $relation->requestee_id ? 'requester_id' : 'requestee_id';
-      $this_user = user_load($relation->$this_user);
+      $this_user = user_load(array('uid' => $relation->$this_user));
       $relations = array();
 
-      $this_users_relationships = user_relationships_load_all_for_user($this_user->uid);
+      $this_users_relationships = user_relationships_load(array('user' => $this_user->uid));
       $rows[] = array(
         theme('username', $this_user),
         theme('item_list', _user_relationship_implications_load_relationship_names($this_users_relationships, $viewed_user->uid)),
@@ -391,4 +408,10 @@ function _user_relationship_implications_load_relationship_names($relationships,
     }
   }
   return $output;
+}
+
+
+function _user_relationship_implications_filter_for_reverse($implication) {
+  $implication = (array)$implication;
+  return $implication['reverse'];
 }
