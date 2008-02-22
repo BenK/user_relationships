@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships.module,v 1.22.2.1 2008-02-02 00:14:07 sprsquish Exp $
+// $Id: user_relationships.module,v 1.22.2.2 2008-02-22 18:07:30 sprsquish Exp $
 
 /**
  *
@@ -35,7 +35,7 @@ function user_relationships_default_messages() {
       'default'       => 'No action has been taken.',
       'removed'       => '!requester is no longer a %relationship_name of !requestee.',
       'pending'       => '!requester believes they are a %relationship_name of yours.  Please view your !pending_relationship_requests to approve them.',
-      'pre_approved'  => "You're request to be %relationship_name of !requestee has been automatically approved. You are now a %relationship_name of !requestee."
+      'pre_approved'  => "You're request to be %relationship_name of !requestee has been pre-approved. You are now a %relationship_name of !requestee."
     ),
     'error' => array(
       'too_many_relationships'  => 'You already relate to this user in every possible way.',
