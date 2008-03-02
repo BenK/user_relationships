@@ -1,0 +1,5 @@
+; $Id: user_relationships_api.info,v 1.1.2.1 2008-03-02 00:51:52 sprsquish Exp $
+name = User Relationships API
+description = "API for User Relationships. This will only provide the programmer interface."
+package = "User Relationships"
+core = 6.x

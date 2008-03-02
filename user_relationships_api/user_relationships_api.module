@@ -1,0 +1,198 @@
+<?php
+// $Id: user_relationships_api.module,v 1.1.2.1 2008-03-02 00:51:52 sprsquish Exp $
+
+
+define('UR_OK', 0x0);
+define('UR_BANNED', 0x1);
+
+require_once(drupal_get_path('module', 'user_relationships_api').'/user_relationships_api.api.inc');
+
+
+/**
+ *  Invoke hook_user_relationships() or hook_user_relationships_type()
+ *  Just a helper that allows us to pass the relationship or relationship_type
+ *  object by reference
+ */
+function _user_relationships_invoke($type, &$relationship, $is_type = FALSE) {
+  $hook = '_user_relationships'.($is_type ? '_type' : '');
+
+  foreach (module_list() as $module) {
+    $function = "{$module}_{$hook}";
+    if (function_exists($function)) {
+      $function($type, $relationship);
+    }
+  }
+}
+
+
+/**
+ * Helper function to generate the main and count queries from a list of parameters and options
+ */
+function _user_relationships_generate_query($param = array(), $options = array()) {
+  extract($options, EXTR_SKIP);
+
+  // Turn the conditions into a query.
+  foreach ($param as $key => $value) {
+    if (!isset($value)) { continue; }
+
+    $operator = _user_relationship_process_query_argument($key, $value);
+
+    switch ($key) {
+    case 'between':
+      $cond[] = 
+        "((ur.requester_id {$operator[0]} AND ur.requestee_id {$operator[1]})".
+        ' OR '.
+        "((urt.is_oneway = 1 OR ur.approved = 0) AND ur.requestee_id {$operator[0]} AND ur.requester_id {$operator[1]}))";
+      $arguments[] = $value[0];
+      $arguments[] = $value[1];
+      $arguments[] = $value[0];
+      $arguments[] = $value[1];
+      break;
+
+    case 'user':
+      $cond[] = "(ur.requester_id {$operator} OR ((urt.is_oneway = 1 OR ur.approved = 0) AND ur.requestee_id {$operator}))";
+      $arguments[] = $value;
+      $arguments[] = $value;
+      break;
+
+    default:
+      $types_cols = array('name','plural_name','is_oneway','requires_approval','expires_val');
+      $cond[] = "%s.%s {$operator}";
+      $arguments[] = !in_array($key, $types_cols) ? 'ur' : 'urt';
+      $arguments[] = $key;
+      $arguments[] = $value;
+    }
+  }
+
+  $selects = array('ur.rid', 'ur.*', 'urt.*');
+  $joins = array('LEFT JOIN {user_relationship_types} urt USING(rtid)');
+
+  // We wont need anything after this point for the count SQL
+  $count_joins = implode(' ', $joins);
+
+  if ($include_user_info) {
+    $selects = array_merge($selects, array(
+      'requesters.name AS requester_name',
+      'requestees.name AS requestee_name',
+      'requesters.mail AS requester_mail',
+      'requestees.mail AS requestee_mail',
+      'requesters.data AS requester_data',
+      'requestees.data AS requestee_data',
+      'requesters.picture AS requester_picture',
+      'requestees.picture AS requestee_picture',
+    ));
+
+    $joins = array_merge($joins, array(
+      'LEFT JOIN {users} requesters ON ur.requester_id = requesters.uid',
+      'LEFT JOIN {users} requestees ON ur.requestee_id = requestees.uid'
+    ));
+  }
+
+  $selects = implode(',', $selects);
+  $joins = implode(' ', $joins);
+
+  $cond = $cond ? 'WHERE '.implode(' AND ', $cond) : '';
+
+  $extra = array();
+  if (!empty($order)) { 
+    $extra[] = "ORDER BY {$order}"; 
+  }
+  if (!empty($limit)) { 
+    $extra[] = "LIMIT {$limit}"; 
+  }
+  $extra = implode(' ', $extra);
+
+  return array(
+    'query'     => "SELECT {$selects} FROM {user_relationships} ur {$joins} {$cond} {$extra}",
+    'count'     => "SELECT COUNT(rid) AS count FROM {user_relationships} ur {$count_joins} {$cond}",
+    'arguments' => $arguments,
+  );
+}
+
+
+/** 
+ * Helper function to process the various argument types allowed
+ */
+function _user_relationship_process_query_argument($key, &$value) {
+  if ($key == 'between') {
+    return array(
+      _user_relationship_process_query_argument(NULL, $value[0]),
+      _user_relationship_process_query_argument(NULL, $value[1]),
+    );
+  }
+
+  if (is_array($value)) {
+    if (count($value) == 1) {
+      $value = array_shift($value);
+      return _user_relationship_process_query_argument($key, $value);
+    }
+    else {
+      $value = implode(',', $value);
+      return 'IN (%s)';
+    }
+  }
+  else if (is_numeric($value) || is_bool($value)) {
+    $value = (int)$value;
+    return '= %d';
+  }
+  else if (preg_match('/([<>=]{1,2})\s*(.+)/', $value, $matches)){
+    $marker = "'%s'";
+    $value = $matches[3];
+
+    if (is_numeric($value)) {
+      $marker = '%d';
+      $value = (int)$value;
+    }
+
+    return "{$matches[1]} {$marker}";
+  }
+  else {
+    return "= '%s'";
+  }
+}
+
+
+/**
+ * hook_perm()
+ */
+function user_relationships_api_perm() {
+  return array('can have relationships');
+}
+
+
+/**
+ * hook_cron()
+ */
+function user_relationships_api_cron() {
+  $now = time();
+
+  // only expire relationships once a day
+  $last_cron = variable_get('user_relationships_last_expire', 0);
+  if ($now >  $last_cron + (24 * 60 * 60)) {
+    return FALSE;
+  }
+
+  db_query(
+    " DELETE ur
+      FROM user_relationships ur, user_relationship_types urt 
+      WHERE ur.approved = 0 
+        AND ur.rtid = urt.rtid 
+        AND urt.expires_val > 0 
+        AND %d > (ur.updated_at + (urt.expires_val * 24 * 60 *60))",
+    $now
+  );
+
+  // remember when we last expired relationships
+  variable_set('user_relationships_last_expire', $now);
+  return TRUE;
+}
+
+
+/**
+ * hook_user()
+ */
+function user_relationships_api_user($type, &$edit, &$account, $category = NULL) {
+ if ($type == 'delete') {
+   db_query("DELETE FROM {user_relationships} WHERE requester_id = %d OR requestee_id = %d", $account->uid, $account->uid);
+ }
+}
