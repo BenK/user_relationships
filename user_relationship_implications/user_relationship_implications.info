@@ -1,5 +1,5 @@
-; $Id: user_relationship_implications.info,v 1.1.2.1 2008-03-02 00:51:52 sprsquish Exp $
-name = User Relationships Implications
+; $Id: user_relationship_implications.info,v 1.1.2.2 2008-03-02 11:46:13 sprsquish Exp $
+name = UR-Implications
 description = "Lets admins create implied relationships. For example 'Manager implies Coworker'"
 dependencies[] = user_relationships_api
 dependencies[] = user_relationships_ui

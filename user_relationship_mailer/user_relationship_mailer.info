@@ -1,5 +1,5 @@
-; $Id: user_relationship_mailer.info,v 1.1.2.1 2008-03-02 00:51:52 sprsquish Exp $
-name = User Relationships Mailer
+; $Id: user_relationship_mailer.info,v 1.1.2.2 2008-03-02 11:46:13 sprsquish Exp $
+name = UR-Mailer
 description = "Gives the option to mail users when about relationship events (request, remove, disapprove, approve, etc)"
 dependencies[] = user_relationships_api
 dependencies[] = user_relationships_ui

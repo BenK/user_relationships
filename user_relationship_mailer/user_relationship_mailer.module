@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_mailer.module,v 1.1.2.1 2008-03-02 00:51:52 sprsquish Exp $
+// $Id: user_relationship_mailer.module,v 1.1.2.2 2008-03-02 11:46:13 sprsquish Exp $
 
 require_once(drupal_get_path('module', 'user_relationship_mailer').'/user_relationship_mailer_defaults.inc');
 

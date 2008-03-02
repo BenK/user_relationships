@@ -1,10 +1,9 @@
 <?php
-// $Id: user_relationships_api.actions.inc,v 1.1.2.1 2008-03-02 00:51:52 sprsquish Exp $
+// $Id: user_relationships_api.actions.inc,v 1.1.2.2 2008-03-02 11:46:13 sprsquish Exp $
 
 /**
  * Implementation of hook_hook_info().
  */
-menu_rebuild();
 function user_relationships_api_hook_info() {
   return array(
     'user_relationships_api' => array(
@@ -54,10 +53,9 @@ function user_relationships_api_hook_info() {
 }
 
 
-/**
+/*
  * Implementation of hook_action_info().
- */
-actions_synchronize();
+ *
 function user_relationships_api_action_info() {
   return array(
     'user_relationship_request_action' => array(
@@ -189,3 +187,4 @@ function user_relationship_request_action_submit($form, $form_state) {
 
   return $return;
 }
+*/

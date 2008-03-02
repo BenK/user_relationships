@@ -1,11 +1,14 @@
 <?php
-// $Id: user_relationships_api.module,v 1.1.2.1 2008-03-02 00:51:52 sprsquish Exp $
+// $Id: user_relationships_api.module,v 1.1.2.2 2008-03-02 11:46:13 sprsquish Exp $
 
 
 define('UR_OK', 0x0);
 define('UR_BANNED', 0x1);
 
-require_once(drupal_get_path('module', 'user_relationships_api').'/user_relationships_api.api.inc');
+$mod_path = drupal_get_path('module', 'user_relationships_api');
+foreach (array('api', 'actions') as $file) {
+  require_once("{$mod_path}/user_relationships_api.{$file}.inc");
+}
 
 
 /**
@@ -14,7 +17,7 @@ require_once(drupal_get_path('module', 'user_relationships_api').'/user_relation
  *  object by reference
  */
 function _user_relationships_invoke($type, &$relationship, $is_type = FALSE) {
-  $hook = '_user_relationships'.($is_type ? '_type' : '');
+  $hook = 'user_relationships'.($is_type ? '_type' : '');
 
   foreach (module_list() as $module) {
     $function = "{$module}_{$hook}";
@@ -42,7 +45,7 @@ function _user_relationships_generate_query($param = array(), $options = array()
       $cond[] = 
         "((ur.requester_id {$operator[0]} AND ur.requestee_id {$operator[1]})".
         ' OR '.
-        "((urt.is_oneway = 1 OR ur.approved = 0) AND ur.requestee_id {$operator[0]} AND ur.requester_id {$operator[1]}))";
+        "(ur.requestee_id {$operator[0]} AND ur.requester_id {$operator[1]}))";
       $arguments[] = $value[0];
       $arguments[] = $value[1];
       $arguments[] = $value[0];
@@ -50,7 +53,7 @@ function _user_relationships_generate_query($param = array(), $options = array()
       break;
 
     case 'user':
-      $cond[] = "(ur.requester_id {$operator} OR ((urt.is_oneway = 1 OR ur.approved = 0) AND ur.requestee_id {$operator}))";
+      $cond[] = "(ur.requester_id {$operator} OR ur.requestee_id {$operator})";
       $arguments[] = $value;
       $arguments[] = $value;
       break;
@@ -64,8 +67,8 @@ function _user_relationships_generate_query($param = array(), $options = array()
     }
   }
 
-  $selects = array('ur.rid', 'ur.*', 'urt.*');
-  $joins = array('LEFT JOIN {user_relationship_types} urt USING(rtid)');
+  $selects = array('DISTINCT ur.rid', 'ur.*', 'urt.*');
+  $joins = array('INNER JOIN {user_relationship_types} urt USING(rtid)');
 
   // We wont need anything after this point for the count SQL
   $count_joins = implode(' ', $joins);
@@ -83,8 +86,8 @@ function _user_relationships_generate_query($param = array(), $options = array()
     ));
 
     $joins = array_merge($joins, array(
-      'LEFT JOIN {users} requesters ON ur.requester_id = requesters.uid',
-      'LEFT JOIN {users} requestees ON ur.requestee_id = requestees.uid'
+      'INNER JOIN {users} requesters ON ur.requester_id = requesters.uid',
+      'INNER JOIN {users} requestees ON ur.requestee_id = requestees.uid'
     ));
   }
 
@@ -100,11 +103,11 @@ function _user_relationships_generate_query($param = array(), $options = array()
   if (!empty($limit)) { 
     $extra[] = "LIMIT {$limit}"; 
   }
-  $extra = implode(' ', $extra);
+  $extra = is_array($extra) ? implode(' ', $extra) : $extra;
 
   return array(
-    'query'     => "SELECT {$selects} FROM {user_relationships} ur {$joins} {$cond} {$extra}",
-    'count'     => "SELECT COUNT(rid) AS count FROM {user_relationships} ur {$count_joins} {$cond}",
+    'query'     => "SELECT {$selects} FROM {user_relationships} ur {$joins} {$cond} GROUP BY rid {$extra}",
+    'count'     => "SELECT COUNT(DISTINCT rid) AS count FROM {user_relationships} ur {$count_joins} {$cond}",
     'arguments' => $arguments,
   );
 }
@@ -127,8 +130,8 @@ function _user_relationship_process_query_argument($key, &$value) {
       return _user_relationship_process_query_argument($key, $value);
     }
     else {
-      $value = implode(',', $value);
-      return 'IN (%s)';
+      $type = is_numeric(current($value)) ? 'int' : 'varchar';
+      return 'IN ('.db_placeholders($value, $type).')';
     }
   }
   else if (is_numeric($value) || is_bool($value)) {
@@ -174,9 +177,8 @@ function user_relationships_api_cron() {
 
   db_query(
     " DELETE ur
-      FROM user_relationships ur, user_relationship_types urt 
+      FROM {user_relationships} ur JOIN {user_relationship_types} urt USING(rtid)
       WHERE ur.approved = 0 
-        AND ur.rtid = urt.rtid 
         AND urt.expires_val > 0 
         AND %d > (ur.updated_at + (urt.expires_val * 24 * 60 *60))",
     $now

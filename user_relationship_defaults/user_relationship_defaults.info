@@ -1,5 +1,5 @@
-; $Id: user_relationship_defaults.info,v 1.1.2.1 2008-03-02 00:51:52 sprsquish Exp $
-name = User Relationship Defaults
+; $Id: user_relationship_defaults.info,v 1.1.2.2 2008-03-02 11:46:12 sprsquish Exp $
+name = UR-Defaults
 description = "Allows admins to specify relationships that are automatically created when a new user joins"
 dependencies[] = user_relationships_api
 dependencies[] = user_relationships_ui

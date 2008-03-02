@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.templates.inc,v 1.1.2.1 2008-03-02 00:51:52 sprsquish Exp $
+// $Id: user_relationships_ui.templates.inc,v 1.1.2.2 2008-03-02 11:46:13 sprsquish Exp $
 
 /**
  * Pre processor for user_relationships page
@@ -8,14 +8,15 @@ function template_preprocess_user_relationships(&$variables) {
   global $user;
 
   // readability
-  $account  =& $variables['account'];
-  $rid      =& $variables['rid'];
+  $account  = $variables['account'];
+  $rid      = $variables['rid'];
 
   $args = array('user' => $account->uid, 'approved' => TRUE);
   if (isset($rtid) && is_numeric($rtid)) {
     $relationship_type = user_relationships_type_load($rtid);
     $args['rtid'] = $rtid;
   }
+
   $query = _user_relationships_generate_query($args, array('include_user_info' => TRUE));
 
   // To Page or not to Page
@@ -29,7 +30,7 @@ function template_preprocess_user_relationships(&$variables) {
   $variables['relationships'] = array();
   while ($relationship = db_fetch_object($results)) {
     user_relationships_api_translate_user_info($relationship);
-    $variables['relationships'][$relation->rid] = $relationship;
+    $variables['relationships'][$relationship->rid] = $relationship;
   }
 
   if ($account->uid == $user->uid) {

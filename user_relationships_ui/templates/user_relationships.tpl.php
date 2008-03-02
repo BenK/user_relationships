@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships.tpl.php,v 1.1.2.1 2008-03-02 00:51:52 sprsquish Exp $
+// $Id: user_relationships.tpl.php,v 1.1.2.2 2008-03-02 11:46:13 sprsquish Exp $
 
 if ($relationships) {
   foreach ($relationships as $relationship) {
@@ -10,9 +10,9 @@ if ($relationships) {
 
     $rows[] = array(
       theme('username', $this_user),
-      $relation->name,
-      $this_user->access > $online_interval ? t('online') : t('not online'),
-      $edit_access ? theme('user_relationships_remove_link', $account->uid, $relation->rid) : '&nbsp;',
+      $relationship->name,
+      $relationship->extra_for_display,
+      $edit_access ? theme('user_relationships_remove_link', $account->uid, $relationship->rid) : '&nbsp;',
     );
   }
 

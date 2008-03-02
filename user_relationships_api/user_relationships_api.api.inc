@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.api.inc,v 1.1.2.1 2008-03-02 00:51:52 sprsquish Exp $
+// $Id: user_relationships_api.api.inc,v 1.1.2.2 2008-03-02 11:46:13 sprsquish Exp $
 
 /**
  *  User Relationships API
@@ -325,10 +325,12 @@ function user_relationships_load($param = array(), $options = array(), $reset = 
     else {
       $relationships[$relationship->$sort][] = $relationship;
     }
-    
   }
 
-  return $rid ? $relationships[$rid] : $relationships;
+  $return = $rid ? $relationships[$rid] : $relationships;
+  _user_relationships_invoke('load', $return);
+
+  return $return;
 }
 
 

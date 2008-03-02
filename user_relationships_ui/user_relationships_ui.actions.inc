@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.actions.inc,v 1.1.2.1 2008-03-02 00:51:52 sprsquish Exp $
+// $Id: user_relationships_ui.actions.inc,v 1.1.2.2 2008-03-02 11:46:13 sprsquish Exp $
 
 /**
  * User Relationships Actions
@@ -77,9 +77,8 @@ function user_relationships_ui_pending_requested_submit($form, &$form_state) {
 
   switch ($form_state['values']['action']) {
   case 'approve':
-    $updated = $relationship;
-    $updated->approved = TRUE;
-    user_relationships_update_relationship($relationship, $updated, $form_state['values']['action']);
+    $relationship->approved = TRUE;
+    user_relationships_save_relationship($relationship, $form_state['values']['action']);
     drupal_set_message(user_relationships_ui_get_message('accepted', $relationship));
     break;
 
@@ -97,7 +96,7 @@ function user_relationships_ui_pending_requested_submit($form, &$form_state) {
     drupal_set_message(user_relationships_ui_get_message('default'));
   }
 
-  drupal_goto();
+  $form_state['redirect'] = str_replace('destination=', '', drupal_get_destination());
 }
 
 

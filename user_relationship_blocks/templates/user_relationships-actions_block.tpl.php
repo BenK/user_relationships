@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships-actions_block.tpl.php,v 1.1.2.1 2008-03-02 00:51:52 sprsquish Exp $
+// $Id: user_relationships-actions_block.tpl.php,v 1.1.2.2 2008-03-02 11:46:12 sprsquish Exp $
 
 $output = array();
 

@@ -1,5 +1,5 @@
-; $Id: user_relationships_ui.info,v 1.1.2.1 2008-03-02 00:51:52 sprsquish Exp $
-name = User Relationships UI
+; $Id: user_relationships_ui.info,v 1.1.2.2 2008-03-02 11:46:13 sprsquish Exp $
+name = UR-UI
 description = "User Relationships UI. This enables basic UI functionality for User Relationships"
 package = "User Relationships"
 dependencies[] = user_relationships_api

@@ -1,0 +1,7 @@
+; $Id: user_relationship_elaborations.info,v 1.1.2.1 2008-03-02 11:46:12 sprsquish Exp $
+name = UR-Elaborations
+description = "Allow users to elaborate on their relationships others"
+dependencies[] = user_relationships_api
+dependencies[] = user_relationships_ui
+package = "User Relationships"
+core = 6.x
