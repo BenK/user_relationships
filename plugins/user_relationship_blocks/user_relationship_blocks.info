@@ -1,6 +1,0 @@
-; $Id: user_relationship_blocks.info,v 1.3.2.2 2008-02-01 23:01:15 sprsquish Exp $
-name = User Relationship Blocks
-description = "Blocks that can be used with User Relationships"
-dependencies[] = user_relationships
-package = "User Relationships"
-core = 6.x

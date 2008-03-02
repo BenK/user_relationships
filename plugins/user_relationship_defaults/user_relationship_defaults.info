@@ -1,6 +1,0 @@
-; $Id: user_relationship_defaults.info,v 1.2.2.4 2008-02-22 16:23:02 sprsquish Exp $
-name = User Relationship Defaults
-description = "Allows admins to specify relationships that are automatically created when a new user joins"
-dependencies[] = user_relationships
-package = "User Relationships"
-core = 6.x

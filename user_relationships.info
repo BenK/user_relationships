@@ -1,5 +1,0 @@
-; $Id: user_relationships.info,v 1.2.2.1 2008-02-01 23:01:15 sprsquish Exp $
-name = User Relationships
-description = "Lets users create named relationships between each other."
-package = "User Relationships"
-core = 6.x
