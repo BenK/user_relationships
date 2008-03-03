@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.templates.inc,v 1.1.2.2 2008-03-02 11:46:13 sprsquish Exp $
+// $Id: user_relationships_ui.templates.inc,v 1.1.2.3 2008-03-03 14:13:58 sprsquish Exp $
 
 /**
  * Pre processor for user_relationships page
@@ -9,7 +9,7 @@ function template_preprocess_user_relationships(&$variables) {
 
   // readability
   $account  = $variables['account'];
-  $rid      = $variables['rid'];
+  $rtid     = $variables['rtid'];
 
   $args = array('user' => $account->uid, 'approved' => TRUE);
   if (isset($rtid) && is_numeric($rtid)) {
