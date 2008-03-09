@@ -1,0 +1,249 @@
+<?php
+// $Id: user_relationship_node_access.module,v 1.1.4.2 2008-03-09 22:19:10 sprsquish Exp $
+// Copyright (C) 2008 Jonathan Brown
+// http://openpackage.biz/
+
+
+/**
+ * Theme function for styling out the permissions form
+ */
+function theme_user_relationship_node_access_form($form) {
+  $actions = array('view', 'update', 'delete');
+  foreach ($actions as $key => $value) {
+    if (isset($form[$value])) {
+      $header[] = t($value);
+    }
+  }
+
+  $rows = array();
+  foreach ($form[$actions[0]]['#options'] as $rtid => $r_name) {
+    $row = array($r_name);
+    foreach ($header as $action) {
+      unset($form[$action][$rtid]['#title']);
+      $row[] = drupal_render($form[$action][$rtid]);
+    }
+    $rows[] = $row;
+  }
+
+  array_unshift($header, t('Relationship Type'));
+
+  return theme('table', $header, $rows);
+}
+
+
+/**
+ * hook_theme()
+ */
+function user_relationship_node_access_theme() {
+  return array(
+    'user_relationship_node_access_form' => array(
+      'arguments' => array('form' => NULL)
+    ),
+  );
+}
+
+
+/**
+ * hook_enable()
+ */
+function user_relationship_node_access_enable() {
+	node_access_rebuild();
+}
+
+
+/**
+ * hook_disable()
+ */
+function _user_relationship_node_access_disable() {
+	_user_relationship_node_access_disabling(TRUE);
+	node_access_rebuild();
+}
+
+
+/**
+ * helper function to make sure we don't set up permissions if we're disabling
+ */
+function _user_relationship_node_access_disabling($set = NULL) {
+	static $disabling = FALSE;
+
+	if($set !== NULL) {
+		$disabling = $set;
+	}
+
+	return $disabling;
+}
+
+
+/**
+ * hook_form_alter()
+ */
+function user_relationship_node_access_form_alter(&$form, $form_state, $form_id) {
+  global $user;
+  if ($form['#node'] && ($form['#node']->uid != $user->uid)) {
+    return;
+  }
+
+	if(
+	  is_null($form['type']) || 
+	  $form['type']['#value'] .'_node_form' != $form_id ||
+	  !count($types = user_relationships_types_load())
+	) {
+	  return;
+	}
+		
+	foreach($types as $rtid => $type) {
+	  unset($types[$rtid]);
+	  if ($type->is_oneway) {
+	    $types["{$rtid}_yt"] = t('@type (you to them)', array('@type' => $type->plural_name));
+	    $types["{$rtid}_ty"] = t('@type (them to you)', array('@type' => $type->plural_name));
+	  }
+	  else {
+	    $types[$rtid] = $type->plural_name;
+	  }
+	}
+  asort($types);
+
+  // reverse the optimization made after saving
+  $permissions = array();
+  if (is_array($form['#node']->user_relationship_node_access)) {
+    foreach ($form['#node']->user_relationship_node_access as $rtid => $permission) {
+      foreach ($permission as $action => $trash) {
+        $permissions[$action][$rtid] = $rtid;
+      }
+    }
+  }
+
+  $form['user_relationship_node_access'] = array(
+    '#type'         => 'fieldset',
+    '#title'        => t('User Relationships Node Access'),
+    '#description'  => t('Node access based on your relationships to other users'),
+    '#collapsible'  => TRUE,
+    '#collapsed'    => TRUE,
+    '#tree'         => TRUE,
+    '#theme'        => 'user_relationship_node_access_form',
+  );
+  foreach (array('view', 'update', 'delete') as $action) {
+    $defaults = $permissions[$action] ? $permissions[$action] : array();
+  	$form['user_relationship_node_access'][$action] = array(
+  		'#type'           => 'checkboxes',
+  		'#multiple'       => TRUE,
+  		'#options'        => $types,
+  		'#title'          => t(ucfirst($action)),
+  		'#default_value'  => $defaults,
+  		'#description'    => t('If no box is ticked, then anyone can @action.', array('@action' => $action))
+  	); 
+  }
+}
+
+
+/**
+ * hook_nodeapi()
+ */
+function user_relationship_node_access_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
+  global $user;
+  if ($node->uid != $user->uid) {
+    return;
+  }
+
+	switch($op) {
+	case 'insert':
+	case 'update':
+	  // reformat the array and optimize
+	  $user_relationship_node_access = array();
+		foreach($node->user_relationship_node_access as $action => $permissions) {
+		  foreach ($permissions as $key => $permission) {
+  			if($permission) {
+  			  $user_relationship_node_access[$key][$action] = TRUE;
+  			}
+		  }
+		}
+	
+	  db_query(
+	    "DELETE FROM {user_relationship_node_access} WHERE nid = %d", 
+	    $node->nid
+	  );
+		db_query(
+		  "INSERT INTO {user_relationship_node_access} (nid, permissions) VALUES (%d, '%s')",
+			$node->nid, serialize($user_relationship_node_access)
+		);
+
+		$node->user_relationship_node_access = $user_relationship_node_access;
+		break;
+
+	case 'load':
+		$node->user_relationship_node_access = unserialize(db_result(db_query(
+		  "SELECT permissions FROM {user_relationship_node_access} WHERE nid = %d",
+			$node->nid
+		)));
+		break;
+
+	case 'delete':
+		db_query(
+		  "DELETE FROM {user_relationship_node_access} WHERE nid = %d",
+			$node->nid
+		);
+		break;
+	}
+}
+
+
+/**
+ * hook_node_grants()
+ */
+function user_relationship_node_access_node_grants($user, $op) {
+	// get this user's relationships	
+	$relationships = user_relationships_load(array(
+		'user'      => $user->uid,
+		'approved'  => TRUE
+	));
+
+  foreach($relationships as $relationship) {
+    $author_uid = $relationship->requestee_id == $user->uid ? $relationship->requester_id : $relationship->requestee_id;
+
+    if ($relationship->is_oneway) {
+      $grants["user_relationship_node_access_{$relationship->rtid}_yt"][] = $relationship->requester_id;
+      $grants["user_relationship_node_access_{$relationship->rtid}_ty"][] = $relationship->requestee_id;
+	  }
+	  else {
+	    $grants["user_relationship_node_access_{$relationship->rtid}"][] = $author_uid;
+	  }
+	}
+
+	$grants['user_relationship_node_access_author'] = array($user->uid);
+
+	return $grants;
+}
+
+/** 
+ * hook_access_records()
+ */
+function user_relationship_node_access_node_access_records($node) {
+	if(_user_relationship_node_access_disabling()) {
+		return;
+	}
+
+	if(is_array($node->user_relationship_node_access)) {
+		foreach($node->user_relationship_node_access as $rtid => $permissions) {
+			$grants[] = array(
+				'realm'         => "user_relationship_node_access_{$rtid}",
+				'gid'           => $node->uid,
+				'grant_view'    => $permissions['view'],
+				'grant_update'  => $permissions['update'],
+				'grant_delete'  => $permissions['delete']
+			);
+		}
+	}
+
+	if(count($grants)) {
+		$grants[] = array(
+			'realm'         => 'user_relationship_node_access_author', 
+			'gid'           => $node->uid, 
+			'grant_view'    => TRUE, 
+			'grant_update'  => TRUE, 
+			'grant_delete'  => TRUE
+		);
+	}
+
+	return $grants;
+}
+
