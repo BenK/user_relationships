@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_blocks.templates.inc,v 1.1.2.3 2008-03-03 16:07:40 sprsquish Exp $
+// $Id: user_relationship_blocks.templates.inc,v 1.1.2.4 2008-03-10 17:13:31 sprsquish Exp $
 
 /**
  * Template pre processor for the main block view
@@ -23,7 +23,7 @@ function template_preprocess_user_relationships_block(&$variables) {
   $key = $extra ? ($extra == 'you_to_them' ? 'requester_id' : 'requestee_id') : 'user';
   $args = array($key => $account->uid, 'approved' => TRUE);
 
-  if ($rtid != UR_BLOCK_ALL_TYPES) { 
+  if ($settings->rtid != UR_BLOCK_ALL_TYPES) { 
     $args['rtid'] = $settings->rtid;
   }
 

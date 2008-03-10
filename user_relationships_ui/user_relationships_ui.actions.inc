@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.actions.inc,v 1.1.2.2 2008-03-02 11:46:13 sprsquish Exp $
+// $Id: user_relationships_ui.actions.inc,v 1.1.2.3 2008-03-10 17:13:32 sprsquish Exp $
 
 /**
  * User Relationships Actions
@@ -69,11 +69,9 @@ function user_relationships_ui_request_submit($form, &$form_state) {
 function user_relationships_ui_pending_requested_submit($form, &$form_state) {
   global $user;
 
-  $relationship = user_relationships_load($form_state['values']['rid']);
+  $relationship = user_relationships_load($form_state['values']['rid'], array('include_user_info' => TRUE));
   $requester    = $relationship->requester;
   $requestee    = $relationship->requestee;
-
-  $viewing_own_account = ($user->uid == $requestee->uid);
 
   switch ($form_state['values']['action']) {
   case 'approve':
@@ -86,10 +84,6 @@ function user_relationships_ui_pending_requested_submit($form, &$form_state) {
   case 'disapprove':
     user_relationships_delete_relationship($relationship, $user, $form_state['values']['action']);
     drupal_set_message(user_relationships_ui_get_message($form_state['values']['action'], $relationship));
-    break;
-
-  case 'ban':
-    
     break;
 
   default:

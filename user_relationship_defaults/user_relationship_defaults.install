@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_defaults.install,v 1.1.2.2 2008-03-02 11:46:12 sprsquish Exp $
+// $Id: user_relationship_defaults.install,v 1.1.2.3 2008-03-10 17:13:31 sprsquish Exp $
 
 function user_relationship_defaults_schema() {
   $schema['user_relationship_defaults'] = array(

@@ -1,4 +1,4 @@
-; $Id: README.txt,v 1.1.2.1 2008-03-09 22:19:10 sprsquish Exp $
+; $Id: README.txt,v 1.1.2.2 2008-03-10 17:13:32 sprsquish Exp $
 
 User Relationship Node Access
 -----------------------------

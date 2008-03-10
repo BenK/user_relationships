@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.api.inc,v 1.1.2.2 2008-03-02 11:46:13 sprsquish Exp $
+// $Id: user_relationships_api.api.inc,v 1.1.2.3 2008-03-10 17:13:32 sprsquish Exp $
 
 /**
  *  User Relationships API
@@ -67,10 +67,11 @@ function user_relationships_types_load($reset = NULL) {
   if ($reset || !sizeof($relationship_types_list)) {
     $results = db_query("SELECT * FROM {user_relationship_types}");  
     while ($relationship = db_fetch_object($results)) {
-      _user_relationships_invoke('load', $relationship, TRUE);
       $relationship_types_list[$relationship->rtid] = $relationship;
     }
   }
+
+  _user_relationships_invoke('load', $relationship_types_list, TRUE);
 
   return $relationship_types_list;
 }
@@ -83,10 +84,6 @@ function user_relationships_types_load($reset = NULL) {
  *   A User Relationship type object
  */
 function user_relationships_type_save(&$rtype) {
-  if (!user_access('administer user relationships')) { 
-    return; 
-  }
-
   _user_relationships_invoke('presave', $rtype, TRUE);
 
   $op = $rtype->rtid ? 'update' : 'insert';
@@ -119,10 +116,6 @@ function user_relationships_type_save(&$rtype) {
  *   A User Relationship type ID
  */
 function user_relationships_type_delete($rtid) {
-  if (!user_access('administer user relationships')) { 
-    return; 
-  }
-
   $rtype = user_relationships_type_load($rtid);
 
   db_query('DELETE FROM {user_relationship_types} WHERE rtid = %d', $rtid);
@@ -191,6 +184,15 @@ function user_relationships_save_relationship(&$relationship, $op = 'request') {
 
   if ($relationship->rid) {
     db_query("DELETE FROM {user_relationships} WHERE rid = %d", $relationship->rid);
+
+    // Delete possible requests coming the other direction
+    $relationship_type = user_relationships_type_load($relationship->rtid);
+    if (!$relationship_type->is_oneway) {
+      db_query(
+        'DELETE FROM {user_relationships} WHERE rtid = %d AND requester_id = %d AND requestee_id = %d',
+        $relationship->rtid, $relationship->requestee_id, $relationship->requester_id
+      );
+    }
   }
   else {
     $relationship->rid = db_result(db_query("SELECT MAX(rid) FROM {user_relationships}")) + 1;

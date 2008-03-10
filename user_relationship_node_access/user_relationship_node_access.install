@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_node_access.install,v 1.1.4.2 2008-03-09 22:19:10 sprsquish Exp $
+// $Id: user_relationship_node_access.install,v 1.1.4.3 2008-03-10 17:13:32 sprsquish Exp $
 
 function user_relationship_node_access_schema() {
   $schema['user_relationship_node_access'] = array(
@@ -9,6 +9,8 @@ function user_relationship_node_access_schema() {
   ),
   'primary key' => array('nid'),
   );
+
+  return $schema;
 }
 /**
  * Install

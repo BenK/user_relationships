@@ -1,4 +1,4 @@
-; $Id: README.txt,v 1.1.2.2 2008-03-02 11:46:13 sprsquish Exp $
+; $Id: README.txt,v 1.1.2.3 2008-03-10 17:13:32 sprsquish Exp $
 
 User Relationships API
 ------------------

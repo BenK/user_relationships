@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_mailer_defaults.inc,v 1.1.2.2 2008-03-02 11:46:13 sprsquish Exp $
+// $Id: user_relationship_mailer_defaults.inc,v 1.1.2.3 2008-03-10 17:13:32 sprsquish Exp $
 
 global $user_relationship_mailer_ops;
 $user_relationship_mailer_ops = array('request', 'cancel', 'approve', 'disapprove', 'remove');

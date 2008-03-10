@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.module,v 1.1.2.3 2008-03-03 14:09:24 sprsquish Exp $
+// $Id: user_relationships_ui.module,v 1.1.2.4 2008-03-10 17:13:32 sprsquish Exp $
 
 /**
  * Public API for getting the set or default message
