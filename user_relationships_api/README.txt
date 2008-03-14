@@ -1,4 +1,4 @@
-; $Id: README.txt,v 1.1.2.3 2008-03-10 17:13:32 sprsquish Exp $
+$Id: README.txt,v 1.1.2.4 2008-03-14 07:11:21 sprsquish Exp $
 
 User Relationships API
 ------------------
@@ -37,6 +37,7 @@ need to see the documentation in that file for a deeper explanaition.
     load    | When a relationship type is loaded
 
   hook_user_relationships($op, &$relationship)
+    load        | When a relationship is loaded
     presave     | When either saving a new relationship or updating an existing relationship
     request     | After a new relationship has been requested
     cancel      | When a relationship has been removed (specifically cancelled)
