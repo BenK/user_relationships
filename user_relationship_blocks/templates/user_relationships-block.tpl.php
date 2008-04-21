@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships-block.tpl.php,v 1.1.2.3 2008-03-10 17:13:31 sprsquish Exp $
+// $Id: user_relationships-block.tpl.php,v 1.1.2.4 2008-04-21 00:38:18 sprsquish Exp $
 
 // List the relationships between the viewed user and the current user
 if ($relationships) {
@@ -29,7 +29,7 @@ if ($relationships) {
   }
 
   foreach ($rows as $title => $users) {
-    $output[] = theme('item_list', array($users));
+    $output[] = theme('item_list', ($rtid == UR_BLOCK_ALL_TYPES ? array($users) : $users));
   }
 
   print implode('', $output);

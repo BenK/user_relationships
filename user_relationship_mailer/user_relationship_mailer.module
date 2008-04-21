@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_mailer.module,v 1.1.2.3 2008-03-10 17:13:32 sprsquish Exp $
+// $Id: user_relationship_mailer.module,v 1.1.2.4 2008-04-21 00:38:18 sprsquish Exp $
 
 require_once(drupal_get_path('module', 'user_relationship_mailer').'/user_relationship_mailer_defaults.inc');
 
@@ -14,8 +14,8 @@ require_once(drupal_get_path('module', 'user_relationship_mailer').'/user_relati
  *
  */
 function user_relationship_mailer_send_email($op, $relationship) {
-  if (($op == 'request' && $relationship->approved) || !variable_get("user_relationship_mailer_send_{$op}", TRUE)) { 
-    return; 
+  if (($op == 'request' && $relationship->approved) || !variable_get("user_relationship_mailer_send_{$op}", TRUE)) {
+    return;
   }
 
   $relationship->requester = $requester = user_load($relationship->requester_id);
@@ -64,9 +64,9 @@ function user_relationship_mailer_send_email($op, $relationship) {
       }
 
       drupal_mail(
-        'user_relationship_mailer', 
-        $op, 
-        $target->mail, 
+        'user_relationship_mailer',
+        $op,
+        $target->mail,
         user_preferred_language($target),
         $replacements
       );
@@ -160,7 +160,7 @@ function user_relationship_mailer_user($type, &$edit, &$account, $category = NUL
   switch($type) {
   case 'form':
     $form = array();
-    if (($category == 'account') 
+    if (($category == 'account')
       && variable_get('user_relationship_mailer_send_mail', FALSE)
       && user_access('maintain own relationships', $account)
     ) {
@@ -178,5 +178,5 @@ function user_relationship_mailer_user($type, &$edit, &$account, $category = NUL
         );
     }
     return $form;
-  }  
+  }
 }

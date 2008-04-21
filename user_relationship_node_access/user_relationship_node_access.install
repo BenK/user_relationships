@@ -1,13 +1,13 @@
 <?php
-// $Id: user_relationship_node_access.install,v 1.1.4.3 2008-03-10 17:13:32 sprsquish Exp $
+// $Id: user_relationship_node_access.install,v 1.1.4.4 2008-04-21 00:38:18 sprsquish Exp $
 
 function user_relationship_node_access_schema() {
   $schema['user_relationship_node_access'] = array(
-  'fields' => array(
-    'nid'         => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
-    'permissions' => array('type' => 'text', 'not null' => TRUE, 'default' => '', 'size' => 'big'),
-  ),
-  'primary key' => array('nid'),
+    'fields' => array(
+      'nid'         => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
+      'permissions' => array('type' => 'text', 'not null' => TRUE, 'default' => '', 'size' => 'big'),
+    ),
+    'primary key' => array('nid'),
   );
 
   return $schema;

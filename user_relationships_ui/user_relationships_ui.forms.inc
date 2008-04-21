@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.forms.inc,v 1.1.2.3 2008-03-10 17:13:32 sprsquish Exp $
+// $Id: user_relationships_ui.forms.inc,v 1.1.2.4 2008-04-21 00:38:19 sprsquish Exp $
 
 /**
  * User Relationships forms
@@ -14,7 +14,7 @@ function user_relationships_ui_request_form($requester, $requestee, $form_values
   $current_relationships = user_relationships_load(array('between' => array($requester, $requestee)), array('sort' => 'rtid'));
 
   $results = db_query(
-    "SELECT * FROM {user_relationship_types}" . ($current_relationships ? " WHERE rtid NOT IN (%s) ORDER BY name" : ''), 
+    "SELECT * FROM {user_relationship_types}" . ($current_relationships ? " WHERE rtid NOT IN (%s) ORDER BY name" : ''),
     implode(',', array_keys($current_relationships))
   );
   $relationships = array();
@@ -31,7 +31,7 @@ function user_relationships_ui_request_form($requester, $requestee, $form_values
   $form['requester'] = array(
     '#type'   => 'value',
     '#value'  => $requester
-  );    
+  );
   $form['requestee'] = array(
     '#type'   => 'value',
     '#value'  => $requestee
@@ -111,7 +111,7 @@ function user_relationships_ui_pending_requested(&$form_state, $action, $account
     t('Yes'), t('No'),
     'user_relationships_approve_confirm'
   );
-    
+
   return $output;
 }
 
@@ -143,7 +143,6 @@ function user_relationships_ui_remove(&$form_state, $account, $relationship) {
     t('Yes'), t('No'),
     'user_relationships_remove_confirm'
   );
-    
+
   return $output;
 }
-

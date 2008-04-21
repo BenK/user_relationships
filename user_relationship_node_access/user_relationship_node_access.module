@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_node_access.module,v 1.1.4.3 2008-03-10 17:13:32 sprsquish Exp $
+// $Id: user_relationship_node_access.module,v 1.1.4.4 2008-04-21 00:38:18 sprsquish Exp $
 // Copyright (C) 2008 Jonathan Brown
 // http://openpackage.biz/
 
@@ -84,13 +84,13 @@ function user_relationship_node_access_form_alter(&$form, $form_state, $form_id)
   }
 
 	if(
-	  is_null($form['type']) || 
+	  is_null($form['type']) ||
 	  $form['type']['#value'] .'_node_form' != $form_id ||
 	  !count($types = user_relationships_types_load())
 	) {
 	  return;
 	}
-		
+
 	foreach($types as $rtid => $type) {
 	  unset($types[$rtid]);
 	  if ($type->is_oneway) {
@@ -131,7 +131,7 @@ function user_relationship_node_access_form_alter(&$form, $form_state, $form_id)
   		'#title'          => t(ucfirst($action)),
   		'#default_value'  => $defaults,
   		'#description'    => t('If no box is ticked, then anyone can @action.', array('@action' => $action))
-  	); 
+  	);
   }
 }
 
@@ -157,9 +157,9 @@ function user_relationship_node_access_nodeapi(&$node, $op, $a3 = NULL, $a4 = NU
   			}
 		  }
 		}
-	
+
 	  db_query(
-	    "DELETE FROM {user_relationship_node_access} WHERE nid = %d", 
+	    "DELETE FROM {user_relationship_node_access} WHERE nid = %d",
 	    $node->nid
 	  );
 		db_query(
@@ -191,7 +191,7 @@ function user_relationship_node_access_nodeapi(&$node, $op, $a3 = NULL, $a4 = NU
  * hook_node_grants()
  */
 function user_relationship_node_access_node_grants($user, $op) {
-	// get this user's relationships	
+	// get this user's relationships
 	$relationships = user_relationships_load(array(
 		'user'      => $user->uid,
 		'approved'  => TRUE
@@ -214,13 +214,15 @@ function user_relationship_node_access_node_grants($user, $op) {
 	return $grants;
 }
 
-/** 
+/**
  * hook_access_records()
  */
 function user_relationship_node_access_node_access_records($node) {
 	if(_user_relationship_node_access_disabling()) {
 		return;
 	}
+
+  $grants = array();
 
 	if(is_array($node->user_relationship_node_access)) {
 		foreach($node->user_relationship_node_access as $rtid => $permissions) {
@@ -236,14 +238,13 @@ function user_relationship_node_access_node_access_records($node) {
 
 	if(count($grants)) {
 		$grants[] = array(
-			'realm'         => 'user_relationship_node_access_author', 
-			'gid'           => $node->uid, 
-			'grant_view'    => TRUE, 
-			'grant_update'  => TRUE, 
+			'realm'         => 'user_relationship_node_access_author',
+			'gid'           => $node->uid,
+			'grant_view'    => TRUE,
+			'grant_update'  => TRUE,
 			'grant_delete'  => TRUE
 		);
 	}
 
 	return $grants;
 }
-

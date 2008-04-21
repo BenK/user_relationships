@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_blocks.module,v 1.1.2.3 2008-03-10 17:13:31 sprsquish Exp $
+// $Id: user_relationship_blocks.module,v 1.1.2.4 2008-04-21 00:38:17 sprsquish Exp $
 
 /**
  * Constants
@@ -162,9 +162,9 @@ function _user_relationship_blocks_form($block, $rtid, $extra, $bid) {
     $form['sort'] = array(
       '#type'     => 'radios',
       '#title'    => t('Which relationships should be displayed'),
-      '#options'  => array( 
-        'newest' => t('Newest'), 
-        'oldest' => t('Oldest'), 
+      '#options'  => array(
+        'newest' => t('Newest'),
+        'oldest' => t('Oldest'),
         'random' => t('Random'),
       ),
       '#default_value' => $settings->sort,
@@ -261,10 +261,10 @@ function _user_relationship_blocks_list() {
     $usr_delta  = "{$usr}{$type->rtid}";
 
     $extras = array('' => '');
-    
+
     if ($type->is_oneway) {
       $extras = array(
-        UR_BLOCK_SEPARATOR.'you_to_them' => t('(You to Them)'), 
+        UR_BLOCK_SEPARATOR.'you_to_them' => t('(You to Them)'),
         UR_BLOCK_SEPARATOR.'them_to_you' => t('(Them to You)'),
       );
     }

@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.module,v 1.1.2.3 2008-03-10 17:13:32 sprsquish Exp $
+// $Id: user_relationships_api.module,v 1.1.2.4 2008-04-21 00:38:19 sprsquish Exp $
 
 
 define('UR_OK', 0x0);
@@ -42,7 +42,7 @@ function _user_relationships_generate_query($param = array(), $options = array()
 
     switch ($key) {
     case 'between':
-      $cond[] = 
+      $cond[] =
         "((ur.requester_id {$operator[0]} AND ur.requestee_id {$operator[1]})".
         ' OR '.
         "(ur.requestee_id {$operator[0]} AND ur.requester_id {$operator[1]}))";
@@ -68,7 +68,7 @@ function _user_relationships_generate_query($param = array(), $options = array()
   }
 
   $selects = array('DISTINCT ur.rid', 'ur.*', 'urt.*');
-  $joins = array('INNER JOIN {user_relationship_types} urt USING(rtid)');
+  $joins = array('INNER JOIN {user_relationship_types} urt USING ( rtid )');
 
   // We wont need anything after this point for the count SQL
   $count_joins = implode(' ', $joins);
@@ -97,11 +97,11 @@ function _user_relationships_generate_query($param = array(), $options = array()
   $cond = $cond ? 'WHERE '.implode(' AND ', $cond) : '';
 
   $extra = array();
-  if (!empty($order)) { 
-    $extra[] = "ORDER BY {$order}"; 
+  if (!empty($order)) {
+    $extra[] = "ORDER BY {$order}";
   }
-  if (!empty($limit)) { 
-    $extra[] = "LIMIT {$limit}"; 
+  if (!empty($limit)) {
+    $extra[] = "LIMIT {$limit}";
   }
   $extra = is_array($extra) ? implode(' ', $extra) : $extra;
 
@@ -113,7 +113,7 @@ function _user_relationships_generate_query($param = array(), $options = array()
 }
 
 
-/** 
+/**
  * Helper function to process the various argument types allowed
  */
 function _user_relationship_process_query_argument($key, &$value) {
@@ -137,6 +137,9 @@ function _user_relationship_process_query_argument($key, &$value) {
   else if (is_numeric($value) || is_bool($value)) {
     $value = (int)$value;
     return '= %d';
+  }
+  else if (is_float($value)) {
+    return '= %f';
   }
   else if (preg_match('/([<>=]{1,2})\s*(.+)/', $value, $matches)){
     $marker = "'%s'";
@@ -177,9 +180,10 @@ function user_relationships_api_cron() {
 
   db_query(
     " DELETE ur
-      FROM {user_relationships} ur JOIN {user_relationship_types} urt USING(rtid)
-      WHERE ur.approved = 0 
-        AND urt.expires_val > 0 
+      FROM {user_relationships} ur 
+        INNER JOIN {user_relationship_types} urt USING ( rtid )
+      WHERE ur.approved = 0
+        AND urt.expires_val > 0
         AND %d > (ur.updated_at + (urt.expires_val * 24 * 60 *60))",
     $now
   );

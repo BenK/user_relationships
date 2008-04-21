@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.module,v 1.1.2.4 2008-03-10 17:13:32 sprsquish Exp $
+// $Id: user_relationships_ui.module,v 1.1.2.5 2008-04-21 00:38:19 sprsquish Exp $
 
 /**
  * Public API for getting the set or default message
@@ -20,7 +20,7 @@
  */
 function user_relationships_ui_get_message($key, $relationship = NULL, $replacements = array()) {
   $msg = variable_get("user_relationships_ui_msg_{$key}", NULL);
-  if (is_null($msg)) { 
+  if (is_null($msg)) {
     $messages = _user_relationships_ui_default_messages();
     $msg      = _user_relationships_get_from_array($key, $messages);
   }
@@ -146,7 +146,7 @@ function _user_relationships_ui_between(&$viewer, &$viewed) {
   foreach ($relationships as $relationship) {
     if ($relationship->approved && !$list[$relationship->rid]) {
       $list[$relationship->rid] = t('%relationship_name (!remove_link)', array(
-        '%relationship_name'  => $relationship->name,
+        '%relationship_name'  => $relationship->name . ($relationship->is_oneway ? ($relationship->requester_id == $viewer->uid ? t(' (You to Them)') : t(' (Them to You)')) : NULL),
         '!remove_link'        => theme('user_relationships_remove_link', $viewer->uid, $relationship->rid)
       ));
     }
@@ -160,7 +160,7 @@ function _user_relationships_ui_between(&$viewer, &$viewed) {
  * List of pending relationships with between two users
  */
 function _user_relationships_ui_actions_between(&$viewer, &$viewed) {
-  if ($viewer->uid == $viewed->uid) {
+  if (!user_access('can have relationships') || $viewer->uid == $viewed->uid) {
     return;
   }
 
@@ -213,7 +213,7 @@ function _user_relationships_ui_message_settings_form(&$form, $defaults = array(
         '#default_value'  => variable_get("user_relationships_ui_msg_{$key}", $value)
       );
     }
-  }  
+  }
 }
 
 
@@ -227,7 +227,7 @@ function _user_relationships_ui_message_settings_form(&$form, $defaults = array(
 function user_relationships_ui_check_access($types, $account = NULL) {
   global $user;
 
-  if (user_access('administer users')) { 
+  if (user_access('administer users')) {
     return TRUE;
   }
 
@@ -238,9 +238,9 @@ function user_relationships_ui_check_access($types, $account = NULL) {
 
   foreach ($types as $type) {
     switch ($type) {
-    case 'view': $access = ($access || user_access('maintain own relationships') | user_access('view user relationships'));
-    case 'edit': $access = ($access || user_access('maintain own relationships') & user_access('can have relationships'));
-    case 'user': $access = ($access || ($account->uid == $user->uid));
+    case 'view': $access = ($access || user_access('maintain own relationships') | user_access('view user relationships')); break;
+    case 'edit': $access = ($access || user_access('maintain own relationships') & user_access('can have relationships')); break;
+    case 'user': $access = ($access || ($account->uid == $user->uid)); break;
     }
   }
 
@@ -377,7 +377,7 @@ function user_relationships_ui_menu() {
     );
     foreach (user_relationships_types_load() as $rtid => $relationship) {
       $items["relationships/{$rtid}"] = array(
-        'title'             => t($relationship->plural_name),
+        'title'             => t($relationship->plural_name ? $relationship->plural_name : $relationship->name),
         'type'              => MENU_NORMAL_ITEM|MENU_LOCAL_TASK,
         'access callback'   => 'user_relationships_ui_check_access',
         'access arguments'  => array('edit'),
@@ -397,7 +397,7 @@ function user_relationships_ui_menu() {
       'file'              => 'user_relationships_ui.forms.inc',
     );
 
-    
+
   $items['relationship/%user/request'] = array(
     'title'             => t('Create a relationship'),
     'type'              => MENU_CALLBACK,
@@ -436,7 +436,7 @@ function user_relationships_ui_menu() {
 
     foreach (user_relationships_types_load() as $rtid => $relationship) {
       $items["user/%user/relationships/{$rtid}"] = array(
-        'title'             => t($relationship->plural_name),
+        'title'             => t($relationship->plural_name ? $relationship->plural_name : $relationship->name),
         'type'              => MENU_NORMAL_ITEM|MENU_LOCAL_TASK,
         'access callback'   => 'user_relationships_ui_check_access',
         'access arguments'  => array('admin'),
@@ -452,7 +452,7 @@ function user_relationships_ui_menu() {
         'type'              => MENU_CALLBACK,
         'access callback'   => 'user_relationships_ui_check_access',
         'access arguments'  => array(array('admin', 'user'), 1),
-        'page callback'     => 'drupal_get_form', 
+        'page callback'     => 'drupal_get_form',
         'page arguments'    => array('user_relationships_ui_pending_requested', $action, 1, 4),
         'file'              => 'user_relationships_ui.forms.inc',
       );
@@ -496,16 +496,16 @@ function user_relationships_ui_user($type, &$edit, &$account, $category = NULL) 
       $output['relations'] = array(
         '#title'      => t('Your relationships to this user'),
         '#type'       => 'user_profile_item',
-        '#value'      => theme('item_list', $list), 
+        '#value'      => theme('item_list', $list),
         '#attributes' => array('class' => 'user_relationships_ui'),
       );
     }
 
     if ($actions = _user_relationships_ui_actions_between($viewer, $account)) {
       $output['actions'] = array(
-        '#title'      => t('Relationship actions'), 
+        '#title'      => t('Relationship actions'),
         '#type'       => 'user_profile_item',
-        '#value'      => theme('item_list', $actions), 
+        '#value'      => theme('item_list', $actions),
         '#attributes' => array('class' => 'user_relationships_ui_actions'),
       );
     }
@@ -520,8 +520,8 @@ function user_relationships_ui_user($type, &$edit, &$account, $category = NULL) 
     break;
 
   case 'form':
-    if (($category == 'account') 
-      && variable_get('user_relationships_ui_require_approval', TRUE) 
+    if (($category == 'account')
+      && variable_get('user_relationships_ui_require_approval', TRUE)
       && user_access('maintain own relationships', $account)
     ) {
       $form['user_relationships_ui_settings'] = array(

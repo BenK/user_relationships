@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.6.2.8 2008-03-10 17:13:31 sprsquish Exp $
+$Id: README.txt,v 1.6.2.9 2008-04-21 00:38:17 sprsquish Exp $
 
 User Relationships
 ------------------
@@ -23,7 +23,7 @@ Installation
 2.  Enable User Relationships in the "Site building -> Modules" administration screen.
 
     If this is only a requirement of another module and the UI is not needed you'll
-    only need to enable the API module. 
+    only need to enable the API module.
 
 3.  If you've enabled the UI module you can create relationship types and modify settings under
     Administer -> User management -> Relationships

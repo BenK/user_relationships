@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_mailer_defaults.inc,v 1.1.2.3 2008-03-10 17:13:32 sprsquish Exp $
+// $Id: user_relationship_mailer_defaults.inc,v 1.1.2.4 2008-04-21 00:38:18 sprsquish Exp $
 
 global $user_relationship_mailer_ops;
 $user_relationship_mailer_ops = array('request', 'cancel', 'approve', 'disapprove', 'remove');
@@ -149,7 +149,7 @@ function user_relationship_mailer_remove_default() {
 Regards,
 The @site team
 
-This message was sent to you because you have user relationships email notifications turned on. 
+This message was sent to you because you have user relationships email notifications turned on.
 If you no longer wish to receive these emails, you can turn them off at @site_url/user/@profile_uid/edit.
 MESSAGE;
 

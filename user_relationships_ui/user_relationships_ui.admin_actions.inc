@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.admin_actions.inc,v 1.1.2.3 2008-03-10 17:13:32 sprsquish Exp $
+// $Id: user_relationships_ui.admin_actions.inc,v 1.1.2.4 2008-04-21 00:38:19 sprsquish Exp $
 
 
 /**
@@ -8,15 +8,15 @@
 function user_relationships_ui_type_edit_validate($form, &$form_state) {
   // My god this is ugly
   if (
-    (isset($form_state['values']['rtid']) && 
+    (isset($form_state['values']['rtid']) &&
       db_result(db_query(
-        "SELECT name FROM {user_relationship_types} 
-         WHERE LOWER(`name`) = LOWER('%s') 
-           AND rtid != %d", 
+        "SELECT name FROM {user_relationship_types}
+         WHERE LOWER(`name`) = LOWER('%s')
+           AND rtid != %d",
         $form_state['values']['name'], $form_state['values']['rtid'])
       )
     ) ||
-    (!isset($form_state['values']['rtid']) && 
+    (!isset($form_state['values']['rtid']) &&
       db_result(db_query("SELECT name FROM {user_relationship_types} WHERE LOWER(`name`) = LOWER('%s')", $form_state['values']['name']))
     )
   ) {
@@ -26,11 +26,11 @@ function user_relationships_ui_type_edit_validate($form, &$form_state) {
   $expire = $form_state['values']['expires_val'];
   if (!is_numeric($expire) || (int)$expire < 0) {
     form_set_error('expires_val', t('Expiration period must be an integer greater than or equal to 0.'));
-  } 
+  }
 }
 
 /***
- * Generic settings validation. 
+ * Generic settings validation.
  */
 function user_relationships_ui_setting_validation($element, $validations) {
   foreach ($validations as $validation => $info) {
@@ -42,7 +42,7 @@ function user_relationships_ui_setting_validation($element, $validations) {
     $valid = function_exists($validation) && call_user_func_array($validation, $arguments);
     $valid = !$valid ? ($validation == 'is_positive' && is_numeric($arguments) && (int)$arguments > 0) : FALSE;
     $valid = !$valid ? ($validation == 'is_non_negative' && is_numeric($arguments) && (int)$arguments > -1) : FALSE;
-    
+
     if (!$valid) {
       form_set_error($element['#name'], $info['msg']);
     }
@@ -63,9 +63,9 @@ function user_relationships_ui_type_edit_submit($form, &$form_state) {
 
     drupal_set_message(t('Relationship %name has been added.', array('%name' => $relationship_type->name)));
     watchdog(
-      'u_relationship', 
-      t('User Relationships form: relationship %name added.', array('%name' => $relationship_type->name)), 
-      WATCHDOG_NOTICE, 
+      'u_relationship',
+      t('User Relationships form: relationship %name added.', array('%name' => $relationship_type->name)),
+      WATCHDOG_NOTICE,
       l(t('view'), 'admin/user/user_relationship/types')
     );
   }
@@ -76,9 +76,9 @@ function user_relationships_ui_type_edit_submit($form, &$form_state) {
 
     drupal_set_message(t('Relationship %name has been updated.', array('%name' => $relationship_type->name)));
     watchdog(
-      'u_relationship', 
-      t('User Relationships form: relationship %name updated.', array('%name' => $relationship_type->name)), 
-      WATCHDOG_NOTICE, 
+      'u_relationship',
+      t('User Relationships form: relationship %name updated.', array('%name' => $relationship_type->name)),
+      WATCHDOG_NOTICE,
       l(t('view'), 'admin/user/relationships/types')
     );
   }
@@ -103,11 +103,11 @@ function user_relationships_ui_type_delete_submit($form, &$form_state) {
 
   drupal_set_message(t('Relationship %name has been deleted.', array('%name' => $relationship_type->name)));
   watchdog(
-    'u_relationship', 
+    'u_relationship',
     t('User Relationships form: relationship %name deleted.', array('%name' => $relationship_type->name)),
     WATCHDOG_NOTICE
   );
-            
+
   $form_state['redirect'] = 'admin/user/relationships';
 }
 
@@ -123,7 +123,7 @@ function user_relationships_ui_request_validate($form, &$form_state) {
     $current_relationships = user_relationships_load(array('between' => array($requester->uid, $requestee->uid)));
 
     if (!db_result(db_query(
-      "SELECT COUNT(*) FROM {user_relationship_types}" . ($current_relationships ? " WHERE rtid NOT IN (%s) ORDER BY name" : ''), 
+      "SELECT COUNT(*) FROM {user_relationship_types}" . ($current_relationships ? " WHERE rtid NOT IN (%s) ORDER BY name" : ''),
       implode(',', array_keys($current_relationships))
     ))) {
       drupal_set_message(user_relationships_ui_get_message('too_many_relationships'), 'error');

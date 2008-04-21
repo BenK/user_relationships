@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.1.2.4 2008-03-14 07:11:21 sprsquish Exp $
+$Id: README.txt,v 1.1.2.5 2008-04-21 00:38:18 sprsquish Exp $
 
 User Relationships API
 ------------------
@@ -9,7 +9,7 @@ modules. It provides no frontend interface.
 
 Developers
 ------------
-There are a number of API functions and two hooks. The API functions are all defined in 
+There are a number of API functions and two hooks. The API functions are all defined in
 user_relationships_api.api.inc. I've provded a list below for quick lookup, but you'll
 need to see the documentation in that file for a deeper explanaition.
 

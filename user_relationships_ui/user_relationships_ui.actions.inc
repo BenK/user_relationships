@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.actions.inc,v 1.1.2.3 2008-03-10 17:13:32 sprsquish Exp $
+// $Id: user_relationships_ui.actions.inc,v 1.1.2.4 2008-04-21 00:38:19 sprsquish Exp $
 
 /**
  * User Relationships Actions
@@ -17,7 +17,7 @@ function user_relationships_ui_request_validate($form, &$form_state) {
     $current_relationships = user_relationships_load(array('between' => array($requester->uid, $requestee->uid)));
 
     if (!db_result(db_query(
-      "SELECT COUNT(*) FROM {user_relationship_types}" . ($current_relationships ? " WHERE rtid NOT IN (%s) ORDER BY name" : ''), 
+      "SELECT COUNT(*) FROM {user_relationship_types}" . ($current_relationships ? " WHERE rtid NOT IN (%s) ORDER BY name" : ''),
       implode(',', array_keys($current_relationships))
     ))) {
       drupal_set_message(user_relationships_ui_get_message('too_many_relationships'), 'error');

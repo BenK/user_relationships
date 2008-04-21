@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_elaborations.module,v 1.1.2.2 2008-03-10 17:13:32 sprsquish Exp $
+// $Id: user_relationship_elaborations.module,v 1.1.2.3 2008-04-21 00:38:18 sprsquish Exp $
 
 /**
  *  User Relationships Elaborations
@@ -12,9 +12,9 @@
  *    an integer, the relationship ID
  * @param $elaboration
  *    a string version of the elaboration. if you're only using the API side of this
- *    you could easily serialize the data 
+ *    you could easily serialize the data
  *
- * @return 
+ * @return
  *    An elaboration object or FALSE if the save was not successful
  */
 function user_relationships_save_elaboration($rid, &$elaboration) {

@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.api.inc,v 1.1.2.3 2008-03-10 17:13:32 sprsquish Exp $
+// $Id: user_relationships_api.api.inc,v 1.1.2.4 2008-04-21 00:38:18 sprsquish Exp $
 
 /**
  *  User Relationships API
@@ -65,7 +65,7 @@ function user_relationships_types_load($reset = NULL) {
   static $relationship_types_list = array();
 
   if ($reset || !sizeof($relationship_types_list)) {
-    $results = db_query("SELECT * FROM {user_relationship_types}");  
+    $results = db_query("SELECT * FROM {user_relationship_types}");
     while ($relationship = db_fetch_object($results)) {
       $relationship_types_list[$relationship->rtid] = $relationship;
     }
@@ -136,7 +136,7 @@ function user_relationships_type_delete($rtid) {
  *   object or RTID of the relationship type
  * @param $approved
  *    boolean status of the relationship
- * 
+ *
  * @return
  *    object of the newly created relationship
  */
@@ -254,8 +254,8 @@ function user_relationships_delete_relationship(&$relationship, &$deleted_by, $o
   *     1) array("between" => array($uid1, $uid2)) will return all relationships between the two user ids.
   *     2) array("user" => $uid) will return all relationships for the specified uid
   *
-  *   arguments will process operators as well using the syntax: array(col => '> {value}'). 
-  *     example: show all relationships created in 2007 
+  *   arguments will process operators as well using the syntax: array(col => '> {value}').
+  *     example: show all relationships created in 2007
   *       $start_time = mktime(0,0,0,0,0,2007);
   *       $end_time = mktime(0,0,0,0,0,2008);
   *       user_relationships_load(array('created_at' => ">= {$start_time}", 'created_at' => '< {$end_time'}));
@@ -271,7 +271,7 @@ function user_relationships_delete_relationship(&$relationship, &$deleted_by, $o
   *   order
   *     a string containing SQL stating the column and direction of the sort (ex. "requester_id ASC, rtid DESC")
   *
-  *   limit 
+  *   limit
   *     a string containing SQL stating the limit (ex "10" or "10, 5")
   *
   *   include_user_info

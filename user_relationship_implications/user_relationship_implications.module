@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_implications.module,v 1.1.2.5 2008-03-14 07:11:21 sprsquish Exp $
+// $Id: user_relationship_implications.module,v 1.1.2.6 2008-04-21 00:38:18 sprsquish Exp $
 
 /**
  * Drupal Module: User Relationship Implications
@@ -16,10 +16,10 @@
 function user_relationship_implications_theme() {
   return array(
     'user_relationship_implications_page' => array(
-      'arguments' => array('uid', 'relationship'),
+      'arguments' => array('uid' => NULL, 'relationship' => NULL),
     ),
     'user_relationship_implications_form_table' => array(
-      'arguments' => array('form'),
+      'arguments' => array('form' => NULL),
     ),
   );
 }
@@ -33,7 +33,7 @@ function user_relationship_implications_form_user_relationships_ui_type_edit_alt
   $relationship_types = user_relationships_types_load();
 
   $implied_by = array();
-  if ($relationship_type) {      
+  if ($relationship_type) {
     foreach ($relationship_type->implies as $rtid => $implies) {
       $values[$rtid]['strict'] = $implies->strict;
       $values[$rtid]['reverse'] = $implies->reverse;
@@ -139,7 +139,7 @@ function user_relationship_implications_user_relationships_type($op, &$rtypes) {
       $rtypes[$rtid]->implied_by  = array();
     }
 
-    $results = db_query("SELECT * FROM {user_relationship_implications}"); 
+    $results = db_query("SELECT * FROM {user_relationship_implications}");
     while ($implication = db_fetch_object($results)) {
       $rtypes[$implication->rtid]->implies[$implication->implies_rtid] = $implication;
       $rtypes[$implication->implies_rtid]->implied_by[$implication->rtid] = $implication;
@@ -147,7 +147,7 @@ function user_relationship_implications_user_relationships_type($op, &$rtypes) {
   }
   else if ($op == 'delete') {
     $results = db_query(
-      "DELETE FROM {user_relationship_implications} WHERE rtid = %d OR implies_rtid = %d", 
+      "DELETE FROM {user_relationship_implications} WHERE rtid = %d OR implies_rtid = %d",
       $rtypes->rtid, $rtypes->rtid
     );
   }
@@ -196,7 +196,7 @@ function user_relationship_implications_user_relationships($op, $relationship, $
         // if there aren't any, create one with the same approved status as the relationship we're inserting/updateing
         if (count($relationships) == 0) {
           $users = array($relationship->requester_id, $relationship->requestee_id);
-          if ($implied->reverse) { 
+          if ($implied->reverse) {
             $users = array_reverse($users);
           }
 
@@ -208,11 +208,10 @@ function user_relationship_implications_user_relationships($op, $relationship, $
           foreach ($relationships as $existing) {
             if ($relationship->approved && !$existing->approved) {
               // approve the relationship
-              $approved = $existing;
-              $approved->approved = TRUE;
-              user_relationships_update_relationship($existing, $approved);
+              $existing->approved = TRUE;
+              user_relationships_save_relationship($existing, 'request');
               // set the message informing the user (use requester and requestee from original relationship)
-              drupal_set_message(user_relationships_ui_get_message('accepted', $approved));
+              drupal_set_message(user_relationships_ui_get_message('accepted', $existing));
             }
           }
         }
@@ -303,7 +302,7 @@ function theme_user_relationship_implications_page($uid = NULL, $relationship = 
   $output .= theme('pager', NULL, $relationships_per_page);
 
   drupal_set_title(t("%username's %relationships", array(
-    '%username' => $viewed_user->name, 
+    '%username' => $viewed_user->name,
     '%relationships' => $relationship->plural_name ? $relationship->plural_name : t('relationships')
   )));
 

@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.1.2.3 2008-03-10 17:13:31 sprsquish Exp $
+$Id: README.txt,v 1.1.2.4 2008-04-21 00:38:17 sprsquish Exp $
 
 User Relationship Blocks
 ------------------------
@@ -28,7 +28,7 @@ User Relationships: Actions
   This block is useful for those using nodeprofile
 
 My Pending Relationships
-  Shows all the pending relationship requests, both requested from and of the current user. 
+  Shows all the pending relationship requests, both requested from and of the current user.
 
 My Relationships: All Relationships
   Shows all of the current users relationships. The number of relationships and the order
@@ -55,7 +55,7 @@ User Relationships: {Relationship Type}
 
 Theme Developers
 ----------------
-There is one theme function and three theme files. 
+There is one theme function and three theme files.
 
 The function is "theme_user_relationship_block_subject" and is used to generate the title of the block
 

@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_defaults.module,v 1.1.2.3 2008-03-10 17:13:31 sprsquish Exp $
+// $Id: user_relationship_defaults.module,v 1.1.2.4 2008-04-21 00:38:18 sprsquish Exp $
 
 /**
  * Drupal Module: User Relationship Defaults
@@ -20,7 +20,7 @@
  *
  * @return
  *   object of the default relationship with the user object and relationship_type object
- * 
+ *
 */
 function user_relationship_default_load($param = array()) {
   $defaults = user_relationship_defaults_load($rdid);
@@ -188,12 +188,12 @@ function user_relationship_defaults_delete_form(&$form_state, &$default_relation
   );
 
   $form = confirm_form(
-    $form, 
+    $form,
     t('Are you sure you want to delete the default relationship %relationship of %name?', array(
       '%relationship' => $default_relationship->relationship_type->name,
       '%name'         => $default_relationship->user->name,
-    )), 
-    'admin/user/relationships', 
+    )),
+    'admin/user/relationships',
     t('This action cannot be undone.'),
     t('Delete'), t('Cancel')
   );
@@ -239,11 +239,11 @@ function user_relationship_defaults_user_relationships_page_alter($page_id, &$pa
   case 'types list':
     $defaults = user_relationship_defaults_load();
 
-    $default_rows = array();    
+    $default_rows = array();
     foreach($defaults as $default) {
       $default_rows[] = array(
         theme('username', $default->user),
-        $default->relationship_type->name, 
+        $default->relationship_type->name,
         l(t('delete'), "admin/user/relationships/defaults/{$default->rdid}/delete"),
       );
     }

@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships-pending_block.tpl.php,v 1.1.2.3 2008-03-10 17:13:31 sprsquish Exp $
+// $Id: user_relationships-pending_block.tpl.php,v 1.1.2.4 2008-04-21 00:38:18 sprsquish Exp $
 
 // List all pending requests and provide links to the actions that can be taken on those requests
 if ($relationships) {
@@ -13,7 +13,7 @@ if ($relationships) {
     else {
       $relation_to =& $relationship->requester;
       $key = t('To You');
-      $controls = 
+      $controls =
         theme('user_relationships_pending_request_approve_link', $user->uid, $relationship->rid).'|'.
         theme('user_relationships_pending_request_disapprove_link', $user->uid, $relationship->rid);
     }

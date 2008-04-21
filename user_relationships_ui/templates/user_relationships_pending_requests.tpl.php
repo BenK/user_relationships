@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_pending_requests.tpl.php,v 1.1.2.3 2008-03-10 17:13:32 sprsquish Exp $
+// $Id: user_relationships_pending_requests.tpl.php,v 1.1.2.4 2008-04-21 00:38:19 sprsquish Exp $
 
   $output = '';
   $pager_id = 0;
@@ -7,7 +7,7 @@
     'sent_requests'     => t('Sent Requests'),
     'received_requests' => t('Received Requests')
   );
-  
+
   foreach ($sections as $column => $section) {
     if (!$$section) { continue; }
     $rows = array();
@@ -31,7 +31,7 @@
       $rows[]   = array(theme('username', $related) . ' is a ' . $relationship->name, $links);
     }
 
-    $output .= 
+    $output .=
       theme('table', array(), $rows).
       theme('pager', NULL, $relationships_per_page, $pager_id++);
   }

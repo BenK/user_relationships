@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.templates.inc,v 1.1.2.4 2008-03-10 17:13:32 sprsquish Exp $
+// $Id: user_relationships_ui.templates.inc,v 1.1.2.5 2008-04-21 00:38:19 sprsquish Exp $
 
 /**
  * Pre processor for user_relationships page
@@ -39,9 +39,9 @@ function template_preprocess_user_relationships(&$variables) {
   else {
     $msg = $relationship_type ? t("%username's %relationships") : t("All %username's relationships");
   }
-  
+
   $variables['title'] = t($msg, array(
-    '%username'       => $account->name, 
+    '%username'       => $account->name,
     '%relationships'  => $relationship_type->plural_name ? $relationship_type->plural_name : $relationship_type->name
   ));
 }

@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.admin.inc,v 1.1.2.3 2008-03-10 17:13:32 sprsquish Exp $
+// $Id: user_relationships_ui.admin.inc,v 1.1.2.4 2008-04-21 00:38:19 sprsquish Exp $
 
 /**
  * User Relationships forms
@@ -38,7 +38,7 @@ function user_relationships_ui_settings() {
         'is_numeric' => array('msg' => t('The relationships per page setting is not an integer'))
       )))
     );
- 
+
     $replaceables = array(
       '!requester',
       '!requestee',
@@ -46,17 +46,17 @@ function user_relationships_ui_settings() {
       '%relationship_name',
       '%relationship_plural_name',
     );
-    
+
     $form['messages'] = array(
       '#type'         => 'fieldset',
       '#title'        => t('Messages'),
       '#weight'       => 0,
       '#description'  => t('Notifications to users. Replaceable tokens are: @replaceables', array('@replaceables' => implode($replaceables, ', '))),
     );
-    
+
     $default_messages = _user_relationships_ui_default_messages();
     _user_relationships_ui_message_settings_form($form['messages'], $default_messages);
- 
+
   return system_settings_form($form);
 }
 
@@ -135,9 +135,9 @@ function user_relationships_ui_type_delete(&$form_state, $relationship_type = NU
     );
 
     return confirm_form(
-      $form, 
-      t('Are you sure you want to delete %name?', array('%name' => $relationship_type->name)), 
-      'admin/user/relationships', 
+      $form,
+      t('Are you sure you want to delete %name?', array('%name' => $relationship_type->name)),
+      'admin/user/relationships',
       t('This action cannot be undone.'),
       t('Delete'), t('Cancel')
     );
