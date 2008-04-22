@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_blocks.module,v 1.1.2.4 2008-04-21 00:38:17 sprsquish Exp $
+// $Id: user_relationship_blocks.module,v 1.1.2.5 2008-04-22 20:34:30 sprsquish Exp $
 
 /**
  * Constants
@@ -297,7 +297,7 @@ function _user_relationship_blocks_settings($bid = NULL, $new_settings = NULL) {
   static $settings = array();
 
   if (isset($new_settings)) {
-    db_write('user_relationship_blocks', $new_settings, 'bid');
+    drupal_write_record('user_relationship_blocks', $new_settings, 'bid');
 
     $settings[$key] = (object)$new_settings;
   }
