@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_blocks.install,v 1.1.2.5 2008-04-21 00:38:17 sprsquish Exp $
+// $Id: user_relationship_blocks.install,v 1.1.2.6 2008-04-22 22:42:01 sprsquish Exp $
 
 /**
  * Schema
@@ -10,7 +10,7 @@ function user_relationship_blocks_schema() {
       'bid'         => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'default' => ''),
       'size'        => array('type' => 'int', 'unsigned' => TRUE, 'default' => 10),
       'sort'        => array('type' => 'varchar', 'length' => 255, 'default' => 'newest'),
-      'get_account' => array('type' => 'text', 'not null' => TRUE, 'default' => '', 'size' => 'big'),
+      'get_account' => array('type' => 'text', 'not null' => TRUE, 'size' => 'big'),
     ),
     'primary key' => array('bid'),
   );

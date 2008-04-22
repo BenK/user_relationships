@@ -7,7 +7,7 @@ function user_relationship_elaborations_schema() {
   $schema['user_relationship_elaborations'] = array(
     'fields' => array(
       'rid'         => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
-      'elaboration' => array('type' => 'text', 'not null' => TRUE, 'default' => '', 'size' => 'big'),
+      'elaboration' => array('type' => 'text', 'not null' => TRUE, 'size' => 'big'),
     ),
     'primary key' => array('rid'),
   );
