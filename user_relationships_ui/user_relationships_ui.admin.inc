@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.admin.inc,v 1.1.2.4 2008-04-21 00:38:19 sprsquish Exp $
+// $Id: user_relationships_ui.admin.inc,v 1.1.2.5 2008-09-14 08:37:46 alexk Exp $
 
 /**
  * User Relationships forms
@@ -25,7 +25,7 @@ function user_relationships_ui_settings() {
     $form['general']['user_relationships_allow_auto_approve'] = array(
       '#type'           => 'checkbox',
       '#title'          => t("Allow users to auto approve"),
-      '#description'    => t('This will provide an the options for users to set an "auto-approve" option to automatically approve to all requested relationships.'),
+      '#description'    => t('This will provide an option for users to set an "auto-approve" option to automatically approve to all requested relationships.'),
       '#default_value'  => variable_get('user_relationships_allow_auto_approve', 0),
     );
     $form['general']['user_relationships_relationships_per_page'] = array(
