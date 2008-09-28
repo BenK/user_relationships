@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_mailer.module,v 1.1.2.4 2008-04-21 00:38:18 sprsquish Exp $
+// $Id: user_relationship_mailer.module,v 1.1.2.5 2008-09-28 20:01:21 alexk Exp $
 
 require_once(drupal_get_path('module', 'user_relationship_mailer').'/user_relationship_mailer_defaults.inc');
 
@@ -68,7 +68,9 @@ function user_relationship_mailer_send_email($op, $relationship) {
         $op,
         $target->mail,
         user_preferred_language($target),
-        $replacements
+        $replacements,
+        NULL,
+        TRUE
       );
     }
   }
@@ -90,12 +92,18 @@ function user_relationship_mailer_mail($op, &$message, $replacements) {
 /**
  * hook_user_relationships()
  */
-function user_relationship_mailer_user_relationships($type, &$relationship, $category = NULL) {
-  switch ($type) {
-  case 'post-save':
-  case 'delete':
-    user_relationship_mailer_send_email($category, $relationship);
-    break;
+function user_relationship_mailer_user_relationships($op, &$relationship) {
+  switch ($op) {
+    //request|delete|cancel|approve|disapprove|remove
+    case 'request':
+    case 'post-save':
+    case 'delete':
+    case 'remove':
+    case 'approve':
+    case 'disapprove':
+    case 'cancel':
+      user_relationship_mailer_send_email($op, $relationship);
+      break;
   }
 }
 
