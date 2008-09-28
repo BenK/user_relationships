@@ -1,11 +1,11 @@
 <?php
-// $Id: user_relationship_node_access.install,v 1.1.4.5 2008-04-22 22:42:02 sprsquish Exp $
+// $Id: user_relationship_node_access.install,v 1.1.4.6 2008-09-28 06:18:48 alexk Exp $
 
 function user_relationship_node_access_schema() {
   $schema['user_relationship_node_access'] = array(
     'fields' => array(
       'nid'         => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
-      'permissions' => array('type' => 'text', 'not null' => TRUE, 'size' => 'big'),
+      'permissions' => array('type' => 'text', 'not null' => TRUE, 'default' => '', 'size' => 'big'),
     ),
     'primary key' => array('nid'),
   );
