@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_mailer.module,v 1.1.2.5 2008-09-28 20:01:21 alexk Exp $
+// $Id: user_relationship_mailer.module,v 1.1.2.6 2008-10-01 09:38:11 alexk Exp $
 
 require_once(drupal_get_path('module', 'user_relationship_mailer').'/user_relationship_mailer_defaults.inc');
 
@@ -52,16 +52,13 @@ function user_relationship_mailer_send_email($op, $relationship) {
 
   if (variable_get('user_relationship_mailer_send_mail', FALSE) ? $send_email : variable_get("user_relationship_mailer_send_{$op}", TRUE)) {
 
-    $relationship = user_relationships_load($relationship->rid);
-    $relationship->requester = $requester;
-    $relationship->requestee = $requestee;
     $replacements = user_relationship_mailer_replacements($relationship);
 
     foreach ($send_to as $target) {
       $target = $$target;
-      if ($op == 'remove') {
-        $replacements['@profile_uid'] = $target->uid;
-      }
+      //include recipient-specific data here, for example, remove email needs these
+      $replacements['@profile_uid'] = $target->uid;
+      $replacements['@target_name'] = $target->name;
 
       drupal_mail(
         'user_relationship_mailer',
@@ -114,6 +111,7 @@ function user_relationship_mailer_form_alter(&$form, &$form_state, $form_id) {
   switch ($form_id) {
   case 'user_relationships_ui_settings':
     global $user;
+    //take a sample relationship type
     $relationship = user_relationships_types_load();
     $relationship = array_pop($relationship);
 
@@ -130,6 +128,13 @@ function user_relationship_mailer_form_alter(&$form, &$form_state, $form_id) {
       );
 
       global $user_relationship_mailer_ops;
+      //compose a list of possible replacement keys for email templates
+      $replacement_keys = array_keys(user_relationship_mailer_replacements($relationship));
+      //these two are added per-receipient in user_relationship_mailer_send_email()
+      $replacement_keys[] = '@profile_uid';
+      $replacement_keys[] = '@target_name';
+      $macro_replacements = array('%macros' => implode(', ', $replacement_keys));
+      
       foreach ($user_relationship_mailer_ops as $op) {
         $defaults_function = "user_relationship_mailer_{$op}_default";
         $defaults = $defaults_function();
@@ -140,22 +145,22 @@ function user_relationship_mailer_form_alter(&$form, &$form_state, $form_id) {
           '#collapsible'  => TRUE,
           '#collapsed'    => TRUE
         );
-          $form['mail'][$op]["user_relationship_mailer_send_{$op}"] = array(
-            '#type'           => 'checkbox',
-            '#title'          => t('Send @op messages', array('@op' => $op)),
-            '#default_value'  => variable_get("user_relationship_mailer_send_{$op}", TRUE),
-          );
-          $form['mail'][$op]["user_relationship_mailer_{$op}_subject"] = array(
-            '#type'           => 'textfield',
-            '#title'          => t('@Op relationship email subject', array('@Op' => ucfirst($op))),
-            '#default_value'  => variable_get("user_relationship_mailer_{$op}_subject", $defaults['subject']),
-          );
-          $form['mail'][$op]["user_relationship_mailer_{$op}_message"] = array(
-            '#type'           => 'textarea',
-            '#title'          => t('@Op relationship email message', array('@Op' => ucfirst($op))),
-            '#default_value'  => variable_get("user_relationship_mailer_{$op}_message", $defaults['message']),
-            '#description'    => t('Replacement strings are: %macros', array('%macros' => implode(', ', array_keys(user_relationship_mailer_replacements($relationship))))),
-          );
+        $form['mail'][$op]["user_relationship_mailer_send_{$op}"] = array(
+          '#type'           => 'checkbox',
+          '#title'          => t('Send @op messages', array('@op' => $op)),
+          '#default_value'  => variable_get("user_relationship_mailer_send_{$op}", TRUE),
+        );
+        $form['mail'][$op]["user_relationship_mailer_{$op}_subject"] = array(
+          '#type'           => 'textfield',
+          '#title'          => t('@Op relationship email subject', array('@Op' => ucfirst($op))),
+          '#default_value'  => variable_get("user_relationship_mailer_{$op}_subject", $defaults['subject']),
+        );
+        $form['mail'][$op]["user_relationship_mailer_{$op}_message"] = array(
+          '#type'           => 'textarea',
+          '#title'          => t('@Op relationship email message', array('@Op' => ucfirst($op))),
+          '#default_value'  => variable_get("user_relationship_mailer_{$op}_message", $defaults['message']),
+          '#description'    => t('Replacement strings are: %macros', $macro_replacements),
+        );
       }
     break;
   }
