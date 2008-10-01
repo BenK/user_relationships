@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.forms.inc,v 1.1.2.4 2008-04-21 00:38:19 sprsquish Exp $
+// $Id: user_relationships_ui.forms.inc,v 1.1.2.5 2008-10-01 10:06:58 alexk Exp $
 
 /**
  * User Relationships forms
@@ -97,13 +97,23 @@ function user_relationships_ui_pending_requested(&$form_state, $action, $account
     '#type'   => 'value',
     '#value'  => $viewed_id
   );
+  
+  //pick the correct question message: approve and disapprove are requests to current user, cancel is a request from current user
+  switch($action) {
+    case 'approve':
+    case 'disapprove':
+      $confirmation_message = 'Are you sure you want to @action the %relationship_name relationship request from !name?';
+      break;
+    default:
+      $confirmation_message = 'Are you sure you want to @action the %relationship_name relationship request to !name?';
+  }
 
   $output = confirm_form(
     $form,
     t('@action relationship', array('@action' => ucfirst($action))),
     ($viewed_id == $user->id ? 'relationships/requests' : "user/{$viewed_id}/relationships/requests"),
 
-    t("Are you sure you want to @action the request to create a %relationship_name relationship to !name?", array(
+    t($confirmation_message, array(
       '@action'             => $action,
       '%relationship_name'  => $relationship->name,
       '!name'               => theme('username', user_load(array('uid' => ($viewed_id == $relationship->requester_id ? $relationship->requestee_id : $relationship->requester_id))))
@@ -136,7 +146,7 @@ function user_relationships_ui_remove(&$form_state, $account, $relationship) {
     t('Remove relationship'),
     ($viewed_id == $user->id ? 'relationships' : "user/{$viewed_id}/relationships/"),
 
-    t("Are you sure you no longer wish to be a %relationship_name of !name?", array(
+    t("Are you sure you wish to delete the %relationship_name relationship with !name?", array(
       '%relationship_name'  => $relationship->name,
       '!name'               => theme('username', user_load(array('uid' => ($viewed_id == $relationship->requester_id ? $relationship->requestee_id : $relationship->requester_id))))
     )),

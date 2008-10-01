@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.module,v 1.1.2.5 2008-04-21 00:38:19 sprsquish Exp $
+// $Id: user_relationships_ui.module,v 1.1.2.6 2008-10-01 10:06:58 alexk Exp $
 
 /**
  * Public API for getting the set or default message
@@ -55,24 +55,24 @@ function user_relationships_ui_get_message($key, $relationship = NULL, $replacem
 function _user_relationships_ui_default_messages() {
   return array(
     'informational' => array(
-      'submitted'     => 'Your request to be a %relationship_name of !requestee has been submitted.',
-      'accepted'      => 'You are now a %relationship_name of !requester.',
-      'disapproved'   => "!requester's request to be a %relationship_name of !requestee has been removed.",
-      'cancel'        => 'Your request to be a %relationship_name of !requestee has been canceled.',
+      'submitted'     => 'Your %relationship_name request has been sent to !requestee.',
+      'accepted'      => '!requester\'s %relationship_name request has been approved.',
+      'disapproved'   => "!requester has declined your %relationship_name request.",
+      'cancel'        => 'Your %relationship_name request to !requestee has been canceled.',
       'default'       => 'No action has been taken.',
-      'removed'       => '!requester is no longer a %relationship_name of !requestee.',
-      'pending'       => '!requester believes they are a %relationship_name of yours.  Please view your !pending_relationship_requests to approve them.',
-      'pre_approved'  => "You're request to be %relationship_name of !requestee has been pre-approved. You are now a %relationship_name of !requestee."
+      'removed'       => 'The %relationship_name relationship of !requester to !requestee has been deleted.',
+      'pending'       => '!requester has requested to be your %relationship_name.  Please view your !pending_relationship_requests to approve them.',
+      'pre_approved'  => 'You are !requestee\'s newest %relationship_name.'
     ),
     'error' => array(
-      'too_many_relationships'  => 'You already relate to this user in every possible way.',
-      'existing_request'        => 'You have already requested to be a %relationship_name of !requestee',
-      'existing_relationship'   => 'You are already a %relationship_name of !requestee',
-      'not_accepting_requests'  => 'This user is not accepting relationship requests.',
-      'self_request'            => 'You are not allowed to create a relationship to yourself.',
+      'too_many_relationships'  => 'You may not create any more relationships to this user.',
+      'existing_request'        => 'There is already an earlier %relationship_name request sent to !requestee.',
+      'existing_relationship'   => 'There is already an existing %relationship_name relationship with !requestee.',
+      'not_accepting_requests'  => 'This user does not accept relationship requests.',
+      'self_request'            => 'You may not create a relationship to yourself.',
       'non_existant_user'       => 'This user does not exist.',
-      'non_existant_type'       => 'That relationship type does not exist',
-      'unknown_error'           => 'An unknown error occurred. Please contact the site administrator',
+      'non_existant_type'       => 'This relationship type does not exist.',
+      'unknown_error'           => 'An error has occurred. Please contact the site administrator.',
     ),
   );
 }
@@ -168,7 +168,7 @@ function _user_relationships_ui_actions_between(&$viewer, &$viewed) {
 
   $relationships = user_relationships_load(array('requester_id' => $viewer->uid, 'requestee_id' => $viewed->uid, 'approved' => FALSE));
   foreach ($relationships as $relationship) {
-    $list[] = t('You have requested to be a %relationship_name of this user. (!pending_requests)', array(
+    $list[] = t('You have sent a new %relationship_name request to this user. (!pending_requests)', array(
       '%relationship_name'  => $relationship->name,
       '!pending_requests'   => l(t('pending requests'), "relationships/requests"),
     ));
@@ -176,7 +176,7 @@ function _user_relationships_ui_actions_between(&$viewer, &$viewed) {
 
   $relationships = user_relationships_load(array('requester_id' => $viewed->uid, 'requestee_id' => $viewer->uid, 'approved' => FALSE));
   foreach ($relationships as $relationship) {
-    $list[] = t('This user believes that they are a %relationship_name of yours. (!pending_requests)', array(
+    $list[] = t('This user has requested to be your %relationship_name. (!pending_requests)', array(
       '%relationship_name'  => $relationship->name,
       '!pending_requests'   => l(t('pending requests'), "user/{$viewer->uid}/relationships/requests"),
     ));
