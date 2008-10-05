@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.admin_actions.inc,v 1.1.2.4 2008-04-21 00:38:19 sprsquish Exp $
+// $Id: user_relationships_ui.admin_actions.inc,v 1.1.2.5 2008-10-05 09:39:54 alexk Exp $
 
 
 /**
@@ -64,9 +64,9 @@ function user_relationships_ui_type_edit_submit($form, &$form_state) {
     drupal_set_message(t('Relationship %name has been added.', array('%name' => $relationship_type->name)));
     watchdog(
       'u_relationship',
-      t('User Relationships form: relationship %name added.', array('%name' => $relationship_type->name)),
+      'User Relationships form: relationship %name added.', array('%name' => $relationship_type->name),
       WATCHDOG_NOTICE,
-      l(t('view'), 'admin/user/user_relationship/types')
+      l(t('view'), 'admin/user/user_relationship/types/'.$relationship_type->rtid.'/edit')
     );
   }
   else {
@@ -77,9 +77,9 @@ function user_relationships_ui_type_edit_submit($form, &$form_state) {
     drupal_set_message(t('Relationship %name has been updated.', array('%name' => $relationship_type->name)));
     watchdog(
       'u_relationship',
-      t('User Relationships form: relationship %name updated.', array('%name' => $relationship_type->name)),
+      'User Relationships form: relationship %name updated.', array('%name' => $relationship_type->name),
       WATCHDOG_NOTICE,
-      l(t('view'), 'admin/user/relationships/types')
+      l(t('view'), 'admin/user/relationships/'.$relationship_type->rtid.'/edit')
     );
   }
 
@@ -104,7 +104,7 @@ function user_relationships_ui_type_delete_submit($form, &$form_state) {
   drupal_set_message(t('Relationship %name has been deleted.', array('%name' => $relationship_type->name)));
   watchdog(
     'u_relationship',
-    t('User Relationships form: relationship %name deleted.', array('%name' => $relationship_type->name)),
+    'User Relationships form: relationship %name deleted.', array('%name' => $relationship_type->name),
     WATCHDOG_NOTICE
   );
 

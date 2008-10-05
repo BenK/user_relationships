@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_defaults.module,v 1.1.2.4 2008-04-21 00:38:18 sprsquish Exp $
+// $Id: user_relationship_defaults.module,v 1.1.2.5 2008-10-05 09:40:17 alexk Exp $
 
 /**
  * Drupal Module: User Relationship Defaults
@@ -167,12 +167,13 @@ function user_relationship_defaults_add_form_submit($form, &$form_state) {
   );
   drupal_write_record('user_relationship_defaults', $new_default);
 
-  $message = t('Default relationship %relationship_name of %username has been added.', array(
+  $message = 'Default relationship %relationship_name of %username has been added.';
+  $message_p = array(
     '%username'           => $user->name,
     '%relationship_name'  => $relationship_type->name,
-  ));
-  drupal_set_message($message);
-  watchdog('u_relationship', $message, WATCHDOG_NOTICE, l(t('view'), 'admin/user/relationships'));
+  );
+  drupal_set_message(t($message, $message_p));
+  watchdog('u_relationship', $message, $message_p, WATCHDOG_NOTICE, l(t('view'), 'admin/user/relationships'));
 
   $form_state['redirect'] = 'admin/user/relationships';
 }
@@ -208,12 +209,13 @@ function user_relationship_defaults_delete_form_submit($form, &$form_state) {
   $default_relationship = user_relationship_default_load($form_state['values']['rdid']);
 
   db_query("DELETE FROM {user_relationship_defaults} WHERE rdid = %d", $default_relationship->rdid);
-  $message = t('Default relationship %relationship of %name has been deleted.', array(
+  $message = 'Default relationship %relationship of %name has been deleted.';
+  $message_p = array(
     '%name'         => $default_relationship->name,
     '%relationship' => $default_relationship->name,
-  ));
-  drupal_set_message($message);
-  watchdog('u_relationship', $message, WATCHDOG_NOTICE);
+  );
+  drupal_set_message(t($message, $message_p));
+  watchdog('u_relationship', $message, $message_p, WATCHDOG_NOTICE);
 
   user_relationship_defaults_load(TRUE);
 
