@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_views.views.inc,v 1.1.2.1 2008-10-08 14:38:41 alexk Exp $
+// $Id: user_relationship_views.views.inc,v 1.1.2.2 2008-10-09 08:53:48 alexk Exp $
 
 /**
  * @file
@@ -35,13 +35,13 @@ function user_relationship_views_views_data() {
       'base' => array(
         'field' => 'rid',
         'title' => t('User relationship'),
-        'help' => t('Relationships that link users to one another'),
+        'help' => t('Relationships that link users to one another. Use this to show user data, profile fields, or content_profile nodes of related users.'),
         'weight' => 0,
       ),
     ),
     'rtid' => array(
       'title' => t('RTID'),
-      'help' => t('Type of the relationship'),
+      'help' => t('Type ID of the relationship'),
       'argument' => array(
         'handler' => 'views_handler_argument_numeric'
       ),
@@ -51,6 +51,7 @@ function user_relationship_views_views_data() {
       'relationship' => array(
         'base' => 'user_relationship_types',
         'field' => 'rtid',
+        'help' => t('Bring in name, type, and other properties of relationships'),
       ),
     ),
     'rtype' => array( // virtual field for simple views that just need the relationship name, and don't want to use a views relationship
@@ -88,7 +89,7 @@ function user_relationship_views_views_data() {
         'base' => 'users',
         'field' => 'uid',
         'label' => 'requester',
-        'help' => t('Link to relationships of the user to others'),
+        'help' => t('Bring in data about the user who started the relationship, or link to relationships that they have established'),
       ),
     ),
     'requestee_id' => array(
@@ -111,12 +112,12 @@ function user_relationship_views_views_data() {
         'base' => 'users',
         'field' => 'uid',
         'label' => 'requestee',
-        'help' => t('Link to relationships that other users have established to this one'),
+        'help' => t('Bring in data about the user who accepted the relationship, or link to relationships that other users have established to this one'),
       ),
     ),
     'approved' => array(
       'title' => t('Relationship status'),
-      'help' => t('Shows pending/approved relationship status'),
+      'help' => t('Pending/approved relationship status'),
       'argument' => array(
         'handler' => 'views_handler_argument_numeric'
       ),
@@ -166,8 +167,8 @@ function user_relationship_views_views_data() {
       ),
       'base' => array(
         'field' => 'rtid',
-        'title' => t('User relationship types'),
-        'help' => t('Kinds of relationships that can link users to one another'),
+        'title' => t('User relationship type'),
+        'help' => t('Kinds of relationships that can link users to one another. Use this if you want to show the kinds of relationships your site offers.'),
         'weight' => 0,
       ),
     ),
@@ -191,6 +192,20 @@ function user_relationship_views_views_data() {
     'name' => array(
       'title' => t('Name'),
       'help' => t('Name of the relationship (singular)'),
+      'argument' => array(
+        'handler' => 'views_handler_argument_string'
+      ),
+      'field' => array(
+        'handler' => 'views_handler_field',
+        'click sortable' => TRUE
+      ),
+      'sort' => array(
+        'handler' => 'views_handler_sort',
+      ),
+    ),
+    'plural_name' => array(
+      'title' => t('Plural name'),
+      'help' => t('Name of the relationship (plural)'),
       'argument' => array(
         'handler' => 'views_handler_argument_string'
       ),
