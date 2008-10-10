@@ -1,5 +1,5 @@
 <?php
-// $Id: views_handler_filter_user_relationships_type.inc,v 1.1.2.1 2008-10-08 14:38:41 alexk Exp $
+// $Id: views_handler_filter_user_relationships_type.inc,v 1.1.2.2 2008-10-10 09:08:06 alexk Exp $
 
 /**
  * @file
@@ -8,6 +8,8 @@
  * @author Alex Karshakevich http://drupal.org/user/183217
  */
 class views_handler_filter_user_relationships_type extends views_handler_filter_in_operator {
+  var $no_single = TRUE;
+
   function value_form(&$form, &$form_state) {
     $values = array();
     if ($this->value) {
@@ -18,11 +20,12 @@ class views_handler_filter_user_relationships_type extends views_handler_filter_
     }
 
     sort($values);
+    $default_value = implode(', ', $values);
     $form['value'] = array(
       '#type' => 'textfield',
       '#title' => t('Relationship types'),
       '#description' => t('Enter a comma separated list of types.'),
-      '#default_value' => implode(', ', $values),
+      '#default_value' => $default_value,
       //ajax callback is implemented in this module
       '#autocomplete_path' => 'admin/views/ajax/autocomplete/user_relationships_type',
     );
@@ -112,6 +115,9 @@ class views_handler_filter_user_relationships_type extends views_handler_filter_
     }
     parent::query();
   }
+
+  // Override so that text names typed by user do not get stored as the value
+  function value_submit() { }
 
   // Override to do nothing.
   function get_value_options() { }
