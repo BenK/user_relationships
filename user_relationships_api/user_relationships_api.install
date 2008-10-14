@@ -1,8 +1,9 @@
 <?php
-// $Id: user_relationships_api.install,v 1.1.2.4 2008-04-21 00:38:19 sprsquish Exp $
+// $Id: user_relationships_api.install,v 1.1.2.5 2008-10-14 09:14:03 alexk Exp $
 
 
 /**
+ * @file
  * User Relationships Schema
  */
 function user_relationships_api_schema() {

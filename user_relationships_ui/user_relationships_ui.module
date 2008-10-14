@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.module,v 1.1.2.6 2008-10-01 10:06:58 alexk Exp $
+// $Id: user_relationships_ui.module,v 1.1.2.7 2008-10-14 09:14:04 alexk Exp $
 
 /**
  * Public API for getting the set or default message
@@ -73,6 +73,7 @@ function _user_relationships_ui_default_messages() {
       'non_existant_user'       => 'This user does not exist.',
       'non_existant_type'       => 'This relationship type does not exist.',
       'unknown_error'           => 'An error has occurred. Please contact the site administrator.',
+      'relationship_type_not_set' => 'Please choose the type of relationship.',
     ),
   );
 }
@@ -183,9 +184,25 @@ function _user_relationships_ui_actions_between(&$viewer, &$viewed) {
   }
 
   $types_count = (int)db_result(db_query("SELECT COUNT(*) FROM {user_relationship_types}"));
+  //relationship request link(s)
   $relationships_count = user_relationships_load(array('between' => array($viewer->uid, $viewed->uid)), array('count' => TRUE));
   if (!$relationships_count || (variable_get('user_relationships_ui_allow_multiple', TRUE) && ($relationships_count < $types_count))) {
-    $list[] = theme('user_relationships_request_relationship_link', $viewed);
+    //if configured, create direct links
+    if (variable_get('user_relationships_show_direct_links', 1)) {
+      //draw a single link, or one for each relationship type
+      $existing_relationships = user_relationships_load(array('between' => array($viewer->uid, $viewed->uid)), array('sort' => 'rtid'));
+      $all_relationships = user_relationships_types_load();
+      foreach ($all_relationships as $rtid => $relationship) {
+        if ($existing_relationships[$rtid]) {
+          continue;
+        }
+        $list[] = theme('user_relationships_request_relationship_direct_link', $viewed, $relationship);
+      }
+    }
+    //just one generic link pointing to a page with dropdown 
+    else {
+      $list[] = theme('user_relationships_request_relationship_link', $viewed);
+    }
   }
 
   return $list;
@@ -567,6 +584,10 @@ function user_relationships_ui_theme() {
   $theme_funcs = array(
     'user_relationships_request_relationship_link' => array(
       'arguments' => array('relate_to' => NULL)
+    ),
+
+    'user_relationships_request_relationship_direct_link' => array(
+      'arguments' => array('relate_to' => NULL, 'relationship_type' => NULL)
     ),
 
     'user_relationships_remove_link' => array(

@@ -1,7 +1,8 @@
 <?php
-// $Id: user_relationships_ui.theme.inc,v 1.1.2.4 2008-04-21 00:38:19 sprsquish Exp $
+// $Id: user_relationships_ui.theme.inc,v 1.1.2.5 2008-10-14 09:14:04 alexk Exp $
 
 /**
+ * @file
  * User Relationships theme-able functions
  */
 
@@ -15,10 +16,28 @@ function theme_user_relationships_approval_status($approved) {
 /**
  * Create relationship link
  */
-function theme_user_relationships_request_relationship_link($relate_to) {
+function theme_user_relationships_request_relationship_link(&$relate_to) {
   return l(
     t('Create a relationship with %name', array('%name' => $relate_to->name)),
     "relationship/{$relate_to->uid}/request",
+    array(
+      'query' => drupal_get_destination(),
+      'html'  => TRUE,
+    )
+  );
+}
+
+/**
+ * Create a direct relationship link
+ */
+function theme_user_relationships_request_relationship_direct_link(&$relate_to, &$relationship_type) {
+  //safety, revert to  a generic link
+  if (!isset($relationship_type)) {
+    return theme('user_relationships_request_relationship_link', $relate_to);
+  }
+  return l(
+    t('Become %name\'s %rel_name', array('%name' => $relate_to->name, '%rel_name' => $relationship_type->name, '%rel_plural_name' => $relationship_type->plural_name)),
+    "relationship/{$relate_to->uid}/request/{$relationship_type->rtid}",
     array(
       'query' => drupal_get_destination(),
       'html'  => TRUE,

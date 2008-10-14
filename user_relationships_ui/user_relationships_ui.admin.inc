@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.admin.inc,v 1.1.2.5 2008-09-14 08:37:46 alexk Exp $
+// $Id: user_relationships_ui.admin.inc,v 1.1.2.6 2008-10-14 09:14:04 alexk Exp $
 
 /**
  * User Relationships forms
@@ -18,9 +18,15 @@ function user_relationships_ui_settings() {
   );
     $form['general']['user_relationships_allow_multiple'] = array(
       '#type'           => 'checkbox',
-      '#title'          => t('Allow Multiple Relationships'),
+      '#title'          => t('Allow multiple relationships'),
       '#description'    => t('Give users the option to create more than one relationship to each other.'),
       '#default_value'  => variable_get('user_relationships_allow_multiple', 1),
+    );
+    $form['general']['user_relationships_show_direct_links'] = array(
+      '#type'           => 'checkbox',
+      '#title'          => t('Show direct request links'),
+      '#description'    => t('Show a \'create relationship with...\' link for each available relationship type.'),
+      '#default_value'  => variable_get('user_relationships_show_direct_links', 1),
     );
     $form['general']['user_relationships_allow_auto_approve'] = array(
       '#type'           => 'checkbox',

@@ -1,9 +1,10 @@
 <?php
-// $Id: user_relationship_views.module,v 1.1.2.1 2008-10-08 14:38:41 alexk Exp $
+// $Id: user_relationship_views.module,v 1.1.2.2 2008-10-14 09:14:03 alexk Exp $
 
 /**
  * @file
  * User Relationships Views integration.
+ * @author Alex Karshakevich http://drupal.org/user/183217
  */
 
 /**

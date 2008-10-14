@@ -1,7 +1,10 @@
 <?php
-// $Id: user_relationships_api.actions.inc,v 1.1.2.4 2008-04-21 00:38:18 sprsquish Exp $
+// $Id: user_relationships_api.actions.inc,v 1.1.2.5 2008-10-14 09:14:03 alexk Exp $
 
 /**
+ * @file
+ * TODO: check what else this file is for except for hook_hook_info impl
+ * 
  * Implementation of hook_hook_info().
  */
 function user_relationships_api_hook_info() {

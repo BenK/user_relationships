@@ -1,6 +1,13 @@
 <?php
-// $Id: user_relationships_api.module,v 1.1.2.4 2008-04-21 00:38:19 sprsquish Exp $
+// $Id: user_relationships_api.module,v 1.1.2.5 2008-10-14 09:14:03 alexk Exp $
 
+/**
+ * @file
+ * User Relationships API. Module shell.
+ * @see user_relationships_api.api.inc
+ * @author Jeff Smick (creator)
+ * @author Alex Karshakevich (maintainer) http://drupal.org/user/183217
+ */
 
 define('UR_OK', 0x0);
 define('UR_BANNED', 0x1);
@@ -17,7 +24,7 @@ foreach (array('api', 'actions') as $file) {
  *  object by reference
  */
 function _user_relationships_invoke($type, &$relationship, $is_type = FALSE) {
-  $hook = 'user_relationships'.($is_type ? '_type' : '');
+  $hook = 'user_relationships'. ($is_type ? '_type' : '');
 
   foreach (module_list() as $module) {
     $function = "{$module}_{$hook}";
@@ -36,7 +43,9 @@ function _user_relationships_generate_query($param = array(), $options = array()
 
   // Turn the conditions into a query.
   foreach ($param as $key => $value) {
-    if (!isset($value)) { continue; }
+    if (!isset($value)) { 
+      continue; 
+    }
 
     $operator = _user_relationship_process_query_argument($key, $value);
 
@@ -59,7 +68,7 @@ function _user_relationships_generate_query($param = array(), $options = array()
       break;
 
     default:
-      $types_cols = array('name','plural_name','is_oneway','requires_approval','expires_val');
+      $types_cols = array('name', 'plural_name', 'is_oneway', 'requires_approval', 'expires_val');
       $cond[] = "%s.%s {$operator}";
       $arguments[] = !in_array($key, $types_cols) ? 'ur' : 'urt';
       $arguments[] = $key;
@@ -94,7 +103,7 @@ function _user_relationships_generate_query($param = array(), $options = array()
   $selects = implode(',', $selects);
   $joins = implode(' ', $joins);
 
-  $cond = $cond ? 'WHERE '.implode(' AND ', $cond) : '';
+  $cond = $cond ? 'WHERE '. implode(' AND ', $cond) : '';
 
   $extra = array();
   if (!empty($order)) {
@@ -131,7 +140,7 @@ function _user_relationship_process_query_argument($key, &$value) {
     }
     else {
       $type = is_numeric(current($value)) ? 'int' : 'varchar';
-      return 'IN ('.db_placeholders($value, $type).')';
+      return 'IN ('. db_placeholders($value, $type) .')';
     }
   }
   else if (is_numeric($value) || is_bool($value)) {
@@ -141,7 +150,7 @@ function _user_relationship_process_query_argument($key, &$value) {
   else if (is_float($value)) {
     return '= %f';
   }
-  else if (preg_match('/([<>=]{1,2})\s*(.+)/', $value, $matches)){
+  else if (preg_match('/([<>=]{1,2})\s*(.+)/', $value, $matches)) {
     $marker = "'%s'";
     $value = $matches[3];
 

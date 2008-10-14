@@ -1,8 +1,11 @@
 <?php
-// $Id: user_relationships_api.api.inc,v 1.1.2.4 2008-04-21 00:38:18 sprsquish Exp $
+// $Id: user_relationships_api.api.inc,v 1.1.2.5 2008-10-14 09:14:03 alexk Exp $
 
 /**
- *  User Relationships API
+ * @file
+ * User Relationships API. Data abstraction layer
+ * @author Jeff Smick (creator)
+ * @author Alex Karshakevich (maintainer) http://drupal.org/user/183217
  */
 
 /**
@@ -27,7 +30,7 @@ function user_relationships_type_load($param = array()) {
   foreach ($types as $type) {
     $found = TRUE;
 
-    foreach($param as $column => $value) {
+    foreach ($param as $column => $value) {
       $column = strtolower($column);
 
       if ($column == 'name' || $column == 'plural_name') {
