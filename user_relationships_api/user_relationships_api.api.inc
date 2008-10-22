@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.api.inc,v 1.1.2.5 2008-10-14 09:14:03 alexk Exp $
+// $Id: user_relationships_api.api.inc,v 1.1.2.6 2008-10-22 14:57:46 alexk Exp $
 
 /**
  * @file
@@ -68,6 +68,8 @@ function user_relationships_types_load($reset = NULL) {
   static $relationship_types_list = array();
 
   if ($reset || !sizeof($relationship_types_list)) {
+    //clear the cached list, since some relationships may have disappeared
+    $relationship_types_list = array();
     $results = db_query("SELECT * FROM {user_relationship_types}");
     while ($relationship = db_fetch_object($results)) {
       $relationship_types_list[$relationship->rtid] = $relationship;

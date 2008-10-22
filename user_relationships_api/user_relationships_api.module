@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.module,v 1.1.2.5 2008-10-14 09:14:03 alexk Exp $
+// $Id: user_relationships_api.module,v 1.1.2.6 2008-10-22 14:57:46 alexk Exp $
 
 /**
  * @file
@@ -13,7 +13,7 @@ define('UR_OK', 0x0);
 define('UR_BANNED', 0x1);
 
 $mod_path = drupal_get_path('module', 'user_relationships_api');
-foreach (array('api', 'actions') as $file) {
+foreach (array('api', 'actions', 'socnet') as $file) {
   require_once("{$mod_path}/user_relationships_api.{$file}.inc");
 }
 
