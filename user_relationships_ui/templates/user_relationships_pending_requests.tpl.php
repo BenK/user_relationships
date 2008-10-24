@@ -1,5 +1,9 @@
 <?php
-// $Id: user_relationships_pending_requests.tpl.php,v 1.1.2.4 2008-04-21 00:38:19 sprsquish Exp $
+// $Id: user_relationships_pending_requests.tpl.php,v 1.1.2.5 2008-10-24 10:52:49 alexk Exp $
+/**
+ * @file
+ * Page to manage sent and received relationship requests
+ */
 
   $output = '';
   $pager_id = 0;
@@ -12,11 +16,11 @@
     if (!$$section) { continue; }
     $rows = array();
 
-    foreach ($$section as $relationship) {
-      $rows[] = array(
-        array('data' => $section_headings[$section], 'header' => TRUE, 'colspan' => 2)
-      );
+    $rows[] = array(
+      array('data' => $section_headings[$section], 'header' => TRUE, 'colspan' => 2)
+    );
 
+    foreach ($$section as $relationship) {
       $links = array();
       if ($section == 'sent_requests') {
         $links[] = theme('user_relationships_pending_request_cancel_link', $account->uid, $relationship->rid);
@@ -27,8 +31,12 @@
       }
       $links = implode(' | ', $links);
 
-      $related  = $relationship->{($relationship->requester_id == $account->uid ? 'requestee' : 'requester')};
-      $rows[]   = array(theme('username', $related) . ' is a ' . $relationship->name, $links);
+      if ($relationship->requester_id == $account->uid) {
+        $rows[]   = array(t('@rel_name to !requestee', array('@rel_name' => $relationship->name, '!requestee' => theme('username', $relationship->requestee))), $links);
+      }
+      else {
+        $rows[]   = array(t('@rel_name from !requester', array('@rel_name' => $relationship->name, '!requester' => theme('username', $relationship->requester))), $links);
+      }
     }
 
     $output .=
