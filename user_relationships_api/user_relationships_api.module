@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.module,v 1.1.2.6 2008-10-22 14:57:46 alexk Exp $
+// $Id: user_relationships_api.module,v 1.1.2.7 2008-10-28 11:28:44 alexk Exp $
 
 /**
  * @file
@@ -12,9 +12,9 @@
 define('UR_OK', 0x0);
 define('UR_BANNED', 0x1);
 
-$mod_path = drupal_get_path('module', 'user_relationships_api');
+// Pre Loading files that will be required in this module
 foreach (array('api', 'actions', 'socnet') as $file) {
-  require_once("{$mod_path}/user_relationships_api.{$file}.inc");
+  module_load_include("inc", "user_relationships_api", "user_relationships_api.{$file}");
 }
 
 
@@ -25,13 +25,7 @@ foreach (array('api', 'actions', 'socnet') as $file) {
  */
 function _user_relationships_invoke($type, &$relationship, $is_type = FALSE) {
   $hook = 'user_relationships'. ($is_type ? '_type' : '');
-
-  foreach (module_list() as $module) {
-    $function = "{$module}_{$hook}";
-    if (function_exists($function)) {
-      $function($type, $relationship);
-    }
-  }
+  module_invoke_all($hook, $type, $relationship);
 }
 
 
@@ -43,8 +37,8 @@ function _user_relationships_generate_query($param = array(), $options = array()
 
   // Turn the conditions into a query.
   foreach ($param as $key => $value) {
-    if (!isset($value)) { 
-      continue; 
+    if (!isset($value)) {
+      continue;
     }
 
     $operator = _user_relationship_process_query_argument($key, $value);
@@ -189,7 +183,7 @@ function user_relationships_api_cron() {
 
   db_query(
     " DELETE ur
-      FROM {user_relationships} ur 
+      FROM {user_relationships} ur
         INNER JOIN {user_relationship_types} urt USING ( rtid )
       WHERE ur.approved = 0
         AND urt.expires_val > 0

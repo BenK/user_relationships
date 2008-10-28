@@ -1,5 +1,9 @@
 <?php
-// $Id: user_relationships_ui.pages.inc,v 1.1.2.4 2008-04-21 00:38:19 sprsquish Exp $
+// $Id: user_relationships_ui.pages.inc,v 1.1.2.5 2008-10-28 11:28:44 alexk Exp $
+/**
+ * @file
+ * Various user relationships admin and user pages
+ */
 
 /**
  * Relationship Types List
@@ -19,7 +23,7 @@ function user_relationships_ui_types_list_page() {
       ($relationship->is_oneway ? t('one way') : t('mutual')),
       ($relationship->requires_approval ? t('yes') : t('no')),
       ($relationship->expires_val ? t(format_plural($relationship->expires_val, '1 day', '@count days')) : t('Never')),
-      l(t('edit'),    "admin/user/relationships/{$relationship->rtid}/edit") . ' | ' .
+      l(t('edit'),    "admin/user/relationships/{$relationship->rtid}/edit") .' | '.
       l(t('delete'),  "admin/user/relationships/{$relationship->rtid}/delete")
     );
   }

@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_elaborations.module,v 1.1.2.4 2008-10-20 08:38:32 alexk Exp $
+// $Id: user_relationship_elaborations.module,v 1.1.2.5 2008-10-28 11:28:44 alexk Exp $
 
 /**
  * @file
@@ -144,17 +144,21 @@ function user_relationship_elaborations_form_alter(&$form, $form_state, $form_id
       break;
 
     case 'user_relationships_ui_request':
-      // Make sure that the select box holding the relationship types is above the elaboration textarea.
-      $form['rtid']['#weight'] = -10;
-      // Adding text area to elaborate when creating a new relationship with another user.
-      $form['elaboration'] = array(
-        '#type' => 'textarea',
-        '#title' => t('Elaboration'),
-        '#rows' => 10,
-        '#description' => t('Please elaborate on this relationship (how/where you met, etc)'),
-        '#weight' => -5,
-      );
-      $form['#submit'][] = 'user_relationship_elaborations_request_submit';
+      // Incase the form is an error form which the UI module has encountered
+      if (!isset($form['error'])) {
+        // Make sure that the select box holding the relationship types is above the elaboration textarea.
+        $form['rtid']['#weight'] = -10;
+        // Adding text area to elaborate when creating a new relationship with another user.
+        $form['elaboration'] = array(
+          '#type' => 'textarea',
+          '#title' => t('Elaboration'),
+          '#rows' => 3,
+          '#cols' => 50,
+          '#description' => t('Please elaborate on this relationship (how/where you met, etc)'),
+          '#weight' => -5,
+        );
+        $form['#submit'][] = 'user_relationship_elaborations_request_submit';
+      }
       break;
   }
 }

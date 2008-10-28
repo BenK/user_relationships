@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.theme.inc,v 1.1.2.5 2008-10-14 09:14:04 alexk Exp $
+// $Id: user_relationships_ui.theme.inc,v 1.1.2.6 2008-10-28 11:28:44 alexk Exp $
 
 /**
  * @file
@@ -41,6 +41,7 @@ function theme_user_relationships_request_relationship_direct_link(&$relate_to, 
     array(
       'query' => drupal_get_destination(),
       'html'  => TRUE,
+      'attributes' => array('class' => 'user_relationships_popup_link'),
     )
   );
 }
@@ -55,6 +56,7 @@ function theme_user_relationships_remove_link($uid, $rid) {
     array(
       'title' => array('title' => t('Remove')),
       'query' => drupal_get_destination(),
+      'attributes' => array('class' => 'user_relationships_popup_link'),
     )
   );
 }
@@ -69,6 +71,7 @@ function theme_user_relationships_pending_request_approve_link($uid, $rid) {
     array(
       'title' => array('title' => t('Approve')),
       'query' => drupal_get_destination(),
+      'attributes' => array('class' => 'user_relationships_popup_link'),
     )
   );
 }
@@ -83,6 +86,7 @@ function theme_user_relationships_pending_request_disapprove_link($uid, $rid) {
     array(
       'title' => array('title' => t('Disapprove')),
       'query' => drupal_get_destination(),
+      'attributes' => array('class' => 'user_relationships_popup_link'),
     )
   );
 }
@@ -97,6 +101,7 @@ function theme_user_relationships_pending_request_cancel_link($uid, $rid) {
     array(
       'title' => array('title' => t('Disapprove')),
       'query' => drupal_get_destination(),
+      'attributes' => array('class' => 'user_relationships_popup_link'),
     )
   );
 }

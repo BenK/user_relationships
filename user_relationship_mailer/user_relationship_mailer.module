@@ -1,7 +1,7 @@
 <?php
-// $Id: user_relationship_mailer.module,v 1.1.2.6 2008-10-01 09:38:11 alexk Exp $
+// $Id: user_relationship_mailer.module,v 1.1.2.7 2008-10-28 11:28:44 alexk Exp $
 
-require_once(drupal_get_path('module', 'user_relationship_mailer').'/user_relationship_mailer_defaults.inc');
+module_load_include('inc', 'user_relationship_mailer', 'user_relationship_mailer_defaults');
 
 /**
  * Sends mail to the appropriate user
@@ -134,7 +134,7 @@ function user_relationship_mailer_form_alter(&$form, &$form_state, $form_id) {
       $replacement_keys[] = '@profile_uid';
       $replacement_keys[] = '@target_name';
       $macro_replacements = array('%macros' => implode(', ', $replacement_keys));
-      
+
       foreach ($user_relationship_mailer_ops as $op) {
         $defaults_function = "user_relationship_mailer_{$op}_default";
         $defaults = $defaults_function();

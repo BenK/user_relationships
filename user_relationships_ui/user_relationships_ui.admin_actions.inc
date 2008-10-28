@@ -1,6 +1,9 @@
 <?php
-// $Id: user_relationships_ui.admin_actions.inc,v 1.1.2.5 2008-10-05 09:39:54 alexk Exp $
-
+// $Id: user_relationships_ui.admin_actions.inc,v 1.1.2.6 2008-10-28 11:28:44 alexk Exp $
+/**
+ * @file
+ * User Relationships admin submit handlers
+ */
 
 /**
  * Validate the submitted relationship type
@@ -66,7 +69,7 @@ function user_relationships_ui_type_edit_submit($form, &$form_state) {
       'u_relationship',
       'User Relationships form: relationship %name added.', array('%name' => $relationship_type->name),
       WATCHDOG_NOTICE,
-      l(t('view'), 'admin/user/user_relationship/types/'.$relationship_type->rtid.'/edit')
+      l(t('view'), 'admin/user/user_relationship/types/'. $relationship_type->rtid .'/edit')
     );
   }
   else {
@@ -79,7 +82,7 @@ function user_relationships_ui_type_edit_submit($form, &$form_state) {
       'u_relationship',
       'User Relationships form: relationship %name updated.', array('%name' => $relationship_type->name),
       WATCHDOG_NOTICE,
-      l(t('view'), 'admin/user/relationships/'.$relationship_type->rtid.'/edit')
+      l(t('view'), 'admin/user/relationships/'. $relationship_type->rtid .'/edit')
     );
   }
 
@@ -123,7 +126,7 @@ function user_relationships_ui_request_validate($form, &$form_state) {
     $current_relationships = user_relationships_load(array('between' => array($requester->uid, $requestee->uid)));
 
     if (!db_result(db_query(
-      "SELECT COUNT(*) FROM {user_relationship_types}" . ($current_relationships ? " WHERE rtid NOT IN (%s) ORDER BY name" : ''),
+      "SELECT COUNT(*) FROM {user_relationship_types}" . ($current_relationships ? " WHERE rtid NOT IN ('%s') ORDER BY name" : ''),
       implode(',', array_keys($current_relationships))
     ))) {
       drupal_set_message(user_relationships_ui_get_message('too_many_relationships'), 'error');

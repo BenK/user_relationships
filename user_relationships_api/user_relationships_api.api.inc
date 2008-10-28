@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.api.inc,v 1.1.2.6 2008-10-22 14:57:46 alexk Exp $
+// $Id: user_relationships_api.api.inc,v 1.1.2.7 2008-10-28 11:28:44 alexk Exp $
 
 /**
  * @file
@@ -67,7 +67,7 @@ function user_relationships_type_load($param = array()) {
 function user_relationships_types_load($reset = NULL) {
   static $relationship_types_list = array();
 
-  if ($reset || !sizeof($relationship_types_list)) {
+  if ($reset || empty($relationship_types_list)) {
     //clear the cached list, since some relationships may have disappeared
     $relationship_types_list = array();
     $results = db_query("SELECT * FROM {user_relationship_types}");

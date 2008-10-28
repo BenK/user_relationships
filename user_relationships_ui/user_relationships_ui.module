@@ -1,5 +1,14 @@
 <?php
-// $Id: user_relationships_ui.module,v 1.1.2.7 2008-10-14 09:14:04 alexk Exp $
+// $Id: user_relationships_ui.module,v 1.1.2.8 2008-10-28 11:28:44 alexk Exp $
+/**
+ * @file
+ * UI components of user_relationships
+ * @author Jeff Smick (creator)
+ * @author Alex Karshakevich (maintainer) http://drupal.org/user/183217
+ * @author Darren Ferguson (contributor) http://drupal.org/user/70179
+ */
+
+define('USER_RELATIONSHIPS_UI_PATH', drupal_get_path('module', 'user_relationships_ui'));
 
 /**
  * Public API for getting the set or default message
@@ -26,9 +35,15 @@ function user_relationships_ui_get_message($key, $relationship = NULL, $replacem
   }
 
   if ($relationship) {
-    if (!$relationship->requester) { $relationship->requester = user_load($relationship->requester_id); }
-    if (!$relationship->requestee) { $relationship->requestee = user_load($relationship->requestee_id); }
-    if (!($relationship->name || $relationship->type)) { $relationship->type = user_relationships_type_load($relationship->rtid); }
+    if (!$relationship->requester) { 
+      $relationship->requester = user_load($relationship->requester_id); 
+    }
+    if (!$relationship->requestee) {
+      $relationship->requestee = user_load($relationship->requestee_id);
+    }
+    if (!($relationship->name || $relationship->type)) {
+      $relationship->type = user_relationships_type_load($relationship->rtid);
+    }
 
     $replaceables = array(
       '!requester'                => theme('username', $relationship->requester),
@@ -199,7 +214,7 @@ function _user_relationships_ui_actions_between(&$viewer, &$viewed) {
         $list[] = theme('user_relationships_request_relationship_direct_link', $viewed, $relationship);
       }
     }
-    //just one generic link pointing to a page with dropdown 
+    //just one generic link pointing to a page with dropdown
     else {
       $list[] = theme('user_relationships_request_relationship_link', $viewed);
     }
@@ -217,7 +232,7 @@ function _user_relationships_ui_message_settings_form(&$form, $defaults = array(
     if (is_array($value)) {
       $form[$key] = array(
         '#type'         => 'fieldset',
-        '#title'        => ucfirst(str_replace('_',' ',$key)),
+        '#title'        => ucfirst(str_replace('_', ' ', $key)),
         '#collapsible'  => TRUE,
         '#collapsed'    => TRUE
       );
@@ -226,7 +241,7 @@ function _user_relationships_ui_message_settings_form(&$form, $defaults = array(
     else {
       $form["user_relationships_ui_msg_{$key}"] = array(
         '#type'           => 'textfield',
-        '#title'          => ucfirst(str_replace('_',' ',$key)),
+        '#title'          => ucfirst(str_replace('_', ' ', $key)),
         '#default_value'  => variable_get("user_relationships_ui_msg_{$key}", $value)
       );
     }
@@ -287,6 +302,16 @@ function user_relationships_ui_help($section) {
 }
 
 /**
+ * Init
+ */
+function user_relationships_ui_init() {
+  drupal_add_js(USER_RELATIONSHIPS_UI_PATH .'/user_relationships_ui.js');
+  drupal_add_css(USER_RELATIONSHIPS_UI_PATH .'/user_relationships_ui.css');
+  $settings['user_relationships_ui']['loadingimage'] = url(USER_RELATIONSHIPS_UI_PATH .'/images/loadingAnimation.gif');
+  drupal_add_js($settings, 'setting');
+}
+
+/**
  * Perm
  */
 function user_relationships_ui_perm() {
@@ -298,10 +323,18 @@ function user_relationships_ui_perm() {
 }
 
 /**
+ * Footer
+ */
+function user_relationships_ui_footer($main = 0) {
+  // This is the div we are utilizing for the form popups for confirmation.
+  return '<div id="user_relationships_popup_form" class="user_relationships_ui_popup_form"></div>';
+}
+
+/**
  * Menu
  */
 function user_relationships_ui_menu() {
-  include_once(drupal_get_path('module', 'user_relationships_api').'/user_relationships_api.module');
+  include_once(drupal_get_path('module', 'user_relationships_api') .'/user_relationships_api.module');
 
   $items = array();
 
@@ -420,8 +453,8 @@ function user_relationships_ui_menu() {
     'type'              => MENU_CALLBACK,
     'access callback'   =>  'user_relationships_ui_check_access',
     'access arguments'  => array('edit'),
-    'page callback'     => 'drupal_get_form',
-    'page arguments'    => array('user_relationships_ui_request', 1),
+    'page callback'     => 'user_relationships_ui_request_ajax',
+    'page arguments'    => array(1),
     'file'              => 'user_relationships_ui.forms.inc',
   );
 
@@ -469,8 +502,8 @@ function user_relationships_ui_menu() {
         'type'              => MENU_CALLBACK,
         'access callback'   => 'user_relationships_ui_check_access',
         'access arguments'  => array(array('admin', 'user'), 1),
-        'page callback'     => 'drupal_get_form',
-        'page arguments'    => array('user_relationships_ui_pending_requested', $action, 1, 4),
+        'page callback'     => 'user_relationships_ui_pending_requested_ajax',
+        'page arguments'    => array($action, 1, 4),
         'file'              => 'user_relationships_ui.forms.inc',
       );
     }
@@ -480,8 +513,8 @@ function user_relationships_ui_menu() {
       'type'              => MENU_CALLBACK,
       'access callback'   => 'user_relationships_ui_check_access',
       'access arguments'  => array(array('admin', 'user'), 1),
-      'page callback'     => 'drupal_get_form',
-      'page arguments'    => array('user_relationships_ui_remove', 1, 3),
+      'page callback'     => 'user_relationships_ui_remove_ajax',
+      'page arguments'    => array(1, 3),
       'file'              => 'user_relationships_ui.forms.inc',
     );
 
@@ -492,7 +525,7 @@ function user_relationships_ui_menu() {
  * User
  */
 function user_relationships_ui_user($type, &$edit, &$account, $category = NULL) {
-  switch($type) {
+  switch ($type) {
   case 'login':
     if (user_access('maintain own relationships')) {
       _user_relationships_ui_set_notifications($account);
@@ -527,7 +560,7 @@ function user_relationships_ui_user($type, &$edit, &$account, $category = NULL) 
       );
     }
 
-    if(sizeof($output)) {
+    if (sizeof($output)) {
       $account->content['user_relationships_ui'] = array(
         '#type'   => 'user_profile_category',
         '#title'  => t('Relationships'),
@@ -622,14 +655,14 @@ function user_relationships_ui_theme() {
     'user_relationships' => array(
       'arguments' => array('account' => NULL, 'rtid' => NULL),
       'file'      => 'user_relationships_ui.templates.inc',
-      'path'      => drupal_get_path('module', 'user_relationships_ui').'/templates',
+      'path'      => drupal_get_path('module', 'user_relationships_ui') .'/templates',
       'template'  => 'user_relationships',
     ),
 
     'user_relationships_pending_requests' => array(
       'arguments' => array('account' => NULL),
       'file'      => 'user_relationships_ui.templates.inc',
-      'path'      => drupal_get_path('module', 'user_relationships_ui').'/templates',
+      'path'      => drupal_get_path('module', 'user_relationships_ui') .'/templates',
       'template'  => 'user_relationships_pending_requests',
     ),
   );

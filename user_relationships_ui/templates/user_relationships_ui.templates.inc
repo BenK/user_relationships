@@ -1,5 +1,9 @@
 <?php
-// $Id: user_relationships_ui.templates.inc,v 1.1.2.5 2008-04-21 00:38:19 sprsquish Exp $
+// $Id: user_relationships_ui.templates.inc,v 1.1.2.6 2008-10-28 11:28:44 alexk Exp $
+/**
+ * @file
+ * User Relationships theming functions
+ */
 
 /**
  * Pre processor for user_relationships page

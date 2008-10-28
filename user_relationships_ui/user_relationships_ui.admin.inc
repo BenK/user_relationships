@@ -1,11 +1,11 @@
 <?php
-// $Id: user_relationships_ui.admin.inc,v 1.1.2.6 2008-10-14 09:14:04 alexk Exp $
+// $Id: user_relationships_ui.admin.inc,v 1.1.2.7 2008-10-28 11:28:44 alexk Exp $
 
 /**
- * User Relationships forms
+ * @file
+ * User Relationships admin settings and config forms
  */
-
-require_once(drupal_get_path('module', 'user_relationships_ui').'/user_relationships_ui.admin_actions.inc');
+module_load_include('inc', 'user_relationships_ui', 'user_relationships_ui.admin_actions');
 
 /**
  * Main settings
@@ -16,52 +16,51 @@ function user_relationships_ui_settings() {
     '#title'  => t('General'),
     '#weight' => -10,
   );
-    $form['general']['user_relationships_allow_multiple'] = array(
-      '#type'           => 'checkbox',
-      '#title'          => t('Allow multiple relationships'),
-      '#description'    => t('Give users the option to create more than one relationship to each other.'),
-      '#default_value'  => variable_get('user_relationships_allow_multiple', 1),
-    );
-    $form['general']['user_relationships_show_direct_links'] = array(
-      '#type'           => 'checkbox',
-      '#title'          => t('Show direct request links'),
-      '#description'    => t('Show a \'create relationship with...\' link for each available relationship type.'),
-      '#default_value'  => variable_get('user_relationships_show_direct_links', 1),
-    );
-    $form['general']['user_relationships_allow_auto_approve'] = array(
-      '#type'           => 'checkbox',
-      '#title'          => t("Allow users to auto approve"),
-      '#description'    => t('This will provide an option for users to set an "auto-approve" option to automatically approve to all requested relationships.'),
-      '#default_value'  => variable_get('user_relationships_allow_auto_approve', 0),
-    );
-    $form['general']['user_relationships_relationships_per_page'] = array(
-      '#type'           => 'textfield',
-      '#title'          => t("Relationships per page"),
-      '#size'           => 4,
-      '#description'    => t('Number of relationships to show per page. If set to 0 all will be shown.'),
-      '#default_value'  => variable_get('user_relationships_relationships_per_page', 16),
-      '#validate'       => array('user_relationships_setting_validation' => array(array(
-        'is_numeric' => array('msg' => t('The relationships per page setting is not an integer'))
-      )))
-    );
+  $form['general']['user_relationships_allow_multiple'] = array(
+    '#type'           => 'checkbox',
+    '#title'          => t('Allow multiple relationships'),
+    '#description'    => t('Give users the option to create more than one relationship to each other.'),
+    '#default_value'  => variable_get('user_relationships_allow_multiple', 1),
+  );
+  $form['general']['user_relationships_show_direct_links'] = array(
+    '#type'           => 'checkbox',
+    '#title'          => t('Show direct request links'),
+    '#description'    => t('Show a \'create relationship with...\' link for each available relationship type.'),
+    '#default_value'  => variable_get('user_relationships_show_direct_links', 1),
+  );
+  $form['general']['user_relationships_allow_auto_approve'] = array(
+    '#type'           => 'checkbox',
+    '#title'          => t("Allow users to auto approve"),
+    '#description'    => t('This will provide an option for users to set an "auto-approve" option to automatically approve to all requested relationships.'),
+    '#default_value'  => variable_get('user_relationships_allow_auto_approve', 0),
+  );
+  $form['general']['user_relationships_relationships_per_page'] = array(
+    '#type'           => 'textfield',
+    '#title'          => t("Relationships per page"),
+    '#size'           => 4,
+    '#description'    => t('Number of relationships to show per page. If set to 0 all will be shown.'),
+    '#default_value'  => variable_get('user_relationships_relationships_per_page', 16),
+    '#validate'       => array('user_relationships_setting_validation' => array(array(
+      'is_numeric' => array('msg' => t('The relationships per page setting is not an integer'))
+    )))
+  );
 
-    $replaceables = array(
-      '!requester',
-      '!requestee',
+  $replaceables = array(
+    '!requester',
+    '!requestee',
+    '%relationship_name',
+    '%relationship_plural_name',
+  );
 
-      '%relationship_name',
-      '%relationship_plural_name',
-    );
+  $form['messages'] = array(
+    '#type'         => 'fieldset',
+    '#title'        => t('Messages'),
+    '#weight'       => 0,
+    '#description'  => t('Notifications to users. Replaceable tokens are: @replaceables', array('@replaceables' => implode($replaceables, ', '))),
+  );
 
-    $form['messages'] = array(
-      '#type'         => 'fieldset',
-      '#title'        => t('Messages'),
-      '#weight'       => 0,
-      '#description'  => t('Notifications to users. Replaceable tokens are: @replaceables', array('@replaceables' => implode($replaceables, ', '))),
-    );
-
-    $default_messages = _user_relationships_ui_default_messages();
-    _user_relationships_ui_message_settings_form($form['messages'], $default_messages);
+  $default_messages = _user_relationships_ui_default_messages();
+  _user_relationships_ui_message_settings_form($form['messages'], $default_messages);
 
   return system_settings_form($form);
 }
