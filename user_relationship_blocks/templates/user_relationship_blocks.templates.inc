@@ -1,5 +1,9 @@
 <?php
-// $Id: user_relationship_blocks.templates.inc,v 1.1.2.5 2008-04-21 00:38:18 sprsquish Exp $
+// $Id: user_relationship_blocks.templates.inc,v 1.1.2.6 2008-10-30 12:49:33 alexk Exp $
+/**
+ * @file 
+ * misc block theming functions
+ */
 
 /**
  * Template pre processor for the main block view
@@ -8,6 +12,7 @@ function template_preprocess_user_relationships_block(&$variables) {
   $user     =& $variables['user'];
   $account  =& $variables['account'];
   $settings =& $variables['settings'];
+  $extra    =& $variables['extra'];
 
   $query_opts = array('include_user_info' => TRUE);
 

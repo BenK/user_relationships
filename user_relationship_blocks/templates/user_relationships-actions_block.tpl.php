@@ -1,9 +1,12 @@
 <?php
-// $Id: user_relationships-actions_block.tpl.php,v 1.1.2.4 2008-04-21 00:38:18 sprsquish Exp $
-
+// $Id: user_relationships-actions_block.tpl.php,v 1.1.2.5 2008-10-30 12:49:33 alexk Exp $
+/**
+ * @file 
+ * Template of relationships add/remove block
+ * List of current relationships to the viewed user
+ */
 $output = array();
 
-// List of current relationships to the viewed user
 if ($current_relationships) {
   $output[] = theme('item_list', $current_relationships, t('Your relationships to this user'), 'ul', array('class' => 'user_relationships'));
 }
