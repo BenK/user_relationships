@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.admin.inc,v 1.1.2.7 2008-10-28 11:28:44 alexk Exp $
+// $Id: user_relationships_ui.admin.inc,v 1.1.2.8 2008-11-01 17:44:03 alexk Exp $
 
 /**
  * @file
@@ -27,6 +27,12 @@ function user_relationships_ui_settings() {
     '#title'          => t('Show direct request links'),
     '#description'    => t('Show a \'create relationship with...\' link for each available relationship type.'),
     '#default_value'  => variable_get('user_relationships_show_direct_links', 1),
+  );
+  $form['general']['user_relationships_show_user_pictures'] = array(
+    '#type'           => 'checkbox',
+    '#title'          => t("Show user pictures in relationship pages"),
+    '#description'    => t('This will show relationships next to the user name on My relationships pages.'),
+    '#default_value'  => variable_get('user_relationships_show_user_pictures', 0),
   );
   $form['general']['user_relationships_allow_auto_approve'] = array(
     '#type'           => 'checkbox',
