@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_node_access.module,v 1.1.4.5 2008-09-28 06:18:48 alexk Exp $
+// $Id: user_relationship_node_access.module,v 1.1.4.6 2008-12-21 21:35:18 alexk Exp $
 // Copyright (C) 2008 Jonathan Brown
 // http://openpackage.biz/
 
@@ -20,7 +20,7 @@ function theme_user_relationship_node_access_form($form) {
   $rows = array();
   foreach ($form[$actions[0]]['#options'] as $rtid => $r_name) {
     $row = array($r_name);
-    foreach ($header as $action) {
+    foreach ($all_actions as $action) {
       unset($form[$action][$rtid]['#title']);
       $row[] = drupal_render($form[$action][$rtid]);
     }
