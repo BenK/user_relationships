@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.admin_actions.inc,v 1.1.2.6 2008-10-28 11:28:44 alexk Exp $
+// $Id: user_relationships_ui.admin_actions.inc,v 1.1.2.7 2008-12-22 14:42:18 alexk Exp $
 /**
  * @file
  * User Relationships admin submit handlers
@@ -14,13 +14,13 @@ function user_relationships_ui_type_edit_validate($form, &$form_state) {
     (isset($form_state['values']['rtid']) &&
       db_result(db_query(
         "SELECT name FROM {user_relationship_types}
-         WHERE LOWER(`name`) = LOWER('%s')
+         WHERE LOWER(name) = LOWER('%s')
            AND rtid != %d",
         $form_state['values']['name'], $form_state['values']['rtid'])
       )
     ) ||
     (!isset($form_state['values']['rtid']) &&
-      db_result(db_query("SELECT name FROM {user_relationship_types} WHERE LOWER(`name`) = LOWER('%s')", $form_state['values']['name']))
+      db_result(db_query("SELECT name FROM {user_relationship_types} WHERE LOWER(name) = LOWER('%s')", $form_state['values']['name']))
     )
   ) {
     form_set_error('name', t('%name has already been used.', array('%name' => $form_state['values']['name'])));
