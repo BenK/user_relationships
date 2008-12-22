@@ -1,11 +1,14 @@
-$Id: README.txt,v 1.1.2.5 2008-04-21 00:38:18 sprsquish Exp $
+$Id: README.txt,v 1.1.2.6 2008-12-22 14:51:18 alexk Exp $
 
 User Relationships API
 ------------------
 This the API only portion of User Relationships. This is required by all UR plugins and addon
 modules. It provides no frontend interface.
 
-
+Installation Notes
+------------------
+PostgreSQL users, please read http://drupal.org/node/331692 and check out the patch in it, as 
+the current install schema does not apparently work with PostgreSQL.
 
 Developers
 ------------
