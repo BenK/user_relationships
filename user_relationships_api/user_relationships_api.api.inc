@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.api.inc,v 1.1.2.7 2008-10-28 11:28:44 alexk Exp $
+// $Id: user_relationships_api.api.inc,v 1.1.2.8 2008-12-22 14:27:03 alexk Exp $
 
 /**
  * @file
@@ -364,4 +364,13 @@ function user_relationships_api_translate_user_info(&$relationship) {
       $relationship->{$user_type}->data = unserialize($relationship->{$user_type}->data);
     }
   }
+}
+
+/**
+ * Implements the hook_cck_field_privacy_access to allow users to display privacy fields
+ * based on a relationship with other users
+ */
+function user_relationships_api_cck_field_privacy_access($requestee, $requester) {
+  $relationship = user_relationships_load(array('between' => array($requestee->uid, $requester->uid), 'approved' => TRUE), array('count'=>TRUE), FALSE);
+  return $relationship;
 }
