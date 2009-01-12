@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.actions.inc,v 1.1.2.6 2008-10-28 11:28:44 alexk Exp $
+// $Id: user_relationships_ui.actions.inc,v 1.1.2.7 2009-01-12 13:49:06 jaydub Exp $
 
 /**
  * @file
@@ -31,7 +31,7 @@ function user_relationships_ui_request_validate($form, &$form_state) {
       drupal_goto();
     }
     else if ($current_relationships[$form_values['rtid']]) {
-      $message_name = $current_relationships[$form_values['rtid']]->approved ? 'exisitng_relationship' : 'existing_request';
+      $message_name = $current_relationships[$form_values['rtid']]->approved ? 'existing_relationship' : 'existing_request';
       form_set_error('rtid', user_relationships_ui_get_message($message_name, array(
         '%requester'                => $requester->name,
         '%requestee'                => $requestee->name,
