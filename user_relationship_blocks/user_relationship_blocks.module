@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_blocks.module,v 1.1.2.6 2008-10-30 12:49:33 alexk Exp $
+// $Id: user_relationship_blocks.module,v 1.1.2.7 2009-01-12 14:28:03 jaydub Exp $
 /**
  * @file
  * User Relationship Blocks implementation
@@ -23,7 +23,7 @@ define('UR_BLOCK_USER', 'user');
  *
  * This ensures our settings table is always up to date
  */
-function user_relationship_blocks_user_relationship_type($op, &$rtype) {
+function user_relationship_blocks_user_relationships_type($op, &$rtype) {
   switch ($op) {
   case 'insert':
     _user_relationship_blocks_insert_defaults();

@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.admin_actions.inc,v 1.1.2.8 2009-01-12 13:49:06 jaydub Exp $
+// $Id: user_relationships_ui.admin_actions.inc,v 1.1.2.9 2009-01-12 14:28:05 jaydub Exp $
 /**
  * @file
  * User Relationships admin submit handlers
@@ -62,7 +62,7 @@ function user_relationships_ui_type_edit_submit($form, &$form_state) {
 
     $form_state['values']['rtid'] = $relationship_type->rtid;
     $relationship_type = user_relationships_type_load($relationship_type->rtid);
-    _user_relationships_invoke('insert', $relationship_type, 'type');
+    _user_relationships_invoke('insert', $relationship_type, TRUE);
 
     drupal_set_message(t('Relationship %name has been added.', array('%name' => $relationship_type->name)));
     watchdog(
@@ -75,7 +75,7 @@ function user_relationships_ui_type_edit_submit($form, &$form_state) {
   else {
     drupal_write_record('user_relationship_types', $relationship_type, 'rtid');
 
-    _user_relationships_invoke('update', $relationship_type, 'type');
+    _user_relationships_invoke('update', $relationship_type, TRUE);
 
     drupal_set_message(t('Relationship %name has been updated.', array('%name' => $relationship_type->name)));
     watchdog(
@@ -102,7 +102,7 @@ function user_relationships_ui_type_delete_submit($form, &$form_state) {
   db_query("DELETE FROM {user_relationship_types} WHERE rtid = %d", $relationship_type->rtid);
   db_query("DELETE FROM {user_relationships} WHERE rtid = %d", $relationship_type->rtid);
 
-  _user_relationships_invoke('delete', $relationship_type, 'type');
+  _user_relationships_invoke('delete', $relationship_type, TRUE);
 
   drupal_set_message(t('Relationship %name has been deleted.', array('%name' => $relationship_type->name)));
   watchdog(
