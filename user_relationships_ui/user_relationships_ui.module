@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.module,v 1.1.2.8 2008-10-28 11:28:44 alexk Exp $
+// $Id: user_relationships_ui.module,v 1.1.2.9 2009-01-12 14:36:36 jaydub Exp $
 /**
  * @file
  * UI components of user_relationships
@@ -201,7 +201,7 @@ function _user_relationships_ui_actions_between(&$viewer, &$viewed) {
   $types_count = (int)db_result(db_query("SELECT COUNT(*) FROM {user_relationship_types}"));
   //relationship request link(s)
   $relationships_count = user_relationships_load(array('between' => array($viewer->uid, $viewed->uid)), array('count' => TRUE));
-  if (!$relationships_count || (variable_get('user_relationships_ui_allow_multiple', TRUE) && ($relationships_count < $types_count))) {
+  if (!$relationships_count || (variable_get('user_relationships_allow_multiple', TRUE) && ($relationships_count < $types_count))) {
     //if configured, create direct links
     if (variable_get('user_relationships_show_direct_links', 1)) {
       //draw a single link, or one for each relationship type
