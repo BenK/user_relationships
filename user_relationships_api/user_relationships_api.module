@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.module,v 1.1.2.7 2008-10-28 11:28:44 alexk Exp $
+// $Id: user_relationships_api.module,v 1.1.2.8 2009-01-14 10:58:30 alexk Exp $
 
 /**
  * @file
@@ -66,7 +66,13 @@ function _user_relationships_generate_query($param = array(), $options = array()
       $cond[] = "%s.%s {$operator}";
       $arguments[] = !in_array($key, $types_cols) ? 'ur' : 'urt';
       $arguments[] = $key;
-      $arguments[] = $value;
+      //#358669 support having multiple values for a single column - the query already has IN(...) placeholders
+      if (!is_array($value)) {
+        $arguments[] = $value;
+      }
+      else {
+        $arguments = array_merge($arguments, $value);
+      }
     }
   }
 

@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.api.inc,v 1.1.2.8 2008-12-22 14:27:03 alexk Exp $
+// $Id: user_relationships_api.api.inc,v 1.1.2.9 2009-01-14 10:58:30 alexk Exp $
 
 /**
  * @file
@@ -264,6 +264,10 @@ function user_relationships_delete_relationship(&$relationship, &$deleted_by, $o
   *       $start_time = mktime(0,0,0,0,0,2007);
   *       $end_time = mktime(0,0,0,0,0,2008);
   *       user_relationships_load(array('created_at' => ">= {$start_time}", 'created_at' => '< {$end_time'}));
+  * 
+  *   each parameter may be an array, if you wish to pass several values
+  *     example: user_relationships_load(array('rtid' => array(2, 3), 'between' => array($uid1, $uid2)))
+  *       will load all relationships of types 2 or 3 between uid1 and uid2 (query will have an IN clause)
   *
   * @param @options
   *   An array keyed by the option
@@ -371,6 +375,6 @@ function user_relationships_api_translate_user_info(&$relationship) {
  * based on a relationship with other users
  */
 function user_relationships_api_cck_field_privacy_access($requestee, $requester) {
-  $relationship = user_relationships_load(array('between' => array($requestee->uid, $requester->uid), 'approved' => TRUE), array('count'=>TRUE), FALSE);
+  $relationship = user_relationships_load(array('between' => array($requestee->uid, $requester->uid), 'approved' => TRUE), array('count' => TRUE), FALSE);
   return $relationship;
 }
