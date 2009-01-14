@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.forms.inc,v 1.1.2.7 2008-10-28 11:28:44 alexk Exp $
+// $Id: user_relationships_ui.forms.inc,v 1.1.2.8 2009-01-14 13:18:14 alexk Exp $
 
 /**
  * @file
@@ -171,16 +171,21 @@ function user_relationships_ui_pending_requested(&$form_state, $action, $account
   //pick the correct question message: approve and disapprove are requests to current user, cancel is a request from current user
   switch ($action) {
     case 'approve':
+      $confirmation_message = 'Are you sure you want to approve the %relationship_name relationship request from !name?';
+      $action_message = 'Approve relationship';
+      break;
     case 'disapprove':
-      $confirmation_message = 'Are you sure you want to @action the %relationship_name relationship request from !name?';
+      $confirmation_message = 'Are you sure you want to disapprove the %relationship_name relationship request from !name?';
+      $action_message = 'Disapprove relationship';
       break;
     default:
-      $confirmation_message = 'Are you sure you want to @action your %relationship_name relationship request to !name?';
+      $confirmation_message = 'Are you sure you want to cancel your %relationship_name relationship request to !name?';
+      $action_message = 'Cancel relationship';
   }
 
   $output = confirm_form(
     $form,
-    t('@action relationship', array('@action' => ucfirst($action))),
+    t($action_message),
     ($viewed_id == $user->id ? 'relationships/requests' : "user/{$viewed_id}/relationships/requests"),
 
     t($confirmation_message, array(
