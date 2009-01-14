@@ -1,4 +1,4 @@
-; $Id: README.txt,v 1.1.2.4 2008-04-21 00:38:18 sprsquish Exp $
+; $Id: README.txt,v 1.1.2.5 2009-01-14 11:03:03 alexk Exp $
 
 User Relationship Implications Module
 -------------------------------------
@@ -10,8 +10,7 @@ implied by another is deleted the implied by relationship is also deleted.
 
 Implied relationships can be chained (ex: Manager implies Coworker implies Officemate)
 
-Send comments to Jeff Smick: http://drupal.org/user/107579/contact, or post an issue at
-http://drupal.org/project/user_relationships.
+Comments: please post an issue at http://drupal.org/project/user_relationships
 
 
 Scenarios

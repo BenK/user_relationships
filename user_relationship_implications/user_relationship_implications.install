@@ -1,6 +1,10 @@
 <?php
-// $Id: user_relationship_implications.install,v 1.1.2.4 2008-04-21 00:38:18 sprsquish Exp $
+// $Id: user_relationship_implications.install,v 1.1.2.5 2009-01-14 11:03:03 alexk Exp $
 
+/**
+ * @file
+ * User Relationship Implications Schema
+ */
 function user_relationship_implications_schema() {
   $schema['user_relationship_implications'] = array(
     'fields'  => array(

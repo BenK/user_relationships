@@ -1,10 +1,11 @@
 <?php
-// $Id: user_relationship_implications.module,v 1.1.2.6 2008-04-21 00:38:18 sprsquish Exp $
+// $Id: user_relationship_implications.module,v 1.1.2.7 2009-01-14 11:03:03 alexk Exp $
 
 /**
  * Drupal Module: User Relationship Implications
  *
- * @author: Jeff Smick <sprsquish [at] gmail [dot] com>
+ * @author Jeff Smick (creator)
+ * @author Alex Karshakevich (maintainer) http://drupal.org/user/183217
  * @file
  * Allows admins to create implied relationships (eg: Manager implies Coworker)
  */
@@ -39,7 +40,7 @@ function user_relationship_implications_form_user_relationships_ui_type_edit_alt
       $values[$rtid]['reverse'] = $implies->reverse;
     }
     foreach ($relationship_type->implied_by as $implied) {
-      if(!$implied->reverse) {
+      if (!$implied->reverse) {
         $implied_by[] = $implied->rtid;
       }
     }
@@ -97,7 +98,9 @@ function theme_user_relationship_implications_form_table(&$form) {
   $rows = array();
 
   foreach ($form['opts'] as $rtid => $elements) {
-    if (!is_numeric($rtid)) { continue; }
+    if (!is_numeric($rtid)) { 
+      continue; 
+    }
     $rows[$rtid] = array(
       drupal_render(array_shift($elements)),
       drupal_render(array_shift($elements)),
@@ -130,7 +133,7 @@ function user_relationship_implications_edit_submit($form, &$form_state) {
 }
 
 /**
- * hook_user_relationships()
+ * hook_user_relationships_type()
  */
 function user_relationship_implications_user_relationships_type($op, &$rtypes) {
   if ($op == 'load') {
@@ -153,70 +156,100 @@ function user_relationship_implications_user_relationships_type($op, &$rtypes) {
   }
 }
 
+/**
+ * hook_user_relationships()
+ * Add or remove implied relationships as directed by configuration
+ */
 function user_relationship_implications_user_relationships($op, $relationship, $reason = NULL) {
-  if ($op == 'remove') {
-    $current_type = user_relationships_type_load($relationship->rtid);
-
-    // nothing else matters if there aren't implications involved
-    $reversed = array_filter($current_type->implies, '_user_relationship_implications_filter_for_reverse');
-    if (!$current_type->implied_by && !$reversed) {
-      return;
-    }
-
-    // load relationships that imply this relationship
-    $rtids = array_merge(array_keys($current_type->implied_by), array_keys($reversed));
-
-    $relationships = user_relationships_load(array(
-      'between' => array($relationship->requester_id, $relationship->requestee_id),
-      'rtid'    => $rtids
-    ), array('sort' => 'rtid'));
-
-    foreach ($relationships as $rtid => $relationship) {
-      $relationship = array_shift($relationship);
-
-      // the relationship being deleted (current_type) is implied by this relationship (only matters if "strict" is set)
-      if ($current_type->implied_by[$rtid]->strict || $reversed[$rtid]->strict) {
-        user_relationships_delete_relationship($relationship, $current_type->deleted_by, $reason);
-        drupal_set_message(user_relationships_ui_get_message($category, $relationship));
+  switch ($op) {
+    case 'remove':
+      $current_type = user_relationships_type_load($relationship->rtid);
+  
+      // nothing else matters if there aren't implications involved
+      $reversed = array_filter($current_type->implies, '_user_relationship_implications_filter_for_reverse');
+      if (!$current_type->implied_by && !$reversed) {
+        return;
       }
-    }
-  }
-  else if ($op == 'presave') {
-    $type = user_relationships_type_load($relationship->rtid);
-    if ($type->implies) {
-      // if the type of the relationship we're inserting or updating implies other relationship type(s),
-      // loop through the implied relationship types and do the right thing
-      foreach ($type->implies as $implied) {
-        // load all the pre-existing relationships between these two users of the implied relationship type
-        $relationships = user_relationships_load(array(
-          'between' => array($relationship->requester_id, $relationship->requestee_id),
-          'rtid'    => $implied->implies_rtid,
-        ));
-
-        // if there aren't any, create one with the same approved status as the relationship we're inserting/updateing
-        if (count($relationships) == 0) {
-          $users = array($relationship->requester_id, $relationship->requestee_id);
-          if ($implied->reverse) {
-            $users = array_reverse($users);
-          }
-
-          $implied = user_relationships_type_load($implied->implies_rtid);
-          user_relationships_request_relationship($users[0], $users[1], $implied, $relationship->approved);
+  
+      // load relationships that imply this relationship
+      $rtids = array_merge(array_keys($current_type->implied_by), array_keys($reversed));
+  
+      $relationships = user_relationships_load(array(
+        'between' => array($relationship->requester_id, $relationship->requestee_id),
+        'rtid'    => $rtids
+      ), array('sort' => 'rtid'));
+  
+      foreach ($relationships as $rtid => $relationship) {
+        $relationship = array_shift($relationship);
+  
+        // the relationship being deleted (current_type) is implied by this relationship (only matters if "strict" is set)
+        if ($current_type->implied_by[$rtid]->strict || $reversed[$rtid]->strict) {
+          user_relationships_delete_relationship($relationship, $current_type->deleted_by, $reason);
+          drupal_set_message(user_relationships_ui_get_message($category, $relationship));
         }
-        // if there are some and we're approving this relationship, approve the pre-existing one(s) too
-        else {
-          foreach ($relationships as $existing) {
-            if ($relationship->approved && !$existing->approved) {
-              // approve the relationship
-              $existing->approved = TRUE;
-              user_relationships_save_relationship($existing, 'request');
-              // set the message informing the user (use requester and requestee from original relationship)
-              drupal_set_message(user_relationships_ui_get_message('accepted', $existing));
+      }
+      break;
+    case 'request':
+    case 'update':
+    case 'approve':
+      $type = user_relationships_type_load($relationship->rtid);
+      if ($type->implies) {
+        //do not act if it is a pending relationship, as it may still be rejected
+        if ($type->requires_approval && !$relationship->approved) {
+          return;
+        }
+        // if the type of the relationship we're inserting or updating implies other relationship type(s),
+        // loop through the implied relationship types and do the right thing
+        foreach ($type->implies as $implied) {
+          // load all the pre-existing relationships between these two users of the implied relationship type
+          $relationships = user_relationships_load(array(
+            'between' => array($relationship->requester_id, $relationship->requestee_id),
+            'rtid'    => $implied->implies_rtid,
+          ));
+  
+          // if there aren't any, create one with the same approved status as the relationship we're inserting/updateing
+          if (count($relationships) == 0) {
+            //dimensions are [rtid][requester uid][requestee uid]
+            global $_user_relationship_implications_created_implications;
+            if (!$_user_relationship_implications_created_implications) {
+              $_user_relationship_implications_created_implications = array();
+            }
+            
+            $users = array($relationship->requester_id, $relationship->requestee_id);
+            if ($implied->reverse) {
+              $users = array_reverse($users);
+            }
+  
+            $implied = user_relationships_type_load($implied->implies_rtid);
+            
+            //infinite loop prevention
+            if ($_user_relationship_implications_created_implications[$implied->rtid][$users[0]][$users[1]]) {
+              return;
+            }
+            user_relationships_request_relationship($users[0], $users[1], $implied, $relationship->approved);
+            //remember relationships just added to skip in case they have implications, and this function recurses
+            $_user_relationship_implications_created_implications[$implied->rtid][$users[0]][$users[1]] = TRUE;
+            if (!$implied->is_oneway) {
+              //store the other direction, as it has been added as well
+              $_user_relationship_implications_created_implications[$implied->rtid][$users[1]][$users[0]] = TRUE;
+            }
+          }
+          // if there are some and we're approving this relationship, approve the pre-existing one(s) too
+          else {
+            foreach ($relationships as $existing) {
+              if ($relationship->approved && !$existing->approved) {
+                // approve the relationship
+                $existing->approved = TRUE;
+                user_relationships_save_relationship($existing, 'request');
+                // set the message informing the user (use requester and requestee from original relationship)
+                drupal_set_message(user_relationships_ui_get_message('accepted', $existing));
+              }
             }
           }
         }
       }
-    }
+      break;
+    default:
   }
 }
 
