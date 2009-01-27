@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_elaborations.module,v 1.1.2.5 2008-10-28 11:28:44 alexk Exp $
+// $Id: user_relationship_elaborations.module,v 1.1.2.6 2009-01-27 17:39:05 jaydub Exp $
 
 /**
  * @file
@@ -66,6 +66,10 @@ function user_relationship_elaborations_user_relationships($op, &$relationships)
     _user_relationship_elaborations_walk_recursive('find_rids', $relationships, $rids);
 
     if ($rids) {
+      if (in_array($op, array('cancel', 'delete', 'remove'))) {
+        db_query('DELETE FROM {user_relationship_elaborations} WHERE rid IN ('. db_placeholders($rids) .')', $rids);
+      }
+      else {
       $results = db_query('SELECT rid, elaboration FROM {user_relationship_elaborations} WHERE rid IN ('. db_placeholders($rids) .')', $rids);
       while ($result = db_fetch_object($results)) {
         $elaborations[$result->rid] = $result->elaboration;
@@ -73,6 +77,7 @@ function user_relationship_elaborations_user_relationships($op, &$relationships)
 
       _user_relationship_elaborations_walk_recursive('load', $relationships, $elaborations);
     }
+  }
   }
 }
 
