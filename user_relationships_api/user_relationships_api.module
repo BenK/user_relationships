@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.module,v 1.1.2.8 2009-01-14 10:58:30 alexk Exp $
+// $Id: user_relationships_api.module,v 1.1.2.9 2009-01-27 17:41:36 jaydub Exp $
 
 /**
  * @file
@@ -183,19 +183,29 @@ function user_relationships_api_cron() {
 
   // only expire relationships once a day
   $last_cron = variable_get('user_relationships_last_expire', 0);
-  if ($now >  $last_cron + (24 * 60 * 60)) {
+  if ($now < $last_cron + 86400) {
     return FALSE;
   }
 
-  db_query(
-    " DELETE ur
+  $result = db_query(
+    " SELECT ur.rid
       FROM {user_relationships} ur
-        INNER JOIN {user_relationship_types} urt USING ( rtid )
+        INNER JOIN {user_relationship_types} urt ON ur.rtid = urt.rtid
       WHERE ur.approved = 0
         AND urt.expires_val > 0
-        AND %d > (ur.updated_at + (urt.expires_val * 24 * 60 *60))",
-    $now
+        AND ur.updated_at < (%d - (urt.expires_val * 86400))
+      GROUP BY ur.rid", $now
   );
+
+  $expired_requests = array();
+  while ($request = db_fetch_object($result)) {
+    $expired_requests[$request->rid] = $request;
+  }
+
+  if ($expired_requests) {
+    db_query('DELETE FROM {user_relationships} WHERE rid IN ('. db_placeholders($expired_requests) .')', $expired_requests);
+    _user_relationships_invoke('delete', $expired_requests);
+  }
 
   // remember when we last expired relationships
   variable_set('user_relationships_last_expire', $now);
