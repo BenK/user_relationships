@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.admin.inc,v 1.1.2.8 2008-11-01 17:44:03 alexk Exp $
+// $Id: user_relationships_ui.admin.inc,v 1.1.2.9 2009-02-26 23:07:34 alexk Exp $
 
 /**
  * @file
@@ -115,6 +115,16 @@ function user_relationships_ui_type_edit(&$form_state, $relationship_type = NULL
     '#default_value'  => isset($relationship_type->expires_val) ? $relationship_type->expires_val : 0,
     '#description'    => t('After how many days should a request of this type be removed? (0 for never)'),
     '#weight'         => -8,
+  );
+  $form['roles'] = array(
+    '#title' => t('Role access'),
+    '#type' => 'fieldset',
+    '#description' => t('You may choose which roles are allowed to request this relationship. If none are selected, all roles are allowed.'),
+    'roles' => array(
+      '#type' => 'checkboxes',
+      '#options' => user_roles(TRUE),
+      '#default_value' => is_array($relationship_type->roles) ? $relationship_type->roles : array(),
+    ),
   );
   $form['rtid'] = array(
     '#type'   => 'value',

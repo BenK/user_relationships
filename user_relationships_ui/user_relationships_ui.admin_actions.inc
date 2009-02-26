@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.admin_actions.inc,v 1.1.2.9 2009-01-12 14:28:05 jaydub Exp $
+// $Id: user_relationships_ui.admin_actions.inc,v 1.1.2.10 2009-02-26 23:07:34 alexk Exp $
 /**
  * @file
  * User Relationships admin submit handlers
@@ -61,7 +61,7 @@ function user_relationships_ui_type_edit_submit($form, &$form_state) {
     drupal_write_record('user_relationship_types', $relationship_type);
 
     $form_state['values']['rtid'] = $relationship_type->rtid;
-    $relationship_type = user_relationships_type_load($relationship_type->rtid);
+    $relationship_type = user_relationships_type_load($relationship_type->rtid, TRUE);
     _user_relationships_invoke('insert', $relationship_type, TRUE);
 
     drupal_set_message(t('Relationship %name has been added.', array('%name' => $relationship_type->name)));
@@ -85,6 +85,19 @@ function user_relationships_ui_type_edit_submit($form, &$form_state) {
       l(t('view'), 'admin/user/relationships/'. $relationship_type->rtid .'/edit')
     );
   }
+  
+  //save role permissions for this rtype
+  db_query('DELETE FROM {user_relationship_type_roles} WHERE rtid = %d', $relationship_type->rtid);
+  if ($form_state['values']['roles']) {
+    $role_record = new StdClass;
+    $role_record->rtid = $relationship_type->rtid;
+    foreach ($form_state['values']['roles'] as $rid => $selected) {
+      if ($rid == $selected) {
+        $role_record->rid = $selected;
+        drupal_write_record('user_relationship_type_roles', $role_record);
+      }
+    }
+  }
 
   user_relationships_types_load(TRUE);
   menu_rebuild();
@@ -101,6 +114,7 @@ function user_relationships_ui_type_delete_submit($form, &$form_state) {
 
   db_query("DELETE FROM {user_relationship_types} WHERE rtid = %d", $relationship_type->rtid);
   db_query("DELETE FROM {user_relationships} WHERE rtid = %d", $relationship_type->rtid);
+  db_query('DELETE FROM {user_relationship_type_roles} WHERE rtid = %d', $relationship_type->rtid);
 
   _user_relationships_invoke('delete', $relationship_type, TRUE);
 
@@ -117,7 +131,9 @@ function user_relationships_ui_type_delete_submit($form, &$form_state) {
 
 /**
  * Validate relationship request.
+ * TODO: delete this function. It looks like a copy from user_relationships_ui.actions.inc
  */
+/*
 function user_relationships_ui_request_validate($form, &$form_state) {
   $requester = user_load($form_state['values']['requester']);
   $requestee = user_load($form_state['values']['requestee']);
@@ -147,3 +163,4 @@ function user_relationships_ui_request_validate($form, &$form_state) {
     drupal_goto();
   }
 }
+*/

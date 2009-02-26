@@ -1,6 +1,7 @@
 <?php
-// $Id: user_relationships.tpl.php,v 1.1.2.5 2008-11-01 17:44:03 alexk Exp $
+// $Id: user_relationships.tpl.php,v 1.1.2.6 2009-02-26 23:07:34 alexk Exp $
 
+//$relationships array is loaded in template_preprocess_user_relationships()
 if ($relationships) {
   foreach ($relationships as $relationship) {
     $edit_access = ($user->uid == $account->uid && user_access('maintain own relationships')) || user_access('administer users');

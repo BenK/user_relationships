@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.actions.inc,v 1.1.2.7 2009-01-12 13:49:06 jaydub Exp $
+// $Id: user_relationships_ui.actions.inc,v 1.1.2.8 2009-02-26 23:07:34 alexk Exp $
 
 /**
  * @file
@@ -13,13 +13,31 @@
 function user_relationships_ui_request_validate($form, &$form_state) {
   $requester = user_load($form_state['values']['requester']);
   $requestee = user_load($form_state['values']['requestee']);
-
+  $rtid = $form_state['values']['rtid'];
+  
   if (user_access('can have relationships', $requestee)) {
     //check that a type has been chosen
-    $rtid = $form_state['values']['rtid'];
-    if (!$rtid || !user_relationships_type_load($rtid)) {
+    if (!$rtid || !($rtype = user_relationships_type_load($rtid))) {
       form_set_error('rtid', user_relationships_ui_get_message('relationship_type_not_set'));
-      return;
+      //need to handle requests from ajax forms separately
+      if (isset($_GET['ajax'])) {
+        drupal_goto();
+      }
+      else {
+        return;
+      }
+    }
+    //check user is allowed to request this type
+    if (!user_relationships_api_can_request($requester, $rtype)) {
+      $rtype->requester = $requester;
+      $rtype->requestee = $requestee;
+      form_set_error('rtid', user_relationships_ui_get_message('relationship_type_not_allowed', $rtype));
+      if (isset($_GET['ajax'])) {
+        drupal_goto();
+      }
+      else {
+        return;
+      }
     }
     $current_relationships = user_relationships_load(array('between' => array($requester->uid, $requestee->uid)));
 
@@ -30,13 +48,13 @@ function user_relationships_ui_request_validate($form, &$form_state) {
       drupal_set_message(user_relationships_ui_get_message('too_many_relationships'), 'error');
       drupal_goto();
     }
-    else if ($current_relationships[$form_values['rtid']]) {
-      $message_name = $current_relationships[$form_values['rtid']]->approved ? 'existing_relationship' : 'existing_request';
+    else if ($current_relationships[$rtid]) {
+      $message_name = $current_relationships[$rtid]->approved ? 'existing_relationship' : 'existing_request';
       form_set_error('rtid', user_relationships_ui_get_message($message_name, array(
         '%requester'                => $requester->name,
         '%requestee'                => $requestee->name,
-        '%relationship_name'        => $$current_relationships[$form_values['rtid']]->name,
-        '%relationship_plural_name' => $$current_relationships[$form_values['rtid']]->plural_name
+        '%relationship_name'        => $$current_relationships[$rtid]->name,
+        '%relationship_plural_name' => $$current_relationships[$rtid]->plural_name
       )));
     }
   }

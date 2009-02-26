@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.forms.inc,v 1.1.2.8 2009-01-14 13:18:14 alexk Exp $
+// $Id: user_relationships_ui.forms.inc,v 1.1.2.9 2009-02-26 23:07:34 alexk Exp $
 
 /**
  * @file
@@ -13,13 +13,18 @@ module_load_include('inc', 'user_relationships_ui', 'user_relationships_ui.actio
 function user_relationships_ui_request_form($requester, $requestee, $form_values = NULL) {
   $current_relationships = user_relationships_load(array('between' => array($requester, $requestee)), array('sort' => 'rtid'));
 
-  $results = db_query(
-    "SELECT * FROM {user_relationship_types}" . ($current_relationships ? " WHERE rtid NOT IN ('%s') ORDER BY name" : ''),
-    implode(',', array_keys($current_relationships))
-  );
+  $relationship_types = user_relationships_types_load();
   $relationships = array();
-  while ($result = db_fetch_object($results)) {
-    $relationships[$result->rtid] = $result->name;
+  foreach ($relationship_types as $rtype) {
+    //exclude already established relationships
+    if ($current_relationships[$rtype->rtid]) {
+      continue;
+    }
+    //exclude types that are not allowed
+    if (!user_relationships_api_can_request($requester, $rtype)) {
+      continue;
+    }
+    $relationships[$rtype->rtid] = $rtype->name;
   }
   //try to find out desired relationship type
   if ($form_values['rtid']) {//given through form

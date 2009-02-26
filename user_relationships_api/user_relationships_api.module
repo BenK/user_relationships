@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.module,v 1.1.2.9 2009-01-27 17:41:36 jaydub Exp $
+// $Id: user_relationships_api.module,v 1.1.2.10 2009-02-26 23:07:34 alexk Exp $
 
 /**
  * @file
@@ -115,7 +115,8 @@ function _user_relationships_generate_query($param = array(), $options = array()
   $extra = is_array($extra) ? implode(' ', $extra) : $extra;
 
   return array(
-    'query'     => "SELECT {$selects} FROM {user_relationships} ur {$joins} {$cond} GROUP BY rid {$extra}",
+    //331692 remove improper GROUP BY rid for Postgre
+    'query'     => "SELECT {$selects} FROM {user_relationships} ur {$joins} {$cond} {$extra}",
     'count'     => "SELECT COUNT(DISTINCT rid) AS count FROM {user_relationships} ur {$count_joins} {$cond}",
     'arguments' => $arguments,
   );
