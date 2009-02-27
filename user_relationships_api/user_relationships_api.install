@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.install,v 1.1.2.6 2009-02-26 23:07:34 alexk Exp $
+// $Id: user_relationships_api.install,v 1.1.2.7 2009-02-27 18:26:11 alexk Exp $
 
 /**
  * @file
@@ -85,9 +85,9 @@ function user_relationships_api_update_6100() {
 
 /**
  * Implementation of hook_update_N().
- * Update 6200 adds the {user_relationship_type_roles} table
+ * Update 6101 adds the {user_relationship_type_roles} table
  */
-function user_relationships_api_update_6200() {
+function user_relationships_api_update_6101() {
   $ret = array();
   $schema = drupal_get_schema_unprocessed('user_relationships_api');
   _drupal_initialize_schema('user_relationships_api', $schema);
