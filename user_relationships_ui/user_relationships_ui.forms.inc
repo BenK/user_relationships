@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.forms.inc,v 1.1.2.9 2009-02-26 23:07:34 alexk Exp $
+// $Id: user_relationships_ui.forms.inc,v 1.1.2.10 2009-02-27 18:16:47 alexk Exp $
 
 /**
  * @file
@@ -110,6 +110,16 @@ function user_relationships_ui_request(&$form_state, $requestee) {
       '#prefix' => '<div>',
       '#suffix' => '</div>',
       '#value' => user_relationships_ui_get_message('self_request') . $script
+    );
+    return $form;
+  }
+  else if (!variable_get('user_relationships_allow_multiple', TRUE) &&
+           $relationships_count = user_relationships_load(array('between' => array($requester->uid, $requestee->uid)), array('count' => TRUE))) {
+    $form['error'] = array(
+      '#type' => 'markup',
+      '#prefix' => '<div>',
+      '#suffix' => '</div>',
+      '#value' => user_relationships_ui_get_message('too_many_relationships') . $script
     );
     return $form;
   }

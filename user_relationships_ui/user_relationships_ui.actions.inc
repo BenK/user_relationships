@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.actions.inc,v 1.1.2.8 2009-02-26 23:07:34 alexk Exp $
+// $Id: user_relationships_ui.actions.inc,v 1.1.2.9 2009-02-27 18:16:47 alexk Exp $
 
 /**
  * @file
@@ -27,6 +27,17 @@ function user_relationships_ui_request_validate($form, &$form_state) {
         return;
       }
     }
+    $current_relationships = user_relationships_load(array('between' => array($requester->uid, $requestee->uid)));
+    //check for multiple relationships
+    if (!variable_get('user_relationships_allow_multiple', TRUE) && count($current_relationships)) {
+    form_set_error('rtid', user_relationships_ui_get_message('too_many_relationships'));
+      if (isset($_GET['ajax'])) {
+        drupal_goto();
+      }
+      else {
+        return;
+      }
+    }
     //check user is allowed to request this type
     if (!user_relationships_api_can_request($requester, $rtype)) {
       $rtype->requester = $requester;
@@ -39,7 +50,6 @@ function user_relationships_ui_request_validate($form, &$form_state) {
         return;
       }
     }
-    $current_relationships = user_relationships_load(array('between' => array($requester->uid, $requestee->uid)));
 
     if (!db_result(db_query(
       "SELECT COUNT(*) FROM {user_relationship_types}" . ($current_relationships ? " WHERE rtid NOT IN ('%s') ORDER BY name" : ''),
