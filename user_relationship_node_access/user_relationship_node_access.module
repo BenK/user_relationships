@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_node_access.module,v 1.1.4.6 2008-12-21 21:35:18 alexk Exp $
+// $Id: user_relationship_node_access.module,v 1.1.4.7 2009-03-03 18:02:12 alexk Exp $
 // Copyright (C) 2008 Jonathan Brown
 // http://openpackage.biz/
 
@@ -10,14 +10,23 @@
 function theme_user_relationship_node_access_form($form) {
   $all_actions = array('view', 'update', 'delete');
   $actions = array();//allowed actions that will appear on the form
+  //#388726 IE7 will not like sticky javascript table headers, so construct the header as a regular row
+  $header = array(
+    array(
+      'data' => t('Relationship Type'),
+      'header' => 1,
+    )
+  );
   foreach ($all_actions as $key => $value) {
     if (isset($form[$value])) {
-      $header[] = t($value);
+      $header[] = array(
+        'data' => t($value),
+        'header' => 1,
+      );
       $actions[] = $value;
     }
   }
-
-  $rows = array();
+  $rows = array($header);
   foreach ($form[$actions[0]]['#options'] as $rtid => $r_name) {
     $row = array($r_name);
     foreach ($all_actions as $action) {
@@ -27,9 +36,7 @@ function theme_user_relationship_node_access_form($form) {
     $rows[] = $row;
   }
 
-  array_unshift($header, t('Relationship Type'));
-
-  return theme('table', $header, $rows);
+  return theme('table', NULL, $rows);
 }
 
 
