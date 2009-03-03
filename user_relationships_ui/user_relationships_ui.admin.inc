@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.admin.inc,v 1.1.2.9 2009-02-26 23:07:34 alexk Exp $
+// $Id: user_relationships_ui.admin.inc,v 1.1.2.10 2009-03-03 16:42:05 alexk Exp $
 
 /**
  * @file
@@ -50,7 +50,38 @@ function user_relationships_ui_settings() {
       'is_numeric' => array('msg' => t('The relationships per page setting is not an integer'))
     )))
   );
-
+  $form['positioning'] = array(
+    '#type'   => 'fieldset',
+    '#title'  => t('AJAX Popup Positioning'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#description' => t('Some themes may require repositioning of AJAX confirmation dialogs. You may use these controls to set where the popup appears on the page or in relation to the mouse cursor.')
+  );
+  $form['positioning']['user_relationships_position'] = array(
+    '#type' => 'select',
+    '#title' => t('Elaboration form\'s css position'),
+    '#default_value' => variable_get('user_relationships_position', 'absolute'),
+    '#options' => array(
+      'absolute' => t('Mouse cursor'),
+      'fixed' => t('Fixed'),
+    ),
+    '#description' => t('Sets the css <em>position</em> property of AJAX confirmation popups.'),
+  );
+  $form['positioning']['user_relationships_left'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Elaboration form\'s css left value'),
+    '#default_value' => variable_get('user_relationships_left', '0'),
+    '#size' => 4,
+    '#description' => t('Sets the css <em>left</em> property of AJAX confirmation popups. Try the value of 0 for \'Mouse cursor\', or 0.5 for \'Fixed\'. You may enter a distance in pixels, or as a % using a value 1 or less. Relative positioning requires a fixed position.'),
+  );
+  $form['positioning']['user_relationships_top'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Elaboration form\'s css top value'),
+    '#default_value'  => variable_get('user_relationships_top', '0'),
+    '#size' => 4,
+    '#description' => t('Sets the css <em>top</em> property of AJAX confirmation popups. Try the value of 0 for \'Mouse cursor\', or 0.4 for \'Fixed\'. You may enter a distance in pixels, or as a % using a value 1 or less. Relative positioning requires a fixed position.'),
+  );
+  
   $replaceables = array(
     '!requester',
     '!requestee',

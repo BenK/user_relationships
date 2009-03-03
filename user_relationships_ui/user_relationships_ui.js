@@ -9,10 +9,31 @@ if (Drupal.jsEnabled) {
     // Given a click handler so you can display the popup correctly
     $('a.user_relationships_popup_link').click(function(e) {
       var buttoncode = e.which ? e.which : e.button; // msie specific checks does not support e.which
-      var pageX = e.pageX ? e.pageX : e.clientX; // msie specific checks does not support e.page
-      var pageY = e.pageY ? e.pageY : e.clientY; // msie specific checks does not support e.page
+      // If position is fixed, allow for %'s.
+      position = Drupal.settings.user_relationships_ui.position.position;
+      left = Drupal.settings.user_relationships_ui.position.left;
+      xtop = Drupal.settings.user_relationships_ui.position.top;
+      
+      if(position == "fixed") {
+        // If left is defined in a % (.5) calculate left requirement
+        if(left <= 1) {
+          // Window width * desired - UI width
+          left = Math.round(($(window).width()*left) - ($("#user_relationships_popup_form").width()/2));
+        }
+        // If top is define in a % (.33) calculate top requirement
+        if(xtop <= 1) {
+          // Window height * desired - UI height (which is an unknown)
+          xtop = Math.round(($(window).height()*xtop));// - ($("#user_relationships_popup_form").height()/2));
+        }
+      } else {
+      left = (e.pageX ? e.pageX : e.clientX) + Number(left); // msie specific checks does not support e.page
+      if (left + $("#user_relationships_popup_form").width() > $(window).width()) {
+        left = (e.pageX ? e.pageX : e.clientX) - $("#user_relationships_popup_form").width();
+      }
+        xtop = (e.pageY ? e.pageY : e.clientY) + Number(xtop); // msie specific checks does not support e.page
+      }
       var href = $(this).attr('href'); // Where we send the ajax request.
-      Drupal.user_relationships_ui.showForm(href, pageX, pageY);
+      Drupal.user_relationships_ui.showForm(href, position, left, xtop);
       return false;
     });
   });
@@ -28,12 +49,14 @@ if (Drupal.jsEnabled) {
  * @param pageY
  *      Top value for the event
  */
-Drupal.user_relationships_ui.showForm = function(href, pageX, pageY) {
+Drupal.user_relationships_ui.showForm = function(href, position, left, top) {
+//alert('left :'+left+'; top: '+top+'; position: '+position);
   // Making sure that any currently open popups will be hidden.
   Drupal.user_relationships_ui.hidePopup();
   // Putting the animation into this
+
   $('#user_relationships_popup_form')
-    .css({top: pageY + 'px', left: '300px'})
+    .css({top: top + 'px', left: left + 'px', position: position})
     .html(Drupal.user_relationships_ui.loadingAnimation())
     .slideDown();
   // Adding ajax to the href because we need to determine between ajax and regular
