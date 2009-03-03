@@ -1,8 +1,12 @@
 <?php
-// $Id: user_relationship_node_access.module,v 1.1.4.7 2009-03-03 18:02:12 alexk Exp $
+// $Id: user_relationship_node_access.module,v 1.1.4.8 2009-03-03 18:24:57 alexk Exp $
 // Copyright (C) 2008 Jonathan Brown
 // http://openpackage.biz/
 
+/**
+ * @file User Relationships Node Access module
+ * Allows content posted to be shared with users in one's social network
+ */
 
 /**
  * Theme function for styling out the permissions form
@@ -56,7 +60,7 @@ function user_relationship_node_access_theme() {
  * hook_enable()
  */
 function user_relationship_node_access_enable() {
-	node_access_rebuild();
+  node_access_rebuild();
 }
 
 
@@ -64,8 +68,8 @@ function user_relationship_node_access_enable() {
  * hook_disable()
  */
 function _user_relationship_node_access_disable() {
-	_user_relationship_node_access_disabling(TRUE);
-	node_access_rebuild();
+  _user_relationship_node_access_disabling(TRUE);
+  node_access_rebuild();
 }
 
 
@@ -73,13 +77,13 @@ function _user_relationship_node_access_disable() {
  * helper function to make sure we don't set up permissions if we're disabling
  */
 function _user_relationship_node_access_disabling($set = NULL) {
-	static $disabling = FALSE;
+  static $disabling = FALSE;
 
-	if($set !== NULL) {
-		$disabling = $set;
-	}
+  if ($set !== NULL) {
+    $disabling = $set;
+  }
 
-	return $disabling;
+  return $disabling;
 }
 
 
@@ -92,29 +96,29 @@ function user_relationship_node_access_form_alter(&$form, $form_state, $form_id)
     return;
   }
 
-	if(
-	  is_null($form['type']) ||
-	  $form['type']['#value'] .'_node_form' != $form_id ||
-	  !count($types = user_relationships_types_load())
-	) {
-	  return;
-	}
+  if (
+    is_null($form['type']) ||
+    $form['type']['#value'] .'_node_form' != $form_id ||
+    !count($types = user_relationships_types_load())
+  ) {
+    return;
+  }
 
-	// verify we can set permissions on this node
-	if (!_user_relationship_node_access_node_eligible($form['#node'])) {
-	  return;
-	}
+  // verify we can set permissions on this node
+  if (!_user_relationship_node_access_node_eligible($form['#node'])) {
+    return;
+  }
 
-	foreach($types as $rtid => $type) {
-	  unset($types[$rtid]);
-	  if ($type->is_oneway) {
-	    $types["{$rtid}_yt"] = t('Post to @type (you to them)', array('@type' => $type->plural_name));
-	    $types["{$rtid}_ty"] = t('Post to @type (them to you)', array('@type' => $type->plural_name));
-	  }
-	  else {
-	    $types[$rtid] = t('Post to @type', array('@type' => $type->plural_name));
-	  }
-	}
+  foreach ($types as $rtid => $type) {
+    unset($types[$rtid]);
+    if ($type->is_oneway) {
+      $types["{$rtid}_yt"] = t('Post to @type (you to them)', array('@type' => $type->plural_name));
+      $types["{$rtid}_ty"] = t('Post to @type (them to you)', array('@type' => $type->plural_name));
+    }
+    else {
+      $types[$rtid] = t('Post to @type', array('@type' => $type->plural_name));
+    }
+  }
   asort($types);
 
   // reverse the optimization made after saving
@@ -155,18 +159,18 @@ function user_relationship_node_access_form_alter(&$form, $form_state, $form_id)
   }
   foreach ($author_allowed_perms as $action) {
     $defaults = $permissions[$action] ? $permissions[$action] : array();
-  	$form['user_relationship_node_access'][$action] = array(
-  		'#type'           => 'checkboxes',
-  		'#multiple'       => TRUE,
-  		'#options'        => $types,
-  		'#default_value'  => $defaults,
-  		'#description'    => $is_group_post ? 
-  	         t('@group_post_ur_node_access_description', array('@group_post_ur_node_access_description' => '')) : 
-  	         t('If no box is ticked, then anyone can @action.', array('@action' => $action))
-  	);
-  	if ($use_advanced_form) {
-  	  $form['user_relationship_node_access'][$action]['#title'] = t(ucfirst($action));
-  	}
+    $form['user_relationship_node_access'][$action] = array(
+      '#type'           => 'checkboxes',
+      '#multiple'       => TRUE,
+      '#options'        => $types,
+      '#default_value'  => $defaults,
+      '#description'    => $is_group_post ? 
+             t('@group_post_ur_node_access_description', array('@group_post_ur_node_access_description' => '')) : 
+             t('If no box is ticked, then anyone can @action.', array('@action' => $action))
+    );
+    if ($use_advanced_form) {
+      $form['user_relationship_node_access'][$action]['#title'] = t(ucfirst($action));
+    }
   }
 
 }
@@ -176,7 +180,7 @@ function user_relationship_node_access_form_alter(&$form, $form_state, $form_id)
  */
 function user_relationship_node_access_perm() {
   $results = array();
-  foreach(array('view', 'update', 'delete') as $type) {
+  foreach (array('view', 'update', 'delete') as $type) {
     $results[] = t('grant !type permission to related users', array('!type' => $type));
   }
   return $results;
@@ -222,61 +226,61 @@ function user_relationship_node_access_nodeapi(&$node, $op, $a3 = NULL, $a4 = NU
     return;
   }
 
-	switch($op) {
-	case 'insert':
-	case 'update':
-	  // if user is not allowed to effect perms, do not change access settings
-	  $allowed_grants = _user_relationship_node_access_get_allowed_grants($user);
-	  if (!count($allowed_grants)) {
-	    break;
-	  }
-	  // if no content type isn't included, do not change access settings
-	  if (!_user_relationship_node_access_node_eligible($node)) {
-	    break;
-	  }
-	  
-	  // clear old settings, this will actually clear even ones that user is not allowed to set.
+  switch ($op) {
+  case 'insert':
+  case 'update':
+    // if user is not allowed to effect perms, do not change access settings
+    $allowed_grants = _user_relationship_node_access_get_allowed_grants($user);
+    if (!count($allowed_grants)) {
+      break;
+    }
+    // if no content type isn't included, do not change access settings
+    if (!_user_relationship_node_access_node_eligible($node)) {
+      break;
+    }
+    
+    // clear old settings, this will actually clear even ones that user is not allowed to set.
     db_query(
       "DELETE FROM {user_relationship_node_access} WHERE nid = %d",
       $node->nid
     );
 
-	  $user_relationship_node_access = array();
-	  if (is_array($node->user_relationship_node_access)) {
+    $user_relationship_node_access = array();
+    if (is_array($node->user_relationship_node_access)) {
       // reformat the array and optimize
-	    foreach($node->user_relationship_node_access as $action => $permissions) {
-  		  foreach ($permissions as $key => $permission) {
-  		    //make sure user is allowed to set this permission
-    			if($allowed_grants[$action] && $permission) {
-    			  $user_relationship_node_access[$key][$action] = TRUE;
-    			}
-  		  }
-  		}
+      foreach ($node->user_relationship_node_access as $action => $permissions) {
+        foreach ($permissions as $key => $permission) {
+          //make sure user is allowed to set this permission
+          if ($allowed_grants[$action] && $permission) {
+            $user_relationship_node_access[$key][$action] = TRUE;
+          }
+        }
+      }
 
       // save permissions if any are set
-  		db_query(
+      db_query(
         "INSERT INTO {user_relationship_node_access} (nid, permissions) VALUES (%d, '%s')",
         $node->nid, serialize($user_relationship_node_access)
       );
-	  }
+    }
 
-		$node->user_relationship_node_access = $user_relationship_node_access;
-		break;
+    $node->user_relationship_node_access = $user_relationship_node_access;
+    break;
 
-	case 'load':
-		$node->user_relationship_node_access = unserialize(db_result(db_query(
-		  "SELECT permissions FROM {user_relationship_node_access} WHERE nid = %d",
-			$node->nid
-		)));
-		break;
+  case 'load':
+    $node->user_relationship_node_access = unserialize(db_result(db_query(
+      "SELECT permissions FROM {user_relationship_node_access} WHERE nid = %d",
+      $node->nid
+    )));
+    break;
 
-	case 'delete':
-		db_query(
-		  "DELETE FROM {user_relationship_node_access} WHERE nid = %d",
-			$node->nid
-		);
-		break;
-	}
+  case 'delete':
+    db_query(
+      "DELETE FROM {user_relationship_node_access} WHERE nid = %d",
+      $node->nid
+    );
+    break;
+  }
 }
 
 
@@ -284,62 +288,62 @@ function user_relationship_node_access_nodeapi(&$node, $op, $a3 = NULL, $a4 = NU
  * hook_node_grants()
  */
 function user_relationship_node_access_node_grants($user, $op) {
-	// get this user's relationships
-	$relationships = user_relationships_load(array(
-		'user'      => $user->uid,
-		'approved'  => TRUE
-	));
+  // get this user's relationships
+  $relationships = user_relationships_load(array(
+    'user'      => $user->uid,
+    'approved'  => TRUE
+  ));
 
-  foreach($relationships as $relationship) {
+  foreach ($relationships as $relationship) {
     $author_uid = $relationship->requestee_id == $user->uid ? $relationship->requester_id : $relationship->requestee_id;
 
     if ($relationship->is_oneway) {
       $grants["user_relationship_node_access_{$relationship->rtid}_yt"][] = $relationship->requester_id;
       $grants["user_relationship_node_access_{$relationship->rtid}_ty"][] = $relationship->requestee_id;
-	  }
-	  else {
-	    $grants["user_relationship_node_access_{$relationship->rtid}"][] = $author_uid;
-	  }
-	}
+    }
+    else {
+      $grants["user_relationship_node_access_{$relationship->rtid}"][] = $author_uid;
+    }
+  }
 
-	$grants['user_relationship_node_access_author'] = array($user->uid);
+  $grants['user_relationship_node_access_author'] = array($user->uid);
 
-	return $grants;
+  return $grants;
 }
 
 /**
  * hook_access_records()
  */
 function user_relationship_node_access_node_access_records($node) {
-	if(_user_relationship_node_access_disabling()) {
-		return;
-	}
+  if (_user_relationship_node_access_disabling()) {
+    return;
+  }
 
   $grants = array();
 
-	if(is_array($node->user_relationship_node_access)) {
-		foreach($node->user_relationship_node_access as $rtid => $permissions) {
-			$grants[] = array(
-				'realm'         => "user_relationship_node_access_{$rtid}",
-				'gid'           => $node->uid,
-				'grant_view'    => $permissions['view'],
-				'grant_update'  => $permissions['update'],
-				'grant_delete'  => $permissions['delete']
-			);
-		}
-	}
+  if (is_array($node->user_relationship_node_access)) {
+    foreach ($node->user_relationship_node_access as $rtid => $permissions) {
+      $grants[] = array(
+        'realm'         => "user_relationship_node_access_{$rtid}",
+        'gid'           => $node->uid,
+        'grant_view'    => $permissions['view'],
+        'grant_update'  => $permissions['update'],
+        'grant_delete'  => $permissions['delete']
+      );
+    }
+  }
 
-	if(count($grants)) {
-		$grants[] = array(
-			'realm'         => 'user_relationship_node_access_author',
-			'gid'           => $node->uid,
-			'grant_view'    => TRUE,
-			'grant_update'  => TRUE,
-			'grant_delete'  => TRUE
-		);
-	}
+  if (count($grants)) {
+    $grants[] = array(
+      'realm'         => 'user_relationship_node_access_author',
+      'gid'           => $node->uid,
+      'grant_view'    => TRUE,
+      'grant_update'  => TRUE,
+      'grant_delete'  => TRUE
+    );
+  }
 
-	return $grants;
+  return $grants;
 }
 
 /**
@@ -361,7 +365,7 @@ function _user_relationship_node_access_node_eligible($node) {
  */
 function _user_relationship_node_access_get_allowed_grants($user = NULL) {
   $allowed_grants = array();
-  foreach(array('view', 'update', 'delete') as $type) {
+  foreach (array('view', 'update', 'delete') as $type) {
     $perm = t('grant !type permission to related users', array('!type' => $type));
     if (user_access($perm, $user)) {
       $allowed_grants[$type] = $type;
