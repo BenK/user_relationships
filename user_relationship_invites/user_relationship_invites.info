@@ -1,0 +1,8 @@
+; $Id: user_relationship_invites.info,v 1.1.2.1 2009-03-10 18:40:53 jaydub Exp $
+name = UR-Invite
+description = "Gives users the option of specifying a relationship when inviting new users"
+dependencies[] = user_relationships_api
+dependencies[] = user_relationships_ui
+dependencies[] = invite
+core = 6.x
+package = "User Relationships"
