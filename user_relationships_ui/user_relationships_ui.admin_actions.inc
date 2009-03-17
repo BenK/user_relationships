@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.admin_actions.inc,v 1.1.2.10 2009-02-26 23:07:34 alexk Exp $
+// $Id: user_relationships_ui.admin_actions.inc,v 1.1.2.11 2009-03-17 11:04:48 alexk Exp $
 /**
  * @file
  * User Relationships admin submit handlers
@@ -127,40 +127,3 @@ function user_relationships_ui_type_delete_submit($form, &$form_state) {
 
   $form_state['redirect'] = 'admin/user/relationships';
 }
-
-
-/**
- * Validate relationship request.
- * TODO: delete this function. It looks like a copy from user_relationships_ui.actions.inc
- */
-/*
-function user_relationships_ui_request_validate($form, &$form_state) {
-  $requester = user_load($form_state['values']['requester']);
-  $requestee = user_load($form_state['values']['requestee']);
-
-  if (user_access('can have relationships', $requestee)) {
-    $current_relationships = user_relationships_load(array('between' => array($requester->uid, $requestee->uid)));
-
-    if (!db_result(db_query(
-      "SELECT COUNT(*) FROM {user_relationship_types}" . ($current_relationships ? " WHERE rtid NOT IN ('%s') ORDER BY name" : ''),
-      implode(',', array_keys($current_relationships))
-    ))) {
-      drupal_set_message(user_relationships_ui_get_message('too_many_relationships'), 'error');
-      drupal_goto();
-    }
-    else if ($current_relationships[$form_values['rtid']]) {
-      $message_name = $current_relationships[$form_values['rtid']]->approved ? 'existing_relationship' : 'existing_request';
-      form_set_error('rtid', user_relationships_ui_get_message($message_name, array(
-        '%requester'                => $requester->name,
-        '%requestee'                => $requestee->name,
-        '%relationship_name'        => $$current_relationships[$form_values['rtid']]->name,
-        '%relationship_plural_name' => $$current_relationships[$form_values['rtid']]->plural_name
-      )));
-    }
-  }
-  else {
-    drupal_set_message(user_relationships_ui_get_message('not_accepting_requests'));
-    drupal_goto();
-  }
-}
-*/
