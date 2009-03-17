@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.actions.inc,v 1.1.2.9 2009-02-27 18:16:47 alexk Exp $
+// $Id: user_relationships_ui.actions.inc,v 1.1.2.10 2009-03-17 14:13:20 alexk Exp $
 
 /**
  * @file
@@ -27,7 +27,7 @@ function user_relationships_ui_request_validate($form, &$form_state) {
         return;
       }
     }
-    $current_relationships = user_relationships_load(array('between' => array($requester->uid, $requestee->uid)));
+    $current_relationships = user_relationships_load(array('between' => array($requester->uid, $requestee->uid)), array('sort' => 'rtid'));
     //check for multiple relationships
     if (!variable_get('user_relationships_allow_multiple', TRUE) && count($current_relationships)) {
     form_set_error('rtid', user_relationships_ui_get_message('too_many_relationships'));
@@ -60,11 +60,11 @@ function user_relationships_ui_request_validate($form, &$form_state) {
     }
     else if ($current_relationships[$rtid]) {
       $message_name = $current_relationships[$rtid]->approved ? 'existing_relationship' : 'existing_request';
-      form_set_error('rtid', user_relationships_ui_get_message($message_name, array(
-        '%requester'                => $requester->name,
-        '%requestee'                => $requestee->name,
-        '%relationship_name'        => $$current_relationships[$rtid]->name,
-        '%relationship_plural_name' => $$current_relationships[$rtid]->plural_name
+      form_set_error('rtid', user_relationships_ui_get_message($message_name, NULL, array(
+        '!requester'                => $requester->name,
+        '!requestee'                => $requestee->name,
+        '%relationship_name'        => $current_relationships[$rtid][0]->name,
+        '%relationship_plural_name' => $current_relationships[$rtid][0]->plural_name
       )));
     }
   }
