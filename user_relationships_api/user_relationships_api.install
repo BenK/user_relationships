@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.install,v 1.1.2.7 2009-02-27 18:26:11 alexk Exp $
+// $Id: user_relationships_api.install,v 1.1.2.8 2009-03-17 10:57:14 alexk Exp $
 
 /**
  * @file
@@ -26,6 +26,7 @@ function user_relationships_api_schema() {
       'requester_id' => array('requester_id'),
       'requestee_id' => array('requestee_id'),
       'rtid' => array('rtid'),
+      'rid' => array('rid'),
     ),
   );
 
