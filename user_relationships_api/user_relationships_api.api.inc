@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.api.inc,v 1.1.2.10 2009-02-26 23:07:34 alexk Exp $
+// $Id: user_relationships_api.api.inc,v 1.1.2.11 2009-03-24 11:07:55 alexk Exp $
 
 /**
  * @file
@@ -174,7 +174,7 @@ function user_relationships_request_relationship($requester, $requestee, $type, 
     $relationship = (object)array(
       'requester_id'  => $requester->uid,
       'requestee_id'  => $requestee->uid,
-      'approved'      => $approved || !$type->requires_approval,
+      'approved'      => $approved || !$type->requires_approval || $requestee->user_relationships_ui_auto_approve[$type->rtid],
       'rtid'          => $type->rtid,
     );
 
