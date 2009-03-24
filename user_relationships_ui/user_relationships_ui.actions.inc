@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.actions.inc,v 1.1.2.10 2009-03-17 14:13:20 alexk Exp $
+// $Id: user_relationships_ui.actions.inc,v 1.1.2.11 2009-03-24 05:44:23 jaydub Exp $
 
 /**
  * @file
@@ -52,8 +52,9 @@ function user_relationships_ui_request_validate($form, &$form_state) {
     }
 
     if (!db_result(db_query(
-      "SELECT COUNT(*) FROM {user_relationship_types}" . ($current_relationships ? " WHERE rtid NOT IN ('%s') ORDER BY name" : ''),
-      implode(',', array_keys($current_relationships))
+      'SELECT COUNT(*) FROM {user_relationship_types}' . 
+      ($current_relationships ? ' WHERE rtid NOT IN ('. db_placeholders($current_relationships) .')' : ''),
+      array_keys($current_relationships)
     ))) {
       drupal_set_message(user_relationships_ui_get_message('too_many_relationships'), 'error');
       drupal_goto();
