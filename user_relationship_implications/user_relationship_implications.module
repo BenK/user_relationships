@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_implications.module,v 1.1.2.7 2009-01-14 11:03:03 alexk Exp $
+// $Id: user_relationship_implications.module,v 1.1.2.8 2009-03-24 09:12:16 alexk Exp $
 
 /**
  * Drupal Module: User Relationship Implications
@@ -309,24 +309,24 @@ function theme_user_relationship_implications_page($uid = NULL, $relationship = 
     $results = db_query($query['query'], $query['arguments']);
   }
 
-  if (db_num_rows($results)) {
-    $edit_access = ($user->uid == $uid && user_access('maintain own relationships')) || user_access('administer users');
-    $online_interval = time() - variable_get('user_block_seconds_online', 180);
+  $edit_access = ($user->uid == $uid && user_access('maintain own relationships')) || user_access('administer users');
+  $online_interval = time() - variable_get('user_block_seconds_online', 180);
 
-    while ($relation = db_fetch_object($results)) {
-      $this_user = $viewed_user->uid == $relation->requestee_id ? 'requester_id' : 'requestee_id';
-      $this_user = user_load(array('uid' => $relation->$this_user));
-      $relations = array();
+  while ($relation = db_fetch_object($results)) {
+    $this_user = $viewed_user->uid == $relation->requestee_id ? 'requester_id' : 'requestee_id';
+    $this_user = user_load(array('uid' => $relation->$this_user));
+    $relations = array();
 
-      $this_users_relationships = user_relationships_load(array('user' => $this_user->uid));
-      $rows[] = array(
-        theme('username', $this_user),
-        theme('item_list', _user_relationship_implications_load_relationship_names($this_users_relationships, $viewed_user->uid)),
-        $this_user->access > $online_interval ? t('online') : t('not online'),
-        $edit_access ? theme('user_relationships_remove_link', $viewed_user->uid, $relation) : '&nbsp;',
-      );
-    }
-    $output .= theme('table', array(), $rows);
+    $this_users_relationships = user_relationships_load(array('user' => $this_user->uid));
+    $rows[] = array(
+      theme('username', $this_user),
+      theme('item_list', _user_relationship_implications_load_relationship_names($this_users_relationships, $viewed_user->uid)),
+      $this_user->access > $online_interval ? t('online') : t('not online'),
+      $edit_access ? theme('user_relationships_remove_link', $viewed_user->uid, $relation) : '&nbsp;',
+    );
+  }
+  if (count($rows)) {
+    $output .= theme('table', array(), $rows, array('class' => 'user-relationship-implications-listing-table'));
   }
   else {
     $output .= t('No relationships found');
