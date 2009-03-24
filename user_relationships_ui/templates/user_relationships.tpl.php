@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships.tpl.php,v 1.1.2.6 2009-02-26 23:07:34 alexk Exp $
+// $Id: user_relationships.tpl.php,v 1.1.2.7 2009-03-24 08:46:35 alexk Exp $
 
 //$relationships array is loaded in template_preprocess_user_relationships()
 if ($relationships) {
@@ -22,7 +22,7 @@ if ($relationships) {
   }
 
   print
-    theme('table', array(), $rows) .
+    theme('table', array(), $rows, array('class' => 'user-relationships-listing-table')) .
     theme('pager', NULL, $relationships_per_page);
 }
 else {

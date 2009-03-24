@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_pending_requests.tpl.php,v 1.1.2.5 2008-10-24 10:52:49 alexk Exp $
+// $Id: user_relationships_pending_requests.tpl.php,v 1.1.2.6 2009-03-24 08:46:35 alexk Exp $
 /**
  * @file
  * Page to manage sent and received relationship requests
@@ -40,7 +40,7 @@
     }
 
     $output .=
-      theme('table', array(), $rows).
+      theme('table', array(), $rows, array('class' => 'user-relationships-pending-listing-table')).
       theme('pager', NULL, $relationships_per_page, $pager_id++);
   }
 
