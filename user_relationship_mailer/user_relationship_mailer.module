@@ -1,6 +1,8 @@
 <?php
-// $Id: user_relationship_mailer.module,v 1.1.2.7 2008-10-28 11:28:44 alexk Exp $
-
+// $Id: user_relationship_mailer.module,v 1.1.2.8 2009-03-27 15:13:37 alexk Exp $
+/**
+ * @file User Relationships Mailer module. Handles email notifications when relationships are added or removed
+ */
 module_load_include('inc', 'user_relationship_mailer', 'user_relationship_mailer_defaults');
 
 /**
@@ -14,7 +16,7 @@ module_load_include('inc', 'user_relationship_mailer', 'user_relationship_mailer
  *
  */
 function user_relationship_mailer_send_email($op, $relationship) {
-  if (($op == 'request' && $relationship->approved) || !variable_get("user_relationship_mailer_send_{$op}", TRUE)) {
+  if (!variable_get("user_relationship_mailer_send_{$op}", TRUE)) {
     return;
   }
 
@@ -27,6 +29,9 @@ function user_relationship_mailer_send_email($op, $relationship) {
   $send_to = array();
   switch ($op) {
   case 'request':
+    if ($relationship->approved == TRUE) {
+      $op = 'pre_approved';
+    }
   case 'cancel':
     $send_email = $send_to_requestee;
     $send_to[] = 'requestee';
@@ -91,7 +96,7 @@ function user_relationship_mailer_mail($op, &$message, $replacements) {
  */
 function user_relationship_mailer_user_relationships($op, &$relationship) {
   switch ($op) {
-    //request|delete|cancel|approve|disapprove|remove
+    //request|delete|cancel|approve|disapprove|remove|pre_approved
     case 'request':
     case 'post-save':
     case 'delete':
@@ -99,6 +104,7 @@ function user_relationship_mailer_user_relationships($op, &$relationship) {
     case 'approve':
     case 'disapprove':
     case 'cancel':
+    case 'pre_approved':
       user_relationship_mailer_send_email($op, $relationship);
       break;
   }
@@ -127,7 +133,8 @@ function user_relationship_mailer_form_alter(&$form, &$form_state, $form_id) {
         '#description'    => t('If you check this, users will have a new setting on their account edit page.'),
       );
 
-      global $user_relationship_mailer_ops;
+      global $_user_relationship_mailer_ops;
+      
       //compose a list of possible replacement keys for email templates
       $replacement_keys = array_keys(user_relationship_mailer_replacements($relationship));
       //these two are added per-receipient in user_relationship_mailer_send_email()
@@ -135,13 +142,13 @@ function user_relationship_mailer_form_alter(&$form, &$form_state, $form_id) {
       $replacement_keys[] = '@target_name';
       $macro_replacements = array('%macros' => implode(', ', $replacement_keys));
 
-      foreach ($user_relationship_mailer_ops as $op) {
+      foreach ($_user_relationship_mailer_ops as $op) {
         $defaults_function = "user_relationship_mailer_{$op}_default";
         $defaults = $defaults_function();
 
         $form['mail'][$op] = array(
           '#type'         => 'fieldset',
-          '#title'        => t(ucfirst($op)),
+          '#title'        => t(ucfirst(str_replace('_', '-', $op))),
           '#collapsible'  => TRUE,
           '#collapsed'    => TRUE
         );
@@ -170,7 +177,7 @@ function user_relationship_mailer_form_alter(&$form, &$form_state, $form_id) {
  * hook_user()
  */
 function user_relationship_mailer_user($type, &$edit, &$account, $category = NULL) {
-  switch($type) {
+  switch ($type) {
   case 'form':
     $form = array();
     if (($category == 'account')

@@ -1,8 +1,11 @@
 <?php
-// $Id: user_relationship_mailer_defaults.inc,v 1.1.2.5 2008-10-01 09:38:11 alexk Exp $
+// $Id: user_relationship_mailer_defaults.inc,v 1.1.2.6 2009-03-27 15:13:37 alexk Exp $
+/**
+ * @file User Relationships Mailer implementation. Contains all default strings and action definitions
+ */
 
-global $user_relationship_mailer_ops;
-$user_relationship_mailer_ops = array('request', 'cancel', 'approve', 'disapprove', 'remove');
+global $_user_relationship_mailer_ops;
+$_user_relationship_mailer_ops = array('request', 'cancel', 'approve', 'disapprove', 'remove', 'pre_approved');
 
 /**
  * Replacements for mail messages
@@ -153,6 +156,29 @@ function user_relationship_mailer_remove_default() {
 Dear @target_name,
 
 @requester_name's @relationship_name relationship to @requestee_name has been deleted by @deleted_by_name.
+
+Regards,
+The @site team
+
+This message was sent to you because you have user relationships email notifications turned on.
+If you no longer wish to receive these emails, you can turn them off at @site_url/user/@profile_uid/edit.
+MESSAGE;
+
+  return array(
+    'subject' => $subject,
+    'message' => $message,
+  );
+}
+
+/**
+ * Default no approval request relationship message
+ */
+function user_relationship_mailer_pre_approved_default() {
+  $subject = "[@site] New @relationship_name relationship between @requester_name and @requestee_name";
+  $message = <<<MESSAGE
+Dear @target_name,
+
+We have just created a new @relationship_name relationship between @requester_name and @requestee_name.
 
 Regards,
 The @site team
