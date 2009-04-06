@@ -10,3 +10,20 @@
   position: absolute;
   z-index: 1000;
 }
+#user_relationships_popup_form_saving {
+  font-weight: bold;
+  background: url(images/savingimage.gif) no-repeat 12px 1px;
+  display: none;
+  padding: 0 1em 0 36px;
+  float: left;
+}
+
+#user_relationships_popup_form_saving p {
+  margin: 0;
+}
+
+#user_relationships_popup_form_saving_notice {
+  font-size: 0.9em;
+  font-style: italic;
+  background: #FFC;
+}

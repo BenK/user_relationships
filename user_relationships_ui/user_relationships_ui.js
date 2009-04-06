@@ -50,7 +50,6 @@ if (Drupal.jsEnabled) {
  *      Top value for the event
  */
 Drupal.user_relationships_ui.showForm = function(href, position, left, top) {
-//alert('left :'+left+'; top: '+top+'; position: '+position);
   // Making sure that any currently open popups will be hidden.
   Drupal.user_relationships_ui.hidePopup();
   // Putting the animation into this
@@ -72,6 +71,8 @@ Drupal.user_relationships_ui.showForm = function(href, position, left, top) {
       Drupal.user_relationships_ui.hidePopup();
       return false;
     });
+    //Prevent users from clicking submit button twice
+    Drupal.user_relationships_ui.formCheck();
   });
 };
 
@@ -93,3 +94,23 @@ Drupal.user_relationships_ui.loadingAnimation = function() {
 Drupal.user_relationships_ui.hidePopup = function() {
   $('#user_relationships_popup_form').slideUp();
 }
+
+/**
+ * Prevent users from clicking a submit button twice - borrowed from http://drupal.org/project/newswire - thanks, fellows :)
+ */
+Drupal.user_relationships_ui.formCheck = function() {
+  // only apply this to node and comment and new user registration forms
+  var forms = $("#user_relationships_popup_form #edit-submit");
+  // insert the saving div now to cache it for better performance and to show the loading image
+  $('<div id="user_relationships_popup_form_saving"><p class="user_relationships_popup_form_saving">' + Drupal.t('Saving...') + '</p></div>').insertAfter(forms);
+  forms.click(function() {
+    $(this).siblings("input[@type=submit]").hide();
+    $(this).hide();
+    $("#user_relationships_popup_form_saving").show();
+    var notice = function() {
+      $('<p id="user_relationships_popup_form_saving_notice">' + Drupal.t('Not saving? Please wait a few seconds, reload this page, and try again.') + '</p>').appendTo("#user_relationships_popup_form_saving").fadeIn();
+    };
+    // append notice if form saving isn't work, perhaps a timeout issue
+    setTimeout(notice, 60000);
+  });
+};
