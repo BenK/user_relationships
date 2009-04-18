@@ -82,7 +82,9 @@ Drupal.user_relationships_ui.showForm = function(href, position, left, top) {
  */
 Drupal.user_relationships_ui.loadingAnimation = function() {
   var html = '<div>';
-  html += '<div style="text-align: center; font-weight: bold;">Form Loading</div>';
+  html += '<div style="text-align: center; font-weight: bold;">';
+  html += Drupal.t('Form Loading');
+  html += '</div>';
   html += '<img src="' + Drupal.settings.user_relationships_ui['loadingimage'] + '" border="0" height="20" width="200" />';
   html += '</div>';
   return html;
