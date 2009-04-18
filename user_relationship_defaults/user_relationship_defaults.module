@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_defaults.module,v 1.1.2.5 2008-10-05 09:40:17 alexk Exp $
+// $Id: user_relationship_defaults.module,v 1.1.2.6 2009-04-18 05:28:45 alexk Exp $
 
 /**
  * Drupal Module: User Relationship Defaults
@@ -91,7 +91,7 @@ function user_relationship_defaults_menu() {
   $items = array();
 
   $items['admin/user/relationships/defaults/add'] = array(
-    'title'             => t('Add default'),
+    'title'             => 'Add default',
     'access arguments'  => array('administer user relationships'),
     'page callback'     => 'drupal_get_form',
     'page arguments'    => array('user_relationship_defaults_add_form'),
@@ -99,7 +99,7 @@ function user_relationship_defaults_menu() {
     'weight'            => 2
   );
   $items['admin/user/relationships/defaults/%user_relationship_default/delete'] = array(
-    'title'             => t('Delete default'),
+    'title'             => 'Delete default',
     'access arguments'  => array('administer user relationships'),
     'page callback'     => 'drupal_get_form',
     'page arguments'    => array('user_relationship_defaults_delete_form', 4),
