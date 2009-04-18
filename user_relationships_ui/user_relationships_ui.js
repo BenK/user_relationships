@@ -104,7 +104,7 @@ Drupal.user_relationships_ui.formCheck = function() {
   // insert the saving div now to cache it for better performance and to show the loading image
   $('<div id="user_relationships_popup_form_saving"><p class="user_relationships_popup_form_saving">' + Drupal.t('Saving...') + '</p></div>').insertAfter(forms);
   forms.click(function() {
-    $(this).siblings("input[@type=submit]").hide();
+    $(this).siblings("input[type=submit]").hide();
     $(this).hide();
     $("#user_relationships_popup_form_saving").show();
     var notice = function() {
