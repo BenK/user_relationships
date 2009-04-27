@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_mailer_defaults.inc,v 1.1.2.6 2009-03-27 15:13:37 alexk Exp $
+// $Id: user_relationship_mailer_defaults.inc,v 1.1.2.7 2009-04-27 15:29:32 alexk Exp $
 /**
  * @file User Relationships Mailer implementation. Contains all default strings and action definitions
  */
@@ -37,6 +37,12 @@ function user_relationship_mailer_replacements(&$relationship) {
     '@relationship_name'        => $relationship->relationship_type->name,
     '@relationship_plural_name' => $relationship->relationship_type->plural_name,
   );
+  
+  // #443326 Integration with realname module
+  if (module_exists('realname')) {
+    $replacements['@requester_realname'] = $requester->realname;
+    $replacements['@requestee_realname'] = $requestee->realname;
+  }
 
   //'remove' action needs a few more variables for the template
   if ($deleted_by = $relationship->deleted_by) {
