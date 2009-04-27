@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships-block.tpl.php,v 1.1.2.5 2008-10-30 12:49:33 alexk Exp $
+// $Id: user_relationships-block.tpl.php,v 1.1.2.6 2009-04-27 16:39:53 alexk Exp $
 /**
  * @file Main relationships listing block
  * List the relationships between the viewed user and the current user
@@ -21,12 +21,7 @@ if ($relationships) {
     $title = t($rtype_heading, array('@rel_plural_name' => $relationship->plural_name, '@rel_name' => $relationship->name, '@extra' => $extra));
 
     $username = theme('username', $relatee);
-    if ($showing_all_types) {
-      $rows[$title]['children'][] = $username;
-    }
-    else {
-      $rows[$title][] = $username;
-    }
+    $rows[$title][] = $username;
   }
 
   foreach ($rows as $title => $users) {
