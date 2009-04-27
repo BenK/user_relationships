@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.admin_actions.inc,v 1.1.2.11 2009-03-17 11:04:48 alexk Exp $
+// $Id: user_relationships_ui.admin_actions.inc,v 1.1.2.12 2009-04-27 16:02:59 alexk Exp $
 /**
  * @file
  * User Relationships admin submit handlers
@@ -117,6 +117,10 @@ function user_relationships_ui_type_delete_submit($form, &$form_state) {
   db_query('DELETE FROM {user_relationship_type_roles} WHERE rtid = %d', $relationship_type->rtid);
 
   _user_relationships_invoke('delete', $relationship_type, TRUE);
+
+  // #371311 force menu rebuild
+  user_relationships_types_load(TRUE);
+  menu_rebuild();
 
   drupal_set_message(t('Relationship %name has been deleted.', array('%name' => $relationship_type->name)));
   watchdog(
