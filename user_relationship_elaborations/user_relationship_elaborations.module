@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_elaborations.module,v 1.1.2.7 2009-05-05 22:48:15 alexk Exp $
+// $Id: user_relationship_elaborations.module,v 1.1.2.8 2009-05-05 23:04:30 alexk Exp $
 
 /**
  * @file
@@ -62,22 +62,26 @@ function user_relationship_elaborations_user_relationships($op, &$relationships)
     }
   }
   else {
+    //have several relationships to process
     $rids = array();
+    //collect rids from the array
     _user_relationship_elaborations_walk_recursive('find_rids', $relationships, $rids);
 
     if ($rids) {
-      if (in_array($op, array('cancel', 'delete', 'remove'))) {
+      if (in_array($op, array('cancel', 'delete', 'remove', 'disapprove'))) {
         db_query('DELETE FROM {user_relationship_elaborations} WHERE rid IN ('. db_placeholders($rids) .')', $rids);
       }
       else {
-      $results = db_query('SELECT rid, elaboration FROM {user_relationship_elaborations} WHERE rid IN ('. db_placeholders($rids) .')', $rids);
-      while ($result = db_fetch_object($results)) {
-        $elaborations[$result->rid] = $result->elaboration;
+        //load elaboration data into these relationships
+        //TODO: find out what ops actually need this. thinking, presave probably doesn't
+        $results = db_query('SELECT rid, elaboration FROM {user_relationship_elaborations} WHERE rid IN ('. db_placeholders($rids) .')', $rids);
+        while ($result = db_fetch_object($results)) {
+          $elaborations[$result->rid] = $result->elaboration;
+        }
+  
+        _user_relationship_elaborations_walk_recursive('load', $relationships, $elaborations);
       }
-
-      _user_relationship_elaborations_walk_recursive('load', $relationships, $elaborations);
     }
-  }
   }
 }
 
