@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_elaborations.module,v 1.1.2.6 2009-01-27 17:39:05 jaydub Exp $
+// $Id: user_relationship_elaborations.module,v 1.1.2.7 2009-05-05 22:48:15 alexk Exp $
 
 /**
  * @file
@@ -57,7 +57,7 @@ function user_relationship_elaborations_user_relationships($op, &$relationships)
   if (!is_array($relationships)) {
     $relationships->elaboration = db_result(db_query('SELECT elaboration FROM {user_relationship_elaborations} WHERE rid = %d'), $relationships->rid);
 
-    if (in_array($op, array('cancel', 'delete', 'remove'))) {
+    if (in_array($op, array('cancel', 'delete', 'remove', 'disapprove'))) {
       db_query('DELETE FROM {user_relationship_elaborations} WHERE rid = %d', $relationships->rid);
     }
   }
@@ -110,7 +110,7 @@ function user_relationship_elaborations_preprocess_user_relationships(&$variable
   if (!variable_get('user_relationships_elaborations_api_only', FALSE)) {
     user_relationship_elaborations_user_relationships('load', $variables['relationships']);
     foreach ($variables['relationships'] as $rid => $relationship) {
-      $variables['relationships'][$rid]->extra_for_display .= $variables['relationships'][$rid]->elaboration;
+      $variables['relationships'][$rid]->extra_for_display .= check_plain($variables['relationships'][$rid]->elaboration);
     }
   }
 }
