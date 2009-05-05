@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.api.inc,v 1.1.2.11 2009-03-24 11:07:55 alexk Exp $
+// $Id: user_relationships_api.api.inc,v 1.1.2.12 2009-05-05 22:43:55 alexk Exp $
 
 /**
  * @file
@@ -202,11 +202,13 @@ function user_relationships_save_relationship(&$relationship, $op = 'request') {
   !isset($relationship->created_at) ? $relationship->created_at = time() : NULL;
   $relationship->updated_at = time();
   
+  if ($op == 'approve') {
+    $relationship->approved = 1;
+  }
+  
   _user_relationships_invoke('presave', $relationship);
 
   if ($relationship->rid) {
-    db_query("DELETE FROM {user_relationships} WHERE rid = %d", $relationship->rid);
-
     // Delete possible requests coming the other direction
     $relationship_type = user_relationships_type_load($relationship->rtid);
     if (!$relationship_type->is_oneway) {
@@ -217,7 +219,8 @@ function user_relationships_save_relationship(&$relationship, $op = 'request') {
     }
   }
 
-  if ($valid = drupal_write_record('user_relationships', $relationship)) {
+  //#454680 make sure that an update is performed if this is an existing relationship
+  if ($valid = drupal_write_record('user_relationships', $relationship, ($relationship->rid ? array('rid') : array()))) {
     // if the relationship has been approved and is two-way we need
     // to do a double entry for DB efficiency
     $relationship_type = user_relationships_type_load($relationship->rtid);
