@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.forms.inc,v 1.1.2.10 2009-02-27 18:16:47 alexk Exp $
+// $Id: user_relationships_ui.forms.inc,v 1.1.2.11 2009-05-07 23:43:13 alexk Exp $
 
 /**
  * @file
@@ -143,7 +143,7 @@ function user_relationships_ui_request(&$form_state, $requestee) {
       t('Request relationship'),
       "user/$requestee->uid",
       $relationship ?
-      t('Are you sure you wish to send a new %rel_name request to %name?', array('%name' => $requestee->name, '%rel_name' => $relationship->name, '%rel_plural_name' => $relationship->plural_name)) :
+      ($relationship->requires_approval ? t('Are you sure you wish to send a new %rel_name request to %name?', array('%name' => $requestee->name, '%rel_name' => $relationship->name, '%rel_plural_name' => $relationship->plural_name)) : t("Are you sure you want to become %name's %rel_name?", array('%name' => $requestee->name, '%rel_name' => $relationship->name))) :
       t('How do you relate to %name?', array('%name' => $requestee->name)),
       t('Send'), t('Cancel'),
       'user_relationships_request_confirm'
