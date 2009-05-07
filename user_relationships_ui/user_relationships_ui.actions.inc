@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.actions.inc,v 1.1.2.11 2009-03-24 05:44:23 jaydub Exp $
+// $Id: user_relationships_ui.actions.inc,v 1.1.2.12 2009-05-07 21:59:36 alexk Exp $
 
 /**
  * @file
@@ -105,19 +105,36 @@ function user_relationships_ui_request_submit($form, &$form_state) {
 function user_relationships_ui_pending_requested_submit($form, &$form_state) {
   global $user;
 
-  $relationship = user_relationships_load($form_state['values']['rid'], array('include_user_info' => TRUE));
+  $relationships = user_relationships_load(array('rid' => $form_state['values']['rid']), array('include_user_info' => TRUE));
+  $relationship = $relationships[$form_state['values']['rid']];
   $requester    = $relationship->requester;
   $requestee    = $relationship->requestee;
 
   switch ($form_state['values']['action']) {
   case 'approve':
+    if (!user_access('maintain own relationships') || (!user_access('administer user relationships') && $user->uid != $requestee->uid)) {
+      drupal_access_denied();
+      exit();
+    }
     $relationship->approved = TRUE;
     user_relationships_save_relationship($relationship, $form_state['values']['action']);
     drupal_set_message(user_relationships_ui_get_message('accepted', $relationship));
     break;
 
   case 'cancel':
+    if (!user_access('maintain own relationships') || (!user_access('administer user relationships') && $user->uid != $requester->uid)) {
+      drupal_access_denied();
+      exit();
+    }
+    user_relationships_delete_relationship($relationship, $user, $form_state['values']['action']);
+    drupal_set_message(user_relationships_ui_get_message($form_state['values']['action'], $relationship));
+    break;
+
   case 'disapprove':
+    if (!user_access('maintain own relationships') || (!user_access('administer user relationships') && $user->uid != $requestee->uid)) {
+      drupal_access_denied();
+      exit();
+    }
     user_relationships_delete_relationship($relationship, $user, $form_state['values']['action']);
     drupal_set_message(user_relationships_ui_get_message($form_state['values']['action'], $relationship));
     break;
@@ -138,6 +155,11 @@ function user_relationships_ui_remove_submit($form, &$form_state) {
 
   $relationship = user_relationships_load($form_state['values']['rid']);
 
+  if (!user_access('maintain own relationships') || (!user_access('administer user relationships') && $user->uid != $relationship->requester_id && $user->uid != $relationship->requestee_id)) {
+    drupal_access_denied();
+    exit();
+  }
+  
   user_relationships_delete_relationship($relationship, $user);
   drupal_set_message(user_relationships_ui_get_message('removed', $relationship));
 
