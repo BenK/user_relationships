@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_elaborations.module,v 1.1.2.8 2009-05-05 23:04:30 alexk Exp $
+// $Id: user_relationship_elaborations.module,v 1.1.2.9 2009-05-07 08:21:46 alexk Exp $
 
 /**
  * @file
@@ -26,7 +26,9 @@ function user_relationships_save_elaboration($rid, &$elaboration) {
     'elaboration' => $elaboration,
   );
 
-  return drupal_write_record('user_relationship_elaborations', $record);
+  //#456056 need to check if a record already exists, and update. do not assume there is no such rid
+  $existing_rid = $message = db_result(db_query("SELECT rid FROM {user_relationship_elaborations} WHERE rid = %d", $rid));
+  return drupal_write_record('user_relationship_elaborations', $record, ($existing_rid ? array('rid') : array()));
 }
 
 /**
@@ -73,7 +75,6 @@ function user_relationship_elaborations_user_relationships($op, &$relationships)
       }
       else {
         //load elaboration data into these relationships
-        //TODO: find out what ops actually need this. thinking, presave probably doesn't
         $results = db_query('SELECT rid, elaboration FROM {user_relationship_elaborations} WHERE rid IN ('. db_placeholders($rids) .')', $rids);
         while ($result = db_fetch_object($results)) {
           $elaborations[$result->rid] = $result->elaboration;
