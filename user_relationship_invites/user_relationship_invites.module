@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_invites.module,v 1.1.2.1 2009-03-10 18:40:53 jaydub Exp $
+// $Id: user_relationship_invites.module,v 1.1.2.2 2009-05-14 09:53:10 alexk Exp $
 
 /**
  * Drupal Module: User Relationship Invites
@@ -40,10 +40,15 @@ function user_relationship_invites_form_alter(&$form, $form_state, $form_id) {
     global $user;
 
     $new_user = drupal_anonymous_user();
-    module_load_include('inc', 'user_relationships_ui', 'user_relationships_ui.forms');
-    $form += user_relationships_ui_request_form($user->uid, $new_user->uid, $form_state['values']);
-    $form['rtid']['#weight'] = 0;
-    $form['#validate'][] = 'user_relationship_invites_invite_form_validate';
+    $rtypes = _user_relationships_ui_get_requestable_rtypes($user, $new_user);
+    if (count($rtypes)) {
+      $form['rtid'] = array(
+        '#title'          => t('My relationship is'),
+        '#type'           => 'radios',
+        '#options'        => $rtypes,
+      );
+      $form['#validate'][] = 'user_relationship_invites_invite_form_validate';
+    }
   }
 }
 
@@ -78,7 +83,7 @@ function user_relationship_invites_user($op, &$edit, &$account, $category = NULL
 
   switch ($op) {
     case 'register':
-      if (($code = $_SESSION[INVITE_SESSION]) && ($invite = user_relationship_invites_get_invite($code))) {
+      if (($code = $_SESSION[INVITE_SESSION]) && ($invite = user_relationship_invites_get_invite($code)) && $invite->relationship_type) {
         $form = array();
         $inviter = $invite->inviter;
         $relationship_type = $invite->relationship_type;
@@ -87,7 +92,7 @@ function user_relationship_invites_user($op, &$edit, &$account, $category = NULL
         if (!$relationship_type->is_oneway || $relationship_type->requires_approval) {
           $form['relationship_invite_approve'] = array(
             '#type' => 'radios',
-            '#title' => t('Are you a %relationship_name of !name?', array('!name' => theme('username', $inviter), '%relationship_name' => $relationship_type->name)),
+            '#title' => t('Please confirm the %relationship_name request from !name', array('!name' => theme('username', $inviter), '%relationship_name' => $relationship_type->name)),
             '#default_value' => (isset($edit['relationship_invite_approve']) ? $edit['relationship_invite_approve'] : 'approve'),
             '#options' => array('approve' => t('Yes'), 'disapprove' => t('No'))
           );

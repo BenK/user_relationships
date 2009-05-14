@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.module,v 1.1.2.16 2009-05-04 09:32:33 alexk Exp $
+// $Id: user_relationships_ui.module,v 1.1.2.17 2009-05-14 09:53:11 alexk Exp $
 /**
  * @file
  * UI components of user_relationships
@@ -251,6 +251,32 @@ function _user_relationships_ui_message_settings_form(&$form, $defaults = array(
       );
     }
   }
+}
+
+/**
+ * Get relationship types that a user can request
+ * TODO: factor out of .module into an include file
+ * @param $requester requester user or uid
+ * @param $requestee requestee user or uid
+ * @return array {rtid} => {relationship type name} that requester may send to requestee
+ */
+function _user_relationships_ui_get_requestable_rtypes($requester, $requestee) {
+  $current_relationships = user_relationships_load(array('between' => array($requester->uid, $requestee->uid)), array('sort' => 'rtid'));
+
+  $relationship_types = user_relationships_types_load();
+  $relationships = array();
+  foreach ($relationship_types as $rtype) {
+    //exclude already established relationships
+    if ($current_relationships[$rtype->rtid]) {
+      continue;
+    }
+    //exclude types that are not allowed
+    if (!user_relationships_api_can_request($requester, $rtype)) {
+      continue;
+    }
+    $relationships[$rtype->rtid] = $rtype->name;
+  }
+  return $relationships;
 }
 
 

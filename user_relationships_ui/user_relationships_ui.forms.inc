@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.forms.inc,v 1.1.2.11 2009-05-07 23:43:13 alexk Exp $
+// $Id: user_relationships_ui.forms.inc,v 1.1.2.12 2009-05-14 09:53:11 alexk Exp $
 
 /**
  * @file
@@ -11,21 +11,7 @@ module_load_include('inc', 'user_relationships_ui', 'user_relationships_ui.actio
  * Request new user to user relationship
  */
 function user_relationships_ui_request_form($requester, $requestee, $form_values = NULL) {
-  $current_relationships = user_relationships_load(array('between' => array($requester, $requestee)), array('sort' => 'rtid'));
-
-  $relationship_types = user_relationships_types_load();
-  $relationships = array();
-  foreach ($relationship_types as $rtype) {
-    //exclude already established relationships
-    if ($current_relationships[$rtype->rtid]) {
-      continue;
-    }
-    //exclude types that are not allowed
-    if (!user_relationships_api_can_request($requester, $rtype)) {
-      continue;
-    }
-    $relationships[$rtype->rtid] = $rtype->name;
-  }
+  $relationships = _user_relationships_ui_get_requestable_rtypes($requester, $requestee);
   //try to find out desired relationship type
   if ($form_values['rtid']) {//given through form
     $default_relationship = $form_values['rtid'];
@@ -37,6 +23,9 @@ function user_relationships_ui_request_form($requester, $requestee, $form_values
     $rtids = array_keys($relationships);
     $default_relationship = $rtids[0];
   }
+  //verify default relationship may be requested
+  $default_relationship = $relationships[$default_relationship] ? $default_relationship : NULL;
+  
   if (count($relationships)) {
     //hide control if the relationship is chosen
     if ($default_relationship && variable_get('user_relationships_show_direct_links', 1)) {
