@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.forms.inc,v 1.1.2.12 2009-05-14 09:53:11 alexk Exp $
+// $Id: user_relationships_ui.forms.inc,v 1.1.2.13 2009-06-21 19:13:41 alexk Exp $
 
 /**
  * @file
@@ -209,6 +209,13 @@ function user_relationships_ui_pending_requested(&$form_state, $action, $account
  * in a popup rather than having the full page reload for the users
  */
 function user_relationships_ui_remove_ajax($account, $relationship) {
+  //#382668 makes sure a valid relationship id was supplied
+  if (!$relationship->rid) {
+    if (isset($_GET['ajax'])) {
+      die();
+    }
+    drupal_goto();
+  }
   $form = drupal_get_form('user_relationships_ui_remove', $account, $relationship);
   if (isset($_GET['ajax'])) {
     die($form);
