@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.module,v 1.1.2.19 2009-06-22 13:57:45 alexk Exp $
+// $Id: user_relationships_ui.module,v 1.1.2.20 2009-06-22 14:02:51 alexk Exp $
 /**
  * @file
  * UI components of user_relationships
@@ -754,15 +754,15 @@ function template_preprocess_user_relationships(&$variables) {
   }
 
   if ($account->uid == $user->uid) {
-    $msg = $relationship_type ? t("My %relationships") : t("All my relationships");
+    $msg = isset($relationship_type) ? t("My %relationships") : t("All my relationships");
   }
   else {
-    $msg = $relationship_type ? t("%username's %relationships") : t("All %username's relationships");
+    $msg = isset($relationship_type) ? t("%username's %relationships") : t("All %username's relationships");
   }
 
   $variables['title'] = t($msg, array(
     '%username'       => $account->name,
-    '%relationships'  => $relationship_type->plural_name ? $relationship_type->plural_name : $relationship_type->name
+    '%relationships'  => isset($relationship_type) ? ($relationship_type->plural_name ? $relationship_type->plural_name : $relationship_type->name) : '',
   ));
 }
 
