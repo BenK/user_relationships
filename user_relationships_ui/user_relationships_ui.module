@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.module,v 1.1.2.17 2009-05-14 09:53:11 alexk Exp $
+// $Id: user_relationships_ui.module,v 1.1.2.18 2009-06-22 07:54:08 alexk Exp $
 /**
  * @file
  * UI components of user_relationships
@@ -636,6 +636,22 @@ function user_relationships_ui_user($type, &$edit, &$account, $category = NULL) 
           '#description'    => t("Check off the types of relationships you'd like to automatically approve.")
         );
       }
+    }
+    //#257748 #458046 for adding the functionality of allowing/disallowing private messages.
+    if (module_exists('privatemsg')) { //check if privatemsg is installed
+      $form['user_relationships_ui_privatemsg_settings'] = array(
+        '#type'   => 'fieldset',
+        '#title'  => t('Private Messages'),
+        '#weight' => -10,
+      );
+      $options = drupal_map_assoc(array('on in relations','on all users'));
+      $form['user_relationships_ui_privatemsg_settings']['user_relationships_allow_private_message'] = array(
+       '#type' => 'radios',
+       '#title' => t('Allow private messages'),
+       '#description' => t('Allow/disallow users in or outside relationships to send you private messages.'),
+       '#options' => array('on all users' => t('Everyone'), 'on in relations' => t('My relationships only')),
+       '#default_value' => isset($edit['user_relationships_allow_private_message'])? $edit['user_relationships_allow_private_message'] : "on all users",
+      );
     }
 
     // No options have been set so don't display it

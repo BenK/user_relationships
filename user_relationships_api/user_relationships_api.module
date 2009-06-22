@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.module,v 1.1.2.10 2009-02-26 23:07:34 alexk Exp $
+// $Id: user_relationships_api.module,v 1.1.2.11 2009-06-22 07:54:07 alexk Exp $
 
 /**
  * @file
@@ -15,6 +15,9 @@ define('UR_BANNED', 0x1);
 // Pre Loading files that will be required in this module
 foreach (array('api', 'actions', 'socnet') as $file) {
   module_load_include("inc", "user_relationships_api", "user_relationships_api.{$file}");
+}
+if (module_exists('privatemsg')) {
+  module_load_include('inc', 'user_relationships_api', 'user_relationships_api.privatemsg');
 }
 
 
