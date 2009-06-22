@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.admin.inc,v 1.1.2.10 2009-03-03 16:42:05 alexk Exp $
+// $Id: user_relationships_ui.admin.inc,v 1.1.2.11 2009-06-22 13:57:45 alexk Exp $
 
 /**
  * @file
@@ -87,6 +87,7 @@ function user_relationships_ui_settings() {
     '!requestee',
     '%relationship_name',
     '%relationship_plural_name',
+    '!pending_relationship_requests',
   );
 
   $form['messages'] = array(
@@ -94,6 +95,13 @@ function user_relationships_ui_settings() {
     '#title'        => t('Messages'),
     '#weight'       => 0,
     '#description'  => t('Notifications to users. Replaceable tokens are: @replaceables', array('@replaceables' => implode($replaceables, ', '))),
+  );
+  
+  $form['messages']['user_relationships_requests_link'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Path to relationship requests'),
+    '#default_value'  => variable_get('user_relationships_requests_link', 'relationships/requests'),
+    '#description' => t('replaces !pending_relationship_requests in messages such as what is shown to the user after login, change only if your requests list isn\'t "relationships/requests"'),
   );
 
   $default_messages = _user_relationships_ui_default_messages();
