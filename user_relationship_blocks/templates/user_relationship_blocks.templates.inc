@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_blocks.templates.inc,v 1.1.2.6 2008-10-30 12:49:33 alexk Exp $
+// $Id: user_relationship_blocks.templates.inc,v 1.1.2.7 2009-06-23 08:52:11 alexk Exp $
 /**
  * @file 
  * misc block theming functions
@@ -23,8 +23,16 @@ function template_preprocess_user_relationships_block(&$variables) {
     case 'random': $query_opts['order'] = 'RAND()'; break;
   }
 
-  $query_opts['limit'] = $settings->size;
+  //#481216 user_relationships_load returns half the count when two-way relationships are selected because of two records per rid
+  if (is_numeric($settings->rtid)) {
+    $rtype = user_relationships_type_load(array('rtid' => $settings->rtid));
+    if ($rtype->is_oneway == 0) {
+      $settings->size += $settings->size;
+    }
+  }
 
+  $query_opts['limit'] = $settings->size;
+  
   $key = $extra ? ($extra == 'you_to_them' ? 'requester_id' : 'requestee_id') : 'user';
   $args = array($key => $account->uid, 'approved' => TRUE);
 
