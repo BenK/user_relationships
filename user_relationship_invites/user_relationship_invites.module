@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_invites.module,v 1.1.2.2 2009-05-14 09:53:10 alexk Exp $
+// $Id: user_relationship_invites.module,v 1.1.2.3 2009-06-28 21:51:34 alexk Exp $
 
 /**
  * Drupal Module: User Relationship Invites
@@ -40,15 +40,10 @@ function user_relationship_invites_form_alter(&$form, $form_state, $form_id) {
     global $user;
 
     $new_user = drupal_anonymous_user();
-    $rtypes = _user_relationships_ui_get_requestable_rtypes($user, $new_user);
-    if (count($rtypes)) {
-      $form['rtid'] = array(
-        '#title'          => t('My relationship is'),
-        '#type'           => 'radios',
-        '#options'        => $rtypes,
-      );
-      $form['#validate'][] = 'user_relationship_invites_invite_form_validate';
-    }
+    module_load_include('inc', 'user_relationships_ui', 'user_relationships_ui.forms');
+    $form += user_relationships_ui_request_form($user->uid, $new_user->uid, $form_state['values']);
+    $form['rtid']['#weight'] = 0;
+    $form['#validate'][] = 'user_relationship_invites_invite_form_validate';
   }
 }
 
