@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.api.test,v 1.1.2.2 2009-06-28 17:26:51 alexk Exp $
+// $Id: user_relationships_api.api.test,v 1.1.2.3 2009-06-28 21:47:13 alexk Exp $
 
 /**
  * @file
@@ -176,5 +176,18 @@ class UserRelationshipsApiTestCase extends DrupalWebTestCase {
     $this->assertEqual(count($result), 1);
     $result = user_relationships_load(array('requester_id' => $u1->uid, 'approved' => 0), array('include_twoway_reverse' => 1));
     $this->assertEqual(count($result), 1);
+    //test user and approved
+    $result = user_relationships_load(array('user' => $u1->uid, 'approved' => 1));
+    $this->assertEqual(count($result), 5);
+    $result = user_relationships_load(array('user' => $u1->uid, 'approved' => 1), array('include_twoway_reverse' => 1));
+    $this->assertEqual(count($result), 5);
+    $result = user_relationships_load(array('requester_id' => $u1->uid, 'approved' => 1));
+    $this->assertEqual(count($result), 5);
+    $result = user_relationships_load(array('requester_id' => $u1->uid, 'approved' => 1), array('include_twoway_reverse' => 1));
+    $this->assertEqual(count($result), 5);
+    $result = user_relationships_load(array('requestee_id' => $u1->uid, 'approved' => 1));
+    $this->assertEqual(count($result), 3);
+    $result = user_relationships_load(array('requestee_id' => $u1->uid, 'approved' => 1), array('include_twoway_reverse' => 1));
+    $this->assertEqual(count($result), 3);
   }
 }

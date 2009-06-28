@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.module,v 1.1.2.14 2009-06-28 17:29:38 alexk Exp $
+// $Id: user_relationships_api.module,v 1.1.2.15 2009-06-28 21:47:12 alexk Exp $
 
 /**
  * @file
@@ -38,6 +38,7 @@ function _user_relationships_invoke($type, &$relationship, $is_type = FALSE) {
 function _user_relationships_generate_query($param = array(), $options = array()) {
   extract($options, EXTR_SKIP);
 
+  $twoway_reverse_clause = FALSE;//#479486
   // Turn the conditions into a query.
   foreach ($param as $key => $value) {
     if (!isset($value)) {
@@ -46,7 +47,6 @@ function _user_relationships_generate_query($param = array(), $options = array()
 
     $operator = _user_relationship_process_query_argument($key, $value);
 
-    $twoway_reverse_clause = FALSE;//#479486
     switch ($key) {
     case 'between':
       $between_cond = "((ur.requester_id {$operator[0]} AND ur.requestee_id {$operator[1]}) OR (";
@@ -75,6 +75,10 @@ function _user_relationships_generate_query($param = array(), $options = array()
       $arguments[] = $value;
       $arguments[] = $value;
       break;
+    
+    case 'requester_id':
+    case 'requestee_id':
+      $twoway_reverse_clause = TRUE;//#479486 these columns automatically should exclude duplicates
 
     default:
       $types_cols = array('name', 'plural_name', 'is_oneway', 'requires_approval', 'expires_val');
