@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.module,v 1.1.2.12 2009-06-28 16:46:38 alexk Exp $
+// $Id: user_relationships_api.module,v 1.1.2.13 2009-06-28 17:26:50 alexk Exp $
 
 /**
  * @file
@@ -103,7 +103,7 @@ function _user_relationships_generate_query($param = array(), $options = array()
   // We wont need anything after this point for the count SQL
   $count_joins = implode(' ', $joins);
 
-  if ($include_user_info) {
+  if (isset($include_user_info) && $include_user_info) {
     $selects = array_merge($selects, array(
       'requesters.name AS requester_name',
       'requestees.name AS requestee_name',

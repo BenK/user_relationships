@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.api.test,v 1.1.2.1 2009-06-28 16:46:39 alexk Exp $
+// $Id: user_relationships_api.api.test,v 1.1.2.2 2009-06-28 17:26:51 alexk Exp $
 
 /**
  * @file
@@ -132,10 +132,10 @@ class UserRelationshipsApiTestCase extends DrupalWebTestCase {
     $result = user_relationships_load(array('rtid' => $this->rtypes['twoway']->rtid), array('include_twoway_reverse' => 1));
     $this->assertEqual(count($result), 3);
     $result = user_relationships_load(array('rtid' => $this->rtypes['twoway']->rtid), array('sort' => 'rtid'));
-    $this->assertNull($result[$this->rtypes['oneway']->rtid]);
+    $this->assertFalse(isset($result[$this->rtypes['oneway']->rtid]));
     $this->assertEqual(count($result[$this->rtypes['twoway']->rtid]), 3);
     $result = user_relationships_load(array('rtid' => $this->rtypes['twoway']->rtid), array('sort' => 'rtid', 'include_twoway_reverse' => 1));
-    $this->assertNull($result[$this->rtypes['oneway']->rtid]);
+    $this->assertFalse(isset($result[$this->rtypes['oneway']->rtid]));
     $this->assertEqual(count($result[$this->rtypes['twoway']->rtid]), 6);
     
     //test approved
@@ -151,11 +151,11 @@ class UserRelationshipsApiTestCase extends DrupalWebTestCase {
     $result = user_relationships_load(array('approved' => 1), array('sort' => 'rtid'));
     $this->assertEqual(count($result[$this->rtypes['oneway']->rtid]), 2);
     $this->assertEqual(count($result[$this->rtypes['twoway']->rtid]), 3);
-    $this->assertNull($result[$this->rtypes['approval-oneway']->rtid]);
+    $this->assertFalse(isset($result[$this->rtypes['approval-oneway']->rtid]));
     $result = user_relationships_load(array('approved' => 1), array('sort' => 'rtid', 'include_twoway_reverse' => 1));
     $this->assertEqual(count($result[$this->rtypes['oneway']->rtid]), 2);
     $this->assertEqual(count($result[$this->rtypes['twoway']->rtid]), 6);
-    $this->assertNull($result[$this->rtypes['approval-oneway']->rtid]);
+    $this->assertFalse(isset($result[$this->rtypes['approval-oneway']->rtid]));
     //test pending
     $result = user_relationships_load(array('approved' => 0));
     $this->assertEqual(count($result), 2);

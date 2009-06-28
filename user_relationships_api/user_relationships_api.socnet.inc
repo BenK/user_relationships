@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.socnet.inc,v 1.1.2.1 2008-10-22 14:57:46 alexk Exp $
+// $Id: user_relationships_api.socnet.inc,v 1.1.2.2 2009-06-28 17:26:50 alexk Exp $
 
 /**
  * @file
@@ -20,7 +20,7 @@ function user_relationships_api_socnet_get_implementations() {
  * @param $relation_style optional, one of {'all', 'one-way', 'two-way'}
  * @return TRUE if the relationship exists, or nothing if it does not.
  */
-function user_relationships_api_socnet_is_related($uid1, $uid2, $relation_name = NULL, $relation_style='all') {
+function user_relationships_api_socnet_is_related($uid1 = NULL, $uid2 = NULL, $relation_name = NULL, $relation_style='all') {
   $args = array('requester_id' => $uid1, 'requestee_id' => $uid2, 'approved' => 1);
   //optinally filter on relationship name
   if ($relation_name) {
@@ -43,7 +43,7 @@ function user_relationships_api_socnet_is_related($uid1, $uid2, $relation_name =
 /**
  * true if user1 has requested a relationship to uid2, optionally set which relation and style to query
  */
-function user_relationships_api_socnet_is_pending($id1, $uid2, $relation_name = NULL, $relation_style='all') {
+function user_relationships_api_socnet_is_pending($uid1 = NULL, $uid2 = NULL, $relation_name = NULL, $relation_style='all') {
   $args = array('requester_id' => $uid1, 'requestee_id' => $uid2, 'approved' => 0);
   //optinally filter on relationship name
   if ($relation_name) {
@@ -66,14 +66,14 @@ function user_relationships_api_socnet_is_pending($id1, $uid2, $relation_name = 
 /**
  * true if user1 does not want to see uid2
  */
-function user_relationships_api_socnet_is_blocked($blocked_by_uid, $blocked_uid, $relation_name = NULL, $relation_style='all') {
+function user_relationships_api_socnet_is_blocked($blocked_by_uid = NULL, $blocked_uid = NULL, $relation_name = NULL, $relation_style='all') {
   //UR does not implement it
 }
 
 /**
  * return a list of uids of established relationships of $uid, optionally filter by relationship name
  */
-function user_relationships_api_socnet_get_related_users($uid, $relation_name = NULL, $relation_style='all') {
+function user_relationships_api_socnet_get_related_users($uid = NULL, $relation_name = NULL, $relation_style='all') {
   $args = array('requester_id' => $uid, 'approved' => 1);
   //optinally filter on relationship name
   if ($relation_name) {
@@ -96,7 +96,7 @@ function user_relationships_api_socnet_get_related_users($uid, $relation_name = 
 /**
  * return a list of uid of all, to whom uid has sent requests, optionally filter by relationship name
  */
-function user_relationships_api_socnet_all_pending_from($uid, $relation_name = NULL, $relation_style='all') {
+function user_relationships_api_socnet_all_pending_from($uid = NULL, $relation_name = NULL, $relation_style='all') {
   $args = array('requester_id' => $uid, 'approved' => 0);
   //optinally filter on relationship name
   if ($relation_name) {
@@ -119,7 +119,7 @@ function user_relationships_api_socnet_all_pending_from($uid, $relation_name = N
 /**
  * return a list of uid of users who want to relate to $uid, optionally filter by relationship name
  */
-function user_relationships_api_socnet_all_pending_to($uid, $relation_name = NULL, $relation_style='all') {
+function user_relationships_api_socnet_all_pending_to($uid = NULL, $relation_name = NULL, $relation_style='all') {
   $args = array('requestee_id' => $uid, 'approved' => 0);
   //optinally filter on relationship name
   if ($relation_name) {
@@ -160,7 +160,7 @@ function user_relationships_api_socnet_get_relation_names($relation_style='all')
 /**
  * return 'two-way' or 'one-way' depending on the relation type
  */
-function user_relationships_api_socnet_relation_type($relation_name) {
+function user_relationships_api_socnet_relation_type($relation_name = NULL) {
   $type = user_relationships_type_load(array('name' => $relation_name));
   if (isset($type->is_oneway)) {
     return $type->is_oneway ? 'one-way' : 'two-way';
