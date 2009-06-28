@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.api.inc,v 1.1.2.12 2009-05-05 22:43:55 alexk Exp $
+// $Id: user_relationships_api.api.inc,v 1.1.2.13 2009-06-28 16:46:38 alexk Exp $
 
 /**
  * @file
@@ -289,6 +289,7 @@ function user_relationships_delete_relationship(&$relationship, &$deleted_by, $o
   *
   *   sort
   *     a string containing a valid column name which will become the key for the returned array of relationships
+  *     default is 'rid'
   *
   *   order
   *     a string containing SQL stating the column and direction of the sort (ex. "requester_id ASC, rtid DESC")
@@ -299,6 +300,11 @@ function user_relationships_delete_relationship(&$relationship, &$deleted_by, $o
   *   include_user_info
   *     a boolean that will load basic user info without having to call user_load
   *     columns: uid, name, mail, data, picture
+  *     
+  *   include_twoway_reverse (not used unless there is a specific need)
+  *     a boolean that, if present, and if sort is set to other than 'rid', will include records for both directions for
+  *     two-way relationships. Normally for a two-way relationship only one entry is returned, although in the database there
+  *     are two records. This flag has no effect if sort is 'rid'
   *
   * @param $reset
   *   a boolean that will reset the internal static $relationships variable to ensure programatic relationship insertion works

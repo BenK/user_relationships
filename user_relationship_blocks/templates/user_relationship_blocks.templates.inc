@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_blocks.templates.inc,v 1.1.2.7 2009-06-23 08:52:11 alexk Exp $
+// $Id: user_relationship_blocks.templates.inc,v 1.1.2.8 2009-06-28 16:46:38 alexk Exp $
 /**
  * @file 
  * misc block theming functions
@@ -21,14 +21,6 @@ function template_preprocess_user_relationships_block(&$variables) {
     case 'newest': $query_opts['order'] = 'updated_at DESC'; break;
     case 'oldest': $query_opts['order'] = 'updated_at ASC'; break;
     case 'random': $query_opts['order'] = 'RAND()'; break;
-  }
-
-  //#481216 user_relationships_load returns half the count when two-way relationships are selected because of two records per rid
-  if (is_numeric($settings->rtid)) {
-    $rtype = user_relationships_type_load(array('rtid' => $settings->rtid));
-    if ($rtype->is_oneway == 0) {
-      $settings->size += $settings->size;
-    }
   }
 
   $query_opts['limit'] = $settings->size;

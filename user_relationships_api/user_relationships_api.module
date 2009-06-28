@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.module,v 1.1.2.11 2009-06-22 07:54:07 alexk Exp $
+// $Id: user_relationships_api.module,v 1.1.2.12 2009-06-28 16:46:38 alexk Exp $
 
 /**
  * @file
@@ -46,12 +46,17 @@ function _user_relationships_generate_query($param = array(), $options = array()
 
     $operator = _user_relationship_process_query_argument($key, $value);
 
+    $twoway_reverse_clause = FALSE;//#479486
     switch ($key) {
     case 'between':
-      $cond[] =
-        "((ur.requester_id {$operator[0]} AND ur.requestee_id {$operator[1]})".
-        ' OR '.
-        "(ur.requestee_id {$operator[0]} AND ur.requester_id {$operator[1]}))";
+      $between_cond = "((ur.requester_id {$operator[0]} AND ur.requestee_id {$operator[1]}) OR (";
+      //#479486 do not include reverse records of two-way relationships by default
+      if (!isset($include_twoway_reverse)) {
+        $between_cond .= 'urt.is_oneway <> 0 AND ';
+        $twoway_reverse_clause = TRUE;
+      }
+      $between_cond .= "ur.requestee_id {$operator[0]} AND ur.requester_id {$operator[1]}))";
+      $cond[] = $between_cond;
       $arguments[] = $value[0];
       $arguments[] = $value[1];
       $arguments[] = $value[0];
@@ -59,7 +64,14 @@ function _user_relationships_generate_query($param = array(), $options = array()
       break;
 
     case 'user':
-      $cond[] = "(ur.requester_id {$operator} OR ur.requestee_id {$operator})";
+      //#479486 when showing all user's relationships, do not include reverse records of two-way relationships
+      if (!isset($include_twoway_reverse)) {
+        $cond[] = "(ur.requester_id {$operator} OR (urt.is_oneway <> 0 AND ur.requestee_id {$operator}))";
+        $twoway_reverse_clause = TRUE;
+      }
+      else {
+        $cond[] = "(ur.requester_id {$operator} OR ur.requestee_id {$operator})";
+      }
       $arguments[] = $value;
       $arguments[] = $value;
       break;
@@ -77,6 +89,12 @@ function _user_relationships_generate_query($param = array(), $options = array()
         $arguments = array_merge($arguments, $value);
       }
     }
+  }
+  
+  //#479486 add a general clause that removed reverse direction from two-way relationship results, unless it's been addressed above
+  if (!$twoway_reverse_clause && !isset($include_twoway_reverse)) {
+//    $cond[] = '(urt.is_oneway <> 0 OR ur.approved <> 1 OR ur.requester_id < ur.requestee_id)';
+    $twoway_reverse_clause = TRUE;
   }
 
   $selects = array('DISTINCT ur.rid', 'ur.*', 'urt.*');
