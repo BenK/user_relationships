@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.module,v 1.1.2.13 2009-06-28 17:26:50 alexk Exp $
+// $Id: user_relationships_api.module,v 1.1.2.14 2009-06-28 17:29:38 alexk Exp $
 
 /**
  * @file
@@ -93,7 +93,7 @@ function _user_relationships_generate_query($param = array(), $options = array()
   
   //#479486 add a general clause that removed reverse direction from two-way relationship results, unless it's been addressed above
   if (!$twoway_reverse_clause && !isset($include_twoway_reverse)) {
-//    $cond[] = '(urt.is_oneway <> 0 OR ur.approved <> 1 OR ur.requester_id < ur.requestee_id)';
+    $cond[] = '(urt.is_oneway <> 0 OR ur.approved <> 1 OR ur.requester_id < ur.requestee_id)';
     $twoway_reverse_clause = TRUE;
   }
 
