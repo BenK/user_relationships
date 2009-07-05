@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_blocks.module,v 1.1.2.7 2009-01-12 14:28:03 jaydub Exp $
+// $Id: user_relationship_blocks.module,v 1.1.2.8 2009-07-05 19:45:48 alexk Exp $
 /**
  * @file
  * User Relationship Blocks implementation
@@ -272,10 +272,10 @@ function _user_relationship_blocks_list() {
   $usr  = UR_BLOCK_USER . UR_BLOCK_SEPARATOR;
   // return list of all blocks defined by the module
   $blocks = array(
-    $my . UR_BLOCK_ALL_TYPES  => array('info' => t('My Relationships: All relationships')),
-    $usr . UR_BLOCK_ALL_TYPES => array('info' => t('User Relationships: All relationships')),
-    'pending' => array('info' => t('My Pending Relationships')),
-    'actions' => array('info' => t('User Relationships: Actions')),
+    $my . UR_BLOCK_ALL_TYPES  => array('info' => t('My Relationships: All relationships'), 'cache' => BLOCK_NO_CACHE),
+    $usr . UR_BLOCK_ALL_TYPES => array('info' => t('User Relationships: All relationships'), 'cache' => BLOCK_NO_CACHE),
+    'pending' => array('info' => t('My Pending Relationships'), 'cache' => BLOCK_NO_CACHE),
+    'actions' => array('info' => t('User Relationships: Actions'), 'cache' => BLOCK_NO_CACHE),
   );
 
   $types = user_relationships_types_load();
