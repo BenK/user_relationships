@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_node_access.module,v 1.1.4.9 2009-07-01 12:26:56 alexk Exp $
+// $Id: user_relationship_node_access.module,v 1.1.4.10 2009-07-05 21:38:22 alexk Exp $
 // Copyright (C) 2008 Jonathan Brown
 // http://openpackage.biz/
 
@@ -322,7 +322,7 @@ function user_relationship_node_access_node_access_records($node) {
 
   $grants = array();
 
-  if (is_array($node->user_relationship_node_access)) {
+  if (isset($node->user_relationship_node_access) && is_array($node->user_relationship_node_access)) {
     foreach ($node->user_relationship_node_access as $rtid => $permissions) {
       $grants[] = array(
         'realm'         => "user_relationship_node_access_{$rtid}",
@@ -355,7 +355,7 @@ function user_relationship_node_access_node_access_records($node) {
  */
 function _user_relationship_node_access_node_eligible($node) {
   $allowed_types = variable_get('user_relationship_node_access_allowed_types', array());
-  return isset($node->type) && $allowed_types[$node->type] === $node->type;
+  return isset($node->type) && isset($allowed_types[$node->type]) && $allowed_types[$node->type] === $node->type;
 }
 
 /**
