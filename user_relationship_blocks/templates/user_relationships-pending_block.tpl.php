@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships-pending_block.tpl.php,v 1.1.2.6 2008-10-30 13:10:47 alexk Exp $
+// $Id: user_relationships-pending_block.tpl.php,v 1.1.2.7 2009-07-06 12:40:04 alexk Exp $
 /**
  * @file
  * Template for relationships requests block
@@ -11,25 +11,20 @@ if ($relationships) {
     $relation_name = $relationship->name;
     $relation_plural_name = $relationship->plural_name;
     if ($user->uid == $relationship->requester_id) {
-      $line = '@rel_name to !username (!controls)';
       $relation_to =& $relationship->requestee;
-      $key = t('Sent requests');
       $controls = theme('user_relationships_pending_request_cancel_link', $user->uid, $relationship->rid);
+      $line = t('@rel_name to !username (!controls)', array('@rel_name' => $relationship->name, '!username' => theme('username', $relation_to), '!controls' => $controls));
+      $key = t('Sent requests');
     }
     else {
-      $line = '@rel_name from !username (!controls)';
       $relation_to =& $relationship->requester;
-      $key = t('Received requests');
       $controls =
         theme('user_relationships_pending_request_approve_link', $user->uid, $relationship->rid).'|'.
         theme('user_relationships_pending_request_disapprove_link', $user->uid, $relationship->rid);
+      $line = t('@rel_name from !username (!controls)', array('@rel_name' => $relationship->name, '!username' => theme('username', $relation_to, '!controls' => $controls)));
+      $key = t('Received requests');
     }
-    $list[$key][] = t($line, array(
-      '@rel_name' => $relationship->name,
-      '@rel_plural_name' => $relationship->plural_name,
-      '!username' => theme('username', $relation_to),
-      '!controls' => $controls
-    ));
+    $list[$key][] = $line;
   }
 
   foreach ($list as $title => $users) {

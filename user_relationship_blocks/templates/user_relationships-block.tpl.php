@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships-block.tpl.php,v 1.1.2.6 2009-04-27 16:39:53 alexk Exp $
+// $Id: user_relationships-block.tpl.php,v 1.1.2.7 2009-07-06 12:40:04 alexk Exp $
 /**
  * @file Main relationships listing block
  * List the relationships between the viewed user and the current user
@@ -10,15 +10,17 @@ if ($relationships) {
   $rows = array();
   foreach ($relationships as $rtid => $relationship) {
     if ($the_other_uid == $relationship->requester_id) {
-      $rtype_heading = $relationship->is_oneway ? "@rel_name of" : "@rel_plural_name";
+      $rtype_heading = $relationship->is_oneway ? 
+        t("@rel_name of", array('@rel_name' => $relationship->name, '@rel_plural_name' => $relationship->plural_name)) : 
+        t("@rel_plural_name", array('@rel_name' => $relationship->name, '@rel_plural_name' => $relationship->plural_name));
       $relatee = $relationship->requestee;
     }
     else {
-      $rtype_heading = $relationship->is_oneway ? "@rel_plural_name" : "@rel_plural_name";
+      $rtype_heading = t("@rel_plural_name", array('@rel_name' => $relationship->name, '@rel_plural_name' => $relationship->plural_name));
       $relatee = $relationship->requester;
     }
 
-    $title = t($rtype_heading, array('@rel_plural_name' => $relationship->plural_name, '@rel_name' => $relationship->name, '@extra' => $extra));
+    $title = $rtype_heading;
 
     $username = theme('username', $relatee);
     $rows[$title][] = $username;

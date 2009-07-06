@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_blocks.module,v 1.1.2.8 2009-07-05 19:45:48 alexk Exp $
+// $Id: user_relationship_blocks.module,v 1.1.2.9 2009-07-06 12:40:04 alexk Exp $
 /**
  * @file
  * User Relationship Blocks implementation
@@ -168,11 +168,11 @@ function _user_relationship_blocks_form($block, $rtid, $extra, $bid) {
     );
 
     $user_identifier = ($block == UR_BLOCK_MY) ? t('currently logged in user') : t('author whose node is being viewed');
-    $msg = t("NOTE: This block displays @relationship_name relationships of the @user_identifier.");
+    $msg = t("NOTE: This block displays @relationship_name relationships of the @user_identifier.", array('@relationship_name' => $relationship_name, '@user_identifier' => $user_identifier));
 
     if ($extra) {
       $relation = $extra == 'you_to_them' ? t('requester') : t('requestee');
-      $msg .= t("\nBecause this relationship is one-way this block will show relationships where the @user_identifier is the @relation");
+      $msg .= "\n". t("Because this relationship is one-way this block will show relationships where the @user_identifier is the @relation", array('@user_identifier' => $user_identifier, '@relation' => $relation));
     }
 
     $sort_var = "{$var}_sort";
@@ -187,11 +187,7 @@ function _user_relationship_blocks_form($block, $rtid, $extra, $bid) {
       '#default_value' => $settings->sort,
       '#required'      => TRUE,
       '#weight'        => 3,
-      '#suffix'        => t($msg, array(
-        '@relationship_name'  => $relationship_name,
-        '@user_identifier'    => $user_identifier,
-        '@relation'           => $relation,
-      )),
+      '#suffix'        => $msg,
     );
   }
 
@@ -295,15 +291,12 @@ function _user_relationship_blocks_list() {
 
     foreach ($extras as $token => $extra) {
       $block_types = array(
-        "{$my_delta}{$token}"   => 'My Relationships: @type @extra',
-        "{$usr_delta}{$token}"  => 'User Relationships: @type @extra',
+        "{$my_delta}{$token}"   => t('My Relationships: @type @extra', array('@type' => $type->plural_name, '@extra' => $extra)),
+        "{$usr_delta}{$token}"  => t('User Relationships: @type @extra', array('@type' => $type->plural_name, '@extra' => $extra)),
       );
       foreach ($block_types as $bid => $title) {
         $blocks[$bid] = array(
-          'info' => t($title, array(
-            '@type'   => $type->plural_name,
-            '@extra'  => $extra
-          )),
+          'info' => $title,
           'cache' => BLOCK_NO_CACHE,
         );
       }
