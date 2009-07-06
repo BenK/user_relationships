@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.api.inc,v 1.1.2.14 2009-06-28 17:26:50 alexk Exp $
+// $Id: user_relationships_api.api.inc,v 1.1.2.15 2009-07-06 15:55:04 alexk Exp $
 
 /**
  * @file
@@ -165,7 +165,7 @@ function user_relationships_request_relationship($requester, $requestee, $type, 
 
   //check requester is allowed to create this rtype
   if (!user_relationships_api_can_request($requester, $type)) {
-    watchdog('user_relationships_api', t('User %user has no suitable roles to request a %rtype relationship', array('%user' => $requester->name, '%rtype' => $type->name)), WATCHDOG_WARNING);
+    watchdog('user_relationships_api', 'User %user has no suitable roles to request a %rtype relationship', array('%user' => $requester->name, '%rtype' => $type->name), WATCHDOG_WARNING);
     //it would be good to return a reason why save is denied, but it's the API portion, it does not expose anything user-visible
     return FALSE;
   }
