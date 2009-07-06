@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.admin.inc,v 1.1.2.12 2009-07-06 15:39:21 alexk Exp $
+// $Id: user_relationships_ui.admin.inc,v 1.1.2.13 2009-07-06 20:22:33 alexk Exp $
 
 /**
  * @file
@@ -25,12 +25,12 @@ function user_relationships_ui_settings() {
   $form['general']['user_relationships_show_direct_links'] = array(
     '#type'           => 'checkbox',
     '#title'          => t('Show direct request links'),
-    '#description'    => t('Show a \'create relationship with...\' link for each available relationship type.'),
+    '#description'    => t("Show a 'create relationship with...' link for each available relationship type."),
     '#default_value'  => variable_get('user_relationships_show_direct_links', 1),
   );
   $form['general']['user_relationships_show_user_pictures'] = array(
     '#type'           => 'checkbox',
-    '#title'          => t("Show user pictures in relationship pages"),
+    '#title'          => t('Show user pictures in relationship pages'),
     '#description'    => t('This will show relationships next to the user name on My relationships pages.'),
     '#default_value'  => variable_get('user_relationships_show_user_pictures', 0),
   );
@@ -42,7 +42,7 @@ function user_relationships_ui_settings() {
   );
   $form['general']['user_relationships_relationships_per_page'] = array(
     '#type'           => 'textfield',
-    '#title'          => t("Relationships per page"),
+    '#title'          => t('Relationships per page'),
     '#size'           => 4,
     '#description'    => t('Number of relationships to show per page. If set to 0 all will be shown.'),
     '#default_value'  => variable_get('user_relationships_relationships_per_page', 16),
@@ -59,7 +59,7 @@ function user_relationships_ui_settings() {
   );
   $form['positioning']['user_relationships_position'] = array(
     '#type' => 'select',
-    '#title' => t('Elaboration form\'s css position'),
+    '#title' => t("Elaboration form's css position"),
     '#default_value' => variable_get('user_relationships_position', 'absolute'),
     '#options' => array(
       'absolute' => t('Mouse cursor'),
@@ -69,17 +69,17 @@ function user_relationships_ui_settings() {
   );
   $form['positioning']['user_relationships_left'] = array(
     '#type' => 'textfield',
-    '#title' => t('Elaboration form\'s css left value'),
+    '#title' => t("Elaboration form's css left value"),
     '#default_value' => variable_get('user_relationships_left', '0'),
     '#size' => 4,
-    '#description' => t('Sets the css <em>left</em> property of AJAX confirmation popups. Try the value of 0 for \'Mouse cursor\', or 0.5 for \'Fixed\'. You may enter a distance in pixels, or as a % using a value 1 or less. Relative positioning requires a fixed position.'),
+    '#description' => t("Sets the css <em>left</em> property of AJAX confirmation popups. Try the value of 0 for 'Mouse cursor', or 0.5 for 'Fixed'. You may enter a distance in pixels, or as a % using a value 1 or less. Relative positioning requires a fixed position."),
   );
   $form['positioning']['user_relationships_top'] = array(
     '#type' => 'textfield',
-    '#title' => t('Elaboration form\'s css top value'),
+    '#title' => t("Elaboration form's css top value"),
     '#default_value'  => variable_get('user_relationships_top', '0'),
     '#size' => 4,
-    '#description' => t('Sets the css <em>top</em> property of AJAX confirmation popups. Try the value of 0 for \'Mouse cursor\', or 0.4 for \'Fixed\'. You may enter a distance in pixels, or as a % using a value 1 or less. Relative positioning requires a fixed position.'),
+    '#description' => t("Sets the css <em>top</em> property of AJAX confirmation popups. Try the value of 0 for 'Mouse cursor', or 0.4 for 'Fixed'. You may enter a distance in pixels, or as a % using a value 1 or less. Relative positioning requires a fixed position."),
   );
   
   $replaceables = array(
@@ -101,7 +101,7 @@ function user_relationships_ui_settings() {
     '#type' => 'textfield',
     '#title' => t('Path to relationship requests'),
     '#default_value'  => variable_get('user_relationships_requests_link', 'relationships/requests'),
-    '#description' => t('replaces !pending_relationship_requests in messages such as what is shown to the user after login, change only if your requests list isn\'t "relationships/requests"'),
+    '#description' => t("replaces !pending_relationship_requests in messages such as what is shown to the user after login, change only if your requests list isn't 'relationships/requests'"),
   );
 
   $default_messages = _user_relationships_ui_default_messages(array());

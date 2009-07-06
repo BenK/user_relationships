@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.theme.inc,v 1.1.2.6 2008-10-28 11:28:44 alexk Exp $
+// $Id: user_relationships_ui.theme.inc,v 1.1.2.7 2009-07-06 20:22:33 alexk Exp $
 
 /**
  * @file
@@ -36,7 +36,7 @@ function theme_user_relationships_request_relationship_direct_link(&$relate_to, 
     return theme('user_relationships_request_relationship_link', $relate_to);
   }
   return l(
-    t('Become %name\'s %rel_name', array('%name' => $relate_to->name, '%rel_name' => $relationship_type->name, '%rel_plural_name' => $relationship_type->plural_name)),
+    t("Become %name's %rel_name", array('%name' => $relate_to->name, '%rel_name' => $relationship_type->name, '%rel_plural_name' => $relationship_type->plural_name)),
     "relationship/{$relate_to->uid}/request/{$relationship_type->rtid}",
     array(
       'query' => drupal_get_destination(),
