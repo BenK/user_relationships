@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships-pending_block.tpl.php,v 1.1.2.7 2009-07-06 12:40:04 alexk Exp $
+// $Id: user_relationships-pending_block.tpl.php,v 1.1.2.8 2009-07-06 20:07:58 alexk Exp $
 /**
  * @file
  * Template for relationships requests block
@@ -21,7 +21,7 @@ if ($relationships) {
       $controls =
         theme('user_relationships_pending_request_approve_link', $user->uid, $relationship->rid).'|'.
         theme('user_relationships_pending_request_disapprove_link', $user->uid, $relationship->rid);
-      $line = t('@rel_name from !username (!controls)', array('@rel_name' => $relationship->name, '!username' => theme('username', $relation_to, '!controls' => $controls)));
+      $line = t('@rel_name from !username (!controls)', array('@rel_name' => $relationship->name, '!username' => theme('username', $relation_to), '!controls' => $controls));
       $key = t('Received requests');
     }
     $list[$key][] = $line;
