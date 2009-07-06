@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.forms.inc,v 1.1.2.13 2009-06-21 19:13:41 alexk Exp $
+// $Id: user_relationships_ui.forms.inc,v 1.1.2.14 2009-07-06 15:39:21 alexk Exp $
 
 /**
  * @file
@@ -175,28 +175,35 @@ function user_relationships_ui_pending_requested(&$form_state, $action, $account
   //pick the correct question message: approve and disapprove are requests to current user, cancel is a request from current user
   switch ($action) {
     case 'approve':
-      $confirmation_message = 'Are you sure you want to approve the %relationship_name relationship request from !name?';
-      $action_message = 'Approve relationship';
+      $confirmation_message = t('Are you sure you want to approve the %relationship_name relationship request from !name?', array(
+        '@action'             => $action,
+        '%relationship_name'  => $relationship->name,
+        '!name'               => theme('username', user_load(array('uid' => ($viewed_id == $relationship->requester_id ? $relationship->requestee_id : $relationship->requester_id))))
+      ));
+      $action_message = t('Approve relationship');
       break;
     case 'disapprove':
-      $confirmation_message = 'Are you sure you want to disapprove the %relationship_name relationship request from !name?';
-      $action_message = 'Disapprove relationship';
+      $confirmation_message = t('Are you sure you want to disapprove the %relationship_name relationship request from !name?', array(
+        '@action'             => $action,
+        '%relationship_name'  => $relationship->name,
+        '!name'               => theme('username', user_load(array('uid' => ($viewed_id == $relationship->requester_id ? $relationship->requestee_id : $relationship->requester_id))))
+      ));
+      $action_message = t('Disapprove relationship');
       break;
     default:
-      $confirmation_message = 'Are you sure you want to cancel your %relationship_name relationship request to !name?';
-      $action_message = 'Cancel relationship';
+      $confirmation_message = t('Are you sure you want to cancel your %relationship_name relationship request to !name?', array(
+        '@action'             => $action,
+        '%relationship_name'  => $relationship->name,
+        '!name'               => theme('username', user_load(array('uid' => ($viewed_id == $relationship->requester_id ? $relationship->requestee_id : $relationship->requester_id))))
+      ));
+      $action_message = t('Cancel relationship');
   }
 
   $output = confirm_form(
     $form,
-    t($action_message),
+    $action_message,
     ($viewed_id == $user->id ? 'relationships/requests' : "user/{$viewed_id}/relationships/requests"),
-
-    t($confirmation_message, array(
-      '@action'             => $action,
-      '%relationship_name'  => $relationship->name,
-      '!name'               => theme('username', user_load(array('uid' => ($viewed_id == $relationship->requester_id ? $relationship->requestee_id : $relationship->requester_id))))
-    )),
+    $confirmation_message,
     t('Yes'), t('No'),
     'user_relationships_approve_confirm'
   );

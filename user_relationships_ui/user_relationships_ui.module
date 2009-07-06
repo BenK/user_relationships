@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.module,v 1.1.2.21 2009-06-28 17:43:41 alexk Exp $
+// $Id: user_relationships_ui.module,v 1.1.2.22 2009-07-06 15:39:21 alexk Exp $
 /**
  * @file
  * UI components of user_relationships
@@ -29,10 +29,6 @@ define('USER_RELATIONSHIPS_UI_PATH', drupal_get_path('module', 'user_relationshi
  */
 function user_relationships_ui_get_message($key, $relationship = NULL, $replacements = array()) {
   $msg = variable_get("user_relationships_ui_msg_{$key}", NULL);
-  if (is_null($msg)) {
-    $messages = _user_relationships_ui_default_messages();
-    $msg      = _user_relationships_get_from_array($key, $messages);
-  }
 
   if ($relationship) {
     if (!$relationship->requester) { 
@@ -54,7 +50,15 @@ function user_relationships_ui_get_message($key, $relationship = NULL, $replacem
     $replacements = array_merge($replaceables, $replacements);
   }
 
-  return t($msg, $replacements);
+  if (is_null($msg)) {
+    $messages = _user_relationships_ui_default_messages($replacements);
+    $msg      = _user_relationships_get_from_array($key, $messages);
+  }
+  else {
+    $msg = t($msg, $replacements);
+  }
+
+  return $msg;
 }
 
 
@@ -67,29 +71,29 @@ function user_relationships_ui_get_message($key, $relationship = NULL, $replacem
 /**
  * Returns a nested array of default messages
  */
-function _user_relationships_ui_default_messages() {
+function _user_relationships_ui_default_messages($replacements) {
   return array(
     'informational' => array(
-      'submitted'     => 'Your %relationship_name request has been sent to !requestee.',
-      'accepted'      => '!requester\'s %relationship_name request has been approved.',
-      'disapproved'   => "!requester has declined your %relationship_name request.",
-      'cancel'        => 'Your %relationship_name request to !requestee has been canceled.',
-      'default'       => 'No action has been taken.',
-      'removed'       => 'The %relationship_name relationship of !requester to !requestee has been deleted.',
-      'pending'       => '!requester has requested to be your %relationship_name.  Please view your !pending_relationship_requests to approve them.',
-      'pre_approved'  => 'You are !requestee\'s newest %relationship_name.'
+      'submitted'     => t('Your %relationship_name request has been sent to !requestee.', $replacements),
+      'accepted'      => t("!requester's %relationship_name request has been approved.", $replacements),
+      'disapproved'   => t("!requester has declined your %relationship_name request.", $replacements),
+      'cancel'        => t('Your %relationship_name request to !requestee has been canceled.', $replacements),
+      'default'       => t('No action has been taken.'),
+      'removed'       => t('The %relationship_name relationship of !requester to !requestee has been deleted.', $replacements),
+      'pending'       => t('!requester has requested to be your %relationship_name.  Please view your !pending_relationship_requests to approve them.', $replacements),
+      'pre_approved'  => t("You are !requestee's newest %relationship_name.", $replacements),
     ),
     'error' => array(
-      'too_many_relationships'  => 'You may not create any more relationships to this user.',
-      'existing_request'        => 'There is already an earlier %relationship_name request sent to !requestee.',
-      'existing_relationship'   => 'There is already an existing %relationship_name relationship with !requestee.',
-      'not_accepting_requests'  => 'This user does not accept relationship requests.',
-      'self_request'            => 'You may not create a relationship to yourself.',
-      'non_existant_user'       => 'This user does not exist.',
-      'non_existant_type'       => 'This relationship type does not exist.',
-      'unknown_error'           => 'An error has occurred. Please contact the site administrator.',
-      'relationship_type_not_set' => 'Please choose the type of relationship.',
-      'relationship_type_not_allowed' => 'You may not create %relationship_name relationships.',
+      'too_many_relationships'  => t('You may not create any more relationships to this user.'),
+      'existing_request'        => t('There is already an earlier %relationship_name request sent to !requestee.', $replacements),
+      'existing_relationship'   => t('There is already an existing %relationship_name relationship with !requestee.', $replacements),
+      'not_accepting_requests'  => t('This user does not accept relationship requests.'),
+      'self_request'            => t('You may not create a relationship to yourself.'),
+      'non_existant_user'       => t('This user does not exist.'),
+      'non_existant_type'       => t('This relationship type does not exist.'),
+      'unknown_error'           => t('An error has occurred. Please contact the site administrator.'),
+      'relationship_type_not_set' => t('Please choose the type of relationship.'),
+      'relationship_type_not_allowed' => t('You may not create %relationship_name relationships.', $replacements),
     ),
   );
 }
@@ -758,16 +762,13 @@ function template_preprocess_user_relationships(&$variables) {
   }
 
   if ($account->uid == $user->uid) {
-    $msg = isset($relationship_type) ? t("My %relationships") : t("All my relationships");
+    $msg = $relationship_type ? t("My %relationships", array('%relationships' => $relationship_type->plural_name ? $relationship_type->plural_name : $relationship_type->name)) : t("All my relationships");
   }
   else {
-    $msg = isset($relationship_type) ? t("%username's %relationships") : t("All %username's relationships");
+    $msg = $relationship_type ? t("%username's %relationships", array('%username' => $account->name, '%relationships' => $relationship_type->plural_name ? $relationship_type->plural_name : $relationship_type->name)) : t("All %username's relationships", array('%username' => $account->name));
   }
 
-  $variables['title'] = t($msg, array(
-    '%username'       => $account->name,
-    '%relationships'  => isset($relationship_type) ? ($relationship_type->plural_name ? $relationship_type->plural_name : $relationship_type->name) : '',
-  ));
+  $variables['title'] = $msg;
 }
 
 /**
@@ -779,8 +780,8 @@ function template_preprocess_user_relationships_pending_requests(&$variables) {
   // readability
   $account  =& $variables['account'];
 
-  $msg = $account->uid == $user->uid ? t('My pending relationships') : t("%username's pending relationships");
-  $variables['title'] = t($msg, array('%username' => $account->name));
+  $msg = $account->uid == $user->uid ? t('My pending relationships') : t("%username's pending relationships", array('%username' => $account->name));
+  $variables['title'] = $msg;
 
   $variables['relationships_per_page'] = variable_get('user_relationships_relationships_per_page', 16);
 

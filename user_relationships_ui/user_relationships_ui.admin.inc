@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.admin.inc,v 1.1.2.11 2009-06-22 13:57:45 alexk Exp $
+// $Id: user_relationships_ui.admin.inc,v 1.1.2.12 2009-07-06 15:39:21 alexk Exp $
 
 /**
  * @file
@@ -104,7 +104,7 @@ function user_relationships_ui_settings() {
     '#description' => t('replaces !pending_relationship_requests in messages such as what is shown to the user after login, change only if your requests list isn\'t "relationships/requests"'),
   );
 
-  $default_messages = _user_relationships_ui_default_messages();
+  $default_messages = _user_relationships_ui_default_messages(array());
   _user_relationships_ui_message_settings_form($form['messages'], $default_messages);
 
   return system_settings_form($form);
