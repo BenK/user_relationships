@@ -1,6 +1,12 @@
 <?php
-// $Id: user_relationship_defaults.install,v 1.1.2.4 2008-04-21 00:38:18 sprsquish Exp $
+// $Id: user_relationship_defaults.install,v 1.1.2.5 2009-07-06 13:27:30 alexk Exp $
+/**
+ * @file User Relationships Defaults installation script
+ */
 
+/**
+ * Implementation of hook_schema()
+ */
 function user_relationship_defaults_schema() {
   $schema['user_relationship_defaults'] = array(
     'fields'  => array(
@@ -19,14 +25,14 @@ function user_relationship_defaults_schema() {
 }
 
 /**
- * Install
+ * Implementation of hook_install()
 */
 function user_relationship_defaults_install() {
   drupal_install_schema('user_relationship_defaults');
 }
 
 /**
- * Uninstall
+ * Implementation of hook_uninstall()
  */
 function user_relationship_defaults_uninstall() {
   drupal_uninstall_schema('user_relationship_defaults');
