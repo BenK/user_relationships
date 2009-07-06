@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_implications.module,v 1.1.2.8 2009-03-24 09:12:16 alexk Exp $
+// $Id: user_relationship_implications.module,v 1.1.2.9 2009-07-06 13:13:58 alexk Exp $
 
 /**
  * Drupal Module: User Relationship Implications
@@ -50,7 +50,7 @@ function user_relationship_implications_form_user_relationships_ui_type_edit_alt
     if ($type->rtid != $relationship_type->rtid && !in_array($type->rtid, $implied_by)) {
       $imp_name = "implies_{$type->rtid}";
       $form['implications']['opts'][$type->rtid][$imp_name] = array(
-        '#title'          => t($type->name),
+        '#title'          => t('@type_name', array('@type_name' => $type->name)),
         '#type'           => 'checkbox',
         '#return_value'   => $type->rtid,
         '#default_value'  => isset($form['#post'][$imp_name]) || isset($values[$type->rtid]),

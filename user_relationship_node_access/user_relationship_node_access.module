@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_node_access.module,v 1.1.4.10 2009-07-05 21:38:22 alexk Exp $
+// $Id: user_relationship_node_access.module,v 1.1.4.11 2009-07-06 13:11:07 alexk Exp $
 // Copyright (C) 2008 Jonathan Brown
 // http://openpackage.biz/
 
@@ -12,7 +12,7 @@
  * Theme function for styling out the permissions form
  */
 function theme_user_relationship_node_access_form($form) {
-  $all_actions = array('view', 'update', 'delete');
+  $all_actions = array('view' => t('view'), 'update' => t('update'), 'delete' => t('delete'));
   $actions = array();//allowed actions that will appear on the form
   //#388726 IE7 will not like sticky javascript table headers, so construct the header as a regular row
   $header = array(
@@ -22,20 +22,20 @@ function theme_user_relationship_node_access_form($form) {
     )
   );
   foreach ($all_actions as $key => $value) {
-    if (isset($form[$value])) {
+    if (isset($form[$key])) {
       $header[] = array(
-        'data' => t($value),
+        'data' => $value,
         'header' => 1,
       );
-      $actions[] = $value;
+      $actions[] = $key;
     }
   }
   $rows = array($header);
   foreach ($form[$actions[0]]['#options'] as $rtid => $r_name) {
     $row = array($r_name);
-    foreach ($all_actions as $action) {
-      unset($form[$action][$rtid]['#title']);
-      $row[] = drupal_render($form[$action][$rtid]);
+    foreach ($all_actions as $key => $value) {
+      unset($form[$key][$rtid]['#title']);
+      $row[] = drupal_render($form[$key][$rtid]);
     }
     $rows[] = $row;
   }
@@ -170,7 +170,7 @@ function user_relationship_node_access_form_alter(&$form, $form_state, $form_id)
              t('If no box is ticked, then anyone can @action.', array('@action' => $action))
     );
     if ($use_advanced_form) {
-      $form['user_relationship_node_access'][$action]['#title'] = t(ucfirst($action));
+      $form['user_relationship_node_access'][$action]['#title'] = t('@action', array('@action' => ucfirst($action)));
     }
   }
 
