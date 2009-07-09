@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.privatemsg.inc,v 1.1.2.1 2009-06-22 07:54:07 alexk Exp $
+// $Id: user_relationships_api.privatemsg.inc,v 1.1.2.2 2009-07-09 17:02:17 alexk Exp $
 /**
  * @file Integration with Privatemsg module
  * @author mannspams
@@ -15,11 +15,13 @@ function user_relationships_api_privatemsg_sql_autocomplete_alter(&$fragments, $
   unset($fragments['order_by']);
 
   global $user;
+  
+  $uniqueprefix = time();
 
   $fragments['primary_table'] = '{user_relationships}';
-  $fragments['select'][] = 'users_user_relationships.name AS name';
+  $fragments['select'][] = "users_user_relationships_$uniqueprefix.name AS name";
   $fragments['where'][] = "name LIKE '%s'";
-  $fragments['inner_join'][] = 'INNER JOIN users users_user_relationships ON user_relationships.requestee_id = users_user_relationships.uid';
+  $fragments['inner_join'][] = "INNER JOIN {users} users_user_relationships_$uniqueprefix ON user_relationships.requestee_id = users_user_relationships_$uniqueprefix.uid";
   $fragments['query_args'][] = $user->uid;
   $fragments['where'][] = 'user_relationships.approved = 1';
   $fragments['where'][] = 'user_relationships.requester_id ='. $user->uid;
