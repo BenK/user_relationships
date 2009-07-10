@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_mailer.module,v 1.1.2.8 2009-03-27 15:13:37 alexk Exp $
+// $Id: user_relationship_mailer.module,v 1.1.2.9 2009-07-10 07:27:49 alexk Exp $
 /**
  * @file User Relationships Mailer module. Handles email notifications when relationships are added or removed
  */
@@ -145,26 +145,28 @@ function user_relationship_mailer_form_alter(&$form, &$form_state, $form_id) {
       foreach ($_user_relationship_mailer_ops as $op) {
         $defaults_function = "user_relationship_mailer_{$op}_default";
         $defaults = $defaults_function();
+        
+        $op_translated = t(ucfirst(str_replace('_', '-', $op)));
 
         $form['mail'][$op] = array(
           '#type'         => 'fieldset',
-          '#title'        => t(ucfirst(str_replace('_', '-', $op))),
+          '#title'        => $op_translated,
           '#collapsible'  => TRUE,
           '#collapsed'    => TRUE
         );
         $form['mail'][$op]["user_relationship_mailer_send_{$op}"] = array(
           '#type'           => 'checkbox',
-          '#title'          => t('Send @op messages', array('@op' => $op)),
+          '#title'          => t('Send @op messages', array('@op' => $op_translated)),
           '#default_value'  => variable_get("user_relationship_mailer_send_{$op}", TRUE),
         );
         $form['mail'][$op]["user_relationship_mailer_{$op}_subject"] = array(
           '#type'           => 'textfield',
-          '#title'          => t('@Op relationship email subject', array('@Op' => ucfirst($op))),
+          '#title'          => t('Email subject'),
           '#default_value'  => variable_get("user_relationship_mailer_{$op}_subject", $defaults['subject']),
         );
         $form['mail'][$op]["user_relationship_mailer_{$op}_message"] = array(
           '#type'           => 'textarea',
-          '#title'          => t('@Op relationship email message', array('@Op' => ucfirst($op))),
+          '#title'          => t('Email message'),
           '#default_value'  => variable_get("user_relationship_mailer_{$op}_message", $defaults['message']),
           '#description'    => t('Replacement strings are: %macros', $macro_replacements),
         );

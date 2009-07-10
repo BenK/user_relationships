@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.1.2.6 2008-12-22 14:51:18 alexk Exp $
+$Id: README.txt,v 1.1.2.7 2009-07-10 07:27:49 alexk Exp $
 
 User Relationships API
 ------------------
@@ -35,7 +35,7 @@ need to see the documentation in that file for a deeper explanaition.
   hook_user_relationships_type($op, &$relationship_type)
     presave | When either saving a new relationship type or updating an existing relationship type
     insert  | After saving a new relationship type
-    update  | After saving and existing relationship type
+    update  | After saving an existing relationship type
     delete  | After deleting a relationship type
     load    | When a relationship type is loaded
 

@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.module,v 1.1.2.22 2009-07-06 15:39:21 alexk Exp $
+// $Id: user_relationships_ui.module,v 1.1.2.23 2009-07-10 07:27:49 alexk Exp $
 /**
  * @file
  * UI components of user_relationships
@@ -89,8 +89,8 @@ function _user_relationships_ui_default_messages($replacements) {
       'existing_relationship'   => t('There is already an existing %relationship_name relationship with !requestee.', $replacements),
       'not_accepting_requests'  => t('This user does not accept relationship requests.'),
       'self_request'            => t('You may not create a relationship to yourself.'),
-      'non_existant_user'       => t('This user does not exist.'),
-      'non_existant_type'       => t('This relationship type does not exist.'),
+      'non_existent_user'       => t('This user does not exist.'),
+      'non_existent_type'       => t('This relationship type does not exist.'),
       'unknown_error'           => t('An error has occurred. Please contact the site administrator.'),
       'relationship_type_not_set' => t('Please choose the type of relationship.'),
       'relationship_type_not_allowed' => t('You may not create %relationship_name relationships.', $replacements),
@@ -241,7 +241,7 @@ function _user_relationships_ui_message_settings_form(&$form, $defaults = array(
     if (is_array($value)) {
       $form[$key] = array(
         '#type'         => 'fieldset',
-        '#title'        => ucfirst(str_replace('_', ' ', $key)),
+        '#title'        => t(ucfirst(str_replace('_', ' ', $key))),
         '#collapsible'  => TRUE,
         '#collapsed'    => TRUE
       );
@@ -250,7 +250,7 @@ function _user_relationships_ui_message_settings_form(&$form, $defaults = array(
     else {
       $form["user_relationships_ui_msg_{$key}"] = array(
         '#type'           => 'textfield',
-        '#title'          => ucfirst(str_replace('_', ' ', $key)),
+        '#title'          => t(ucfirst(str_replace('_', ' ', $key))),
         '#default_value'  => variable_get("user_relationships_ui_msg_{$key}", $value)
       );
     }

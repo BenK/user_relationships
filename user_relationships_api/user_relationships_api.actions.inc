@@ -1,8 +1,8 @@
 <?php
-// $Id: user_relationships_api.actions.inc,v 1.1.2.5 2008-10-14 09:14:03 alexk Exp $
+// $Id: user_relationships_api.actions.inc,v 1.1.2.6 2009-07-10 07:27:49 alexk Exp $
 
 /**
- * @file
+ * @file *Incomplete* Actions implementation
  * TODO: check what else this file is for except for hook_hook_info impl
  * 
  * Implementation of hook_hook_info().
@@ -18,7 +18,7 @@ function user_relationships_api_hook_info() {
           'runs when' => t('After saving a new relationship type'),
         ),
         'update'  => array(
-          'runs when' => t('After saving and existing relationship type'),
+          'runs when' => t('After saving an existing relationship type'),
         ),
         'delete'  => array(
           'runs when' => t('After deleting a relationship type'),

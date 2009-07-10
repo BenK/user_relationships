@@ -1,5 +1,5 @@
 <?php
-// $Id: views_handler_filter_user_relationships_type.inc,v 1.1.2.2 2008-10-10 09:08:06 alexk Exp $
+// $Id: views_handler_filter_user_relationships_type.inc,v 1.1.2.3 2009-07-10 07:27:49 alexk Exp $
 
 /**
  * @file
@@ -99,7 +99,7 @@ class views_handler_filter_user_relationships_type extends views_handler_filter_
     }
 
     if ($missing) {
-      form_error($form, format_plural(count($missing), 'Unable to find relationship types: @types', 'Unable to find relationship types: @types', array('@types' => implode(', ', array_keys($missing)))));
+      form_error($form, format_plural(count($missing), 'Unable to find relationship type: @types', 'Unable to find relationship types: @types', array('@types' => implode(', ', array_keys($missing)))));
     }
 
     return $rtids;

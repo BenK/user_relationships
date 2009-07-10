@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.admin.inc,v 1.1.2.13 2009-07-06 20:22:33 alexk Exp $
+// $Id: user_relationships_ui.admin.inc,v 1.1.2.14 2009-07-10 07:27:49 alexk Exp $
 
 /**
  * @file
@@ -31,12 +31,12 @@ function user_relationships_ui_settings() {
   $form['general']['user_relationships_show_user_pictures'] = array(
     '#type'           => 'checkbox',
     '#title'          => t('Show user pictures in relationship pages'),
-    '#description'    => t('This will show relationships next to the user name on My relationships pages.'),
+    '#description'    => t("This will show user's picture picture next to the user name on My relationships pages."),
     '#default_value'  => variable_get('user_relationships_show_user_pictures', 0),
   );
   $form['general']['user_relationships_allow_auto_approve'] = array(
     '#type'           => 'checkbox',
-    '#title'          => t("Allow users to auto approve"),
+    '#title'          => t('Allow users to auto approve'),
     '#description'    => t('This will provide an option for users to set an "auto-approve" option to automatically approve to all requested relationships.'),
     '#default_value'  => variable_get('user_relationships_allow_auto_approve', 0),
   );
@@ -203,7 +203,7 @@ function user_relationships_ui_type_delete(&$form_state, $relationship_type = NU
     );
   }
   else {
-    drupal_set_message(user_relationships_ui_get_message('non_existant_type'));
+    drupal_set_message(user_relationships_ui_get_message('non_existent_type'));
     drupal_goto('admin/user/relationships');
   }
 }

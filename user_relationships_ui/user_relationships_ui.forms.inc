@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.forms.inc,v 1.1.2.14 2009-07-06 15:39:21 alexk Exp $
+// $Id: user_relationships_ui.forms.inc,v 1.1.2.15 2009-07-10 07:27:49 alexk Exp $
 
 /**
  * @file
@@ -80,7 +80,7 @@ function user_relationships_ui_request(&$form_state, $requestee) {
       '#type' => 'markup',
       '#prefix' => '<div>',
       '#suffix' => '</div>',
-      '#value' => user_relationships_ui_get_message('non_existant_user') . $script
+      '#value' => user_relationships_ui_get_message('non_existent_user') . $script
     );
     return $form;
   }
