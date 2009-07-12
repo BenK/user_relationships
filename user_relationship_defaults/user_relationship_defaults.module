@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_defaults.module,v 1.1.2.8 2009-07-06 13:27:30 alexk Exp $
+// $Id: user_relationship_defaults.module,v 1.1.2.9 2009-07-12 17:32:06 alexk Exp $
 
 /**
  * Drupal Module: User Relationship Defaults
@@ -209,7 +209,7 @@ function user_relationship_defaults_delete_form_submit($form, &$form_state) {
 
   db_query("DELETE FROM {user_relationship_defaults} WHERE rdid = %d", $default_relationship->rdid);
   $message_p = array(
-    '%name'         => $default_relationship->name,
+    '%name'         => $default_relationship->user_name,
     '%relationship' => $default_relationship->name,
   );
   drupal_set_message(t('Default relationship %relationship of %name has been deleted.', $message_p));
