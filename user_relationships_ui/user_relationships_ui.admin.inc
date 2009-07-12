@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.admin.inc,v 1.1.2.14 2009-07-10 07:27:49 alexk Exp $
+// $Id: user_relationships_ui.admin.inc,v 1.1.2.15 2009-07-12 17:20:27 alexk Exp $
 
 /**
  * @file
@@ -31,7 +31,7 @@ function user_relationships_ui_settings() {
   $form['general']['user_relationships_show_user_pictures'] = array(
     '#type'           => 'checkbox',
     '#title'          => t('Show user pictures in relationship pages'),
-    '#description'    => t("This will show user's picture picture next to the user name on My relationships pages."),
+    '#description'    => t("This will show user's picture next to the user name on My relationships pages."),
     '#default_value'  => variable_get('user_relationships_show_user_pictures', 0),
   );
   $form['general']['user_relationships_allow_auto_approve'] = array(

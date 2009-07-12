@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_mailer.module,v 1.1.2.9 2009-07-10 07:27:49 alexk Exp $
+// $Id: user_relationship_mailer.module,v 1.1.2.10 2009-07-12 17:20:27 alexk Exp $
 /**
  * @file User Relationships Mailer module. Handles email notifications when relationships are added or removed
  */
@@ -142,11 +142,14 @@ function user_relationship_mailer_form_alter(&$form, &$form_state, $form_id) {
       $replacement_keys[] = '@target_name';
       $macro_replacements = array('%macros' => implode(', ', $replacement_keys));
 
+      $translations = _user_relationship_mailer_ops_translations();
       foreach ($_user_relationship_mailer_ops as $op) {
         $defaults_function = "user_relationship_mailer_{$op}_default";
         $defaults = $defaults_function();
         
-        $op_translated = t(ucfirst(str_replace('_', '-', $op)));
+        $op_translated = isset($translations[$op]) ? $translations[$op] : t(ucfirst(str_replace('_', '-', $op)));
+        $send_op_translated = isset($translations['send_'. $op]) ? $translations['send_'. $op] : t('Send @op messages', array('@op' => $op_translated));
+        $replacement_translations = t('Replacement strings are: %macros', $macro_replacements);
 
         $form['mail'][$op] = array(
           '#type'         => 'fieldset',
@@ -156,7 +159,7 @@ function user_relationship_mailer_form_alter(&$form, &$form_state, $form_id) {
         );
         $form['mail'][$op]["user_relationship_mailer_send_{$op}"] = array(
           '#type'           => 'checkbox',
-          '#title'          => t('Send @op messages', array('@op' => $op_translated)),
+          '#title'          => $send_op_translated,
           '#default_value'  => variable_get("user_relationship_mailer_send_{$op}", TRUE),
         );
         $form['mail'][$op]["user_relationship_mailer_{$op}_subject"] = array(
@@ -168,7 +171,7 @@ function user_relationship_mailer_form_alter(&$form, &$form_state, $form_id) {
           '#type'           => 'textarea',
           '#title'          => t('Email message'),
           '#default_value'  => variable_get("user_relationship_mailer_{$op}_message", $defaults['message']),
-          '#description'    => t('Replacement strings are: %macros', $macro_replacements),
+          '#description'    => $replacement_translations,
         );
       }
     break;

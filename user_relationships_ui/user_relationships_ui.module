@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.module,v 1.1.2.23 2009-07-10 07:27:49 alexk Exp $
+// $Id: user_relationships_ui.module,v 1.1.2.24 2009-07-12 17:20:27 alexk Exp $
 /**
  * @file
  * UI components of user_relationships
@@ -69,7 +69,8 @@ function user_relationships_ui_get_message($key, $relationship = NULL, $replacem
  **********************************/
 
 /**
- * Returns a nested array of default messages
+ * Returns a nested array of default messages. 
+ * When adding any keys, add translations below in _user_relationships_ui_default_message_key_translations()
  */
 function _user_relationships_ui_default_messages($replacements) {
   return array(
@@ -98,6 +99,33 @@ function _user_relationships_ui_default_messages($replacements) {
   );
 }
 
+/**
+ * Returns translations of message keys, used on the admin settings form. #515338
+ */
+function _user_relationships_ui_default_message_key_translations() {
+  return array(
+    'informational' => t('Informational Messages'),
+    'submitted'     => t('Submitted'),
+    'accepted'      => t('Accepted'),
+    'disapproved'   => t('Disapproved'),
+    'cancel'        => t('Cancel'),
+    'default'       => t('Default'),
+    'removed'       => t('Removed'),
+    'pending'       => t('Pending'),
+    'pre_approved'  => t('Pre-approved'),
+    'error'         => t('Error Messages'),
+    'too_many_relationships'  => t('Too many relationships'),
+    'existing_request'        => t('Existing request'),
+    'existing_relationship'   => t('Existing relationship'),
+    'not_accepting_requests'  => t('Not accepting requests'),
+    'self_request'            => t('Self request'),
+    'non_existent_user'       => t('Non-existent user'),
+    'non_existent_type'       => t('Non-existent type'),
+    'unknown_error'           => t('Unknown error'),
+    'relationship_type_not_set' => t('Relationship type not set'),
+    'relationship_type_not_allowed' => t('Relationship type not allowed'),
+  );
+}
 
 /**
  * Recursively search an array for a key and return the value attached to it
@@ -237,11 +265,12 @@ function _user_relationships_ui_actions_between(&$viewer, &$viewed) {
  * Helper function to build the settings form for the notification messages
  */
 function _user_relationships_ui_message_settings_form(&$form, $defaults = array()) {
+  $translations = _user_relationships_ui_default_message_key_translations();
   foreach ($defaults as $key => $value) {
     if (is_array($value)) {
       $form[$key] = array(
         '#type'         => 'fieldset',
-        '#title'        => t(ucfirst(str_replace('_', ' ', $key))),
+        '#title'        => isset($translations[$key]) ? $translations[$key] : t(ucfirst(str_replace('_', ' ', $key))),
         '#collapsible'  => TRUE,
         '#collapsed'    => TRUE
       );
@@ -250,7 +279,7 @@ function _user_relationships_ui_message_settings_form(&$form, $defaults = array(
     else {
       $form["user_relationships_ui_msg_{$key}"] = array(
         '#type'           => 'textfield',
-        '#title'          => t(ucfirst(str_replace('_', ' ', $key))),
+        '#title'          => isset($translations[$key]) ? $translations[$key] : t(ucfirst(str_replace('_', ' ', $key))),
         '#default_value'  => variable_get("user_relationships_ui_msg_{$key}", $value)
       );
     }

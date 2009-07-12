@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_views.views.inc,v 1.1.2.2 2008-10-09 08:53:48 alexk Exp $
+// $Id: user_relationship_views.views.inc,v 1.1.2.3 2009-07-12 17:20:27 alexk Exp $
 
 /**
  * @file
@@ -219,7 +219,7 @@ function user_relationship_views_views_data() {
     ),
     'is_oneway' => array(
       'title' => t('Type'),
-      'help' => t('Whether or not the relationship is one way or mutual'),
+      'help' => t('Whether the relationship is one way or mutual'),
       'field' => array(
         'handler' => 'views_handler_field_user_relationships_oneway',
         'click sortable' => TRUE
@@ -230,7 +230,7 @@ function user_relationship_views_views_data() {
     ),
     'requires_approval' => array(
       'title' => t('Requires approval'),
-      'help' => t('Whether or not relationship requests must be approved'),
+      'help' => t('Whether relationship requests must be approved'),
       'field' => array(
         'handler' => 'views_handler_field_boolean',
         'click sortable' => TRUE

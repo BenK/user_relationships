@@ -1,11 +1,31 @@
 <?php
-// $Id: user_relationship_mailer_defaults.inc,v 1.1.2.7 2009-04-27 15:29:32 alexk Exp $
+// $Id: user_relationship_mailer_defaults.inc,v 1.1.2.8 2009-07-12 17:20:27 alexk Exp $
 /**
  * @file User Relationships Mailer implementation. Contains all default strings and action definitions
  */
 
 global $_user_relationship_mailer_ops;
 $_user_relationship_mailer_ops = array('request', 'cancel', 'approve', 'disapprove', 'remove', 'pre_approved');
+
+/**
+ * #515338 Translations of $_user_relationship_mailer_ops above, used on the admin settings form. Keep the two in sync when adding new operations.
+ */
+function _user_relationship_mailer_ops_translations() {
+  return array(
+    'request'       => t('Request'), 
+    'send_request'       => t('Send Request messages'), 
+    'cancel'        => t('Cancel'), 
+    'send_cancel'        => t('Send Cancel messages'), 
+    'approve'       => t('Approve'), 
+    'send_approve'       => t('Send Approve messages'), 
+    'disapprove'    => t('Disapprove'), 
+    'send_disapprove'    => t('Send Disapprove messages'), 
+    'remove'        => t('Remove'), 
+    'send_remove'        => t('Send Remove messages'), 
+    'pre_approved'  => t('Pre-approved'),
+    'send_pre_approved'  => t('Send Pre-approved messages'),
+  );
+}
 
 /**
  * Replacements for mail messages
