@@ -1,10 +1,11 @@
 <?php
-// $Id: user_relationship_defaults.module,v 1.1.2.9 2009-07-12 17:32:06 alexk Exp $
+// $Id: user_relationship_defaults.module,v 1.1.2.10 2009-08-14 21:05:02 alexk Exp $
 
 /**
  * Drupal Module: User Relationship Defaults
  *
- * @author: Jeff Smick <sprsquish [at] gmail [dot] com>
+ * @author Jeff Smick (creator)
+ * @author Alex Karshakevich (maintainer) http://drupal.org/user/183217
  * @file
  * Automatically create a relationship when a new user joins
  */
@@ -224,7 +225,13 @@ function user_relationship_defaults_delete_form_submit($form, &$form_state) {
  * hook_user()
  */
 function user_relationship_defaults_user($type, &$edit, &$account, $cagetory = NULL) {
-  if ($type == 'insert' && $defaults = user_relationship_defaults_load()) {
+  if (
+      ($type == 'insert' && $account->status)  //if new user is already approved, create relationship
+      || ($type == 'after_update' && $account->status && !$account->login) //#519440 if admin approves a new user account, create relationship
+  ) {
+    //note that if a new account is approved, then blocked and unblocked before the user logged in once,
+    //it'll attempt to create default relationships again (there won't be any errors if they already exist, though)
+    $defaults = user_relationship_defaults_load();
     foreach ($defaults as $default) {
       user_relationships_request_relationship($default->user, $account, $default->relationship_type, TRUE);
     }
