@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.admin.inc,v 1.1.2.15 2009-07-12 17:20:27 alexk Exp $
+// $Id: user_relationships_ui.admin.inc,v 1.1.2.16 2009-08-14 20:08:47 alexk Exp $
 
 /**
  * @file
@@ -50,6 +50,30 @@ function user_relationships_ui_settings() {
       'is_numeric' => array('msg' => t('The relationships per page setting is not an integer'))
     )))
   );
+  if (module_exists('privatemsg')) {
+      $form['privatemsg'] = array(
+        '#type'   => 'fieldset',
+        '#title'  => t('Private messages'),
+        '#weight' => -10,
+      );
+      $form['privatemsg']['user_relationships_restrict_privatemsg'] = array(
+        '#type'           => 'radios',
+        '#title'          => t('Restrict Private Messaging to only related users'),
+        '#description'    => t('Allow Privatemsg to work only between related users'),
+        '#default_value'  => variable_get('user_relationships_restrict_privatemsg', 'all'),
+        '#options' => array(
+          'all' => t('Allow sending messages to all users'),
+          'all_overridable' => t('Allow sending messages to all users, users have option to accept messages only from their confirmed relationships'),
+          'relationships' => t('Allow sending messages only to confirmed relationships (You probably should enable "Suggest only relationships" below)'),
+        ),
+      );
+      $form['privatemsg']['user_relationships_privatemsg_autocomplete_alter'] = array(
+        '#type'           => 'checkbox',
+        '#title'          => t('Suggest only relationships in To: field'),
+        '#description'    => t("Show only user's relationships when autocompleting the To: field."),
+        '#default_value'  => variable_get('user_relationships_privatemsg_autocomplete_alter', 0),
+      );
+  }
   $form['positioning'] = array(
     '#type'   => 'fieldset',
     '#title'  => t('AJAX Popup Positioning'),

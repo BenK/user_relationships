@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.module,v 1.1.2.25 2009-08-14 07:17:15 alexk Exp $
+// $Id: user_relationships_ui.module,v 1.1.2.26 2009-08-14 20:08:47 alexk Exp $
 /**
  * @file
  * UI components of user_relationships
@@ -676,7 +676,11 @@ function user_relationships_ui_user($type, &$edit, &$account, $category = NULL) 
       }
     }
     //#257748 #458046 for adding the functionality of allowing/disallowing private messages.
-    if ($category == 'account' && module_exists('privatemsg')) { //check if privatemsg is installed
+    if ($category == 'account' 
+        && variable_get('user_relationships_restrict_privatemsg', 'all') == 'all_overridable'
+        && user_access('maintain own relationships', $account) 
+        && module_exists('privatemsg')
+    ) { //check if privatemsg is installed
       $form['user_relationships_ui_privatemsg_settings'] = array(
         '#type'   => 'fieldset',
         '#title'  => t('Private messages'),
