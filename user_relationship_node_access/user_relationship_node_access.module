@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_node_access.module,v 1.1.4.11 2009-07-06 13:11:07 alexk Exp $
+// $Id: user_relationship_node_access.module,v 1.1.4.12 2009-08-14 22:34:38 alexk Exp $
 // Copyright (C) 2008 Jonathan Brown
 // http://openpackage.biz/
 
@@ -154,6 +154,13 @@ function user_relationship_node_access_form_alter(&$form, $form_state, $form_id)
     '#collapsed'    => $use_advanced_form,
     '#tree'         => TRUE,
   );
+  //place fieldset where content type admin has placed it on cck field management page
+  if (module_exists('content')) {
+    $fieldset_weight = content_extra_field_weight($form['#node']->type, 'user_relationship_node_access');
+    if (isset($fieldset_weight)) {
+      $form['user_relationship_node_access']['#weight'] = $fieldset_weight;
+    }
+  }
   //theme as a table if more than one permission is given
   if ($use_advanced_form) {
     $form['user_relationship_node_access']['#theme'] = 'user_relationship_node_access_form';
@@ -373,4 +380,22 @@ function _user_relationship_node_access_get_allowed_grants($user = NULL) {
     }
   }
   return $allowed_grants;
+}
+
+/**
+ * Implementation of hook_content_extra_fields.
+ *
+ * Allow admins to set weight of permissions fieldset on CCK node edit form #546144
+ */
+function user_relationship_node_access_content_extra_fields($type_name) {
+  $allowed_types = variable_get('user_relationship_node_access_allowed_types', array());
+  if (isset($allowed_types[$type_name])) {  
+    $extra = array();
+    $extra['user_relationship_node_access'] = array(
+      'label' => t('Post to Social Network'),
+      'description' => t('User Relationship Node Access module form.'),
+      'weight' => 3,
+    );
+    return $extra;
+  }
 }
