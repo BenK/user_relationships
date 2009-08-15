@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.privatemsg.inc,v 1.1.2.4 2009-08-14 20:08:47 alexk Exp $
+// $Id: user_relationships_api.privatemsg.inc,v 1.1.2.5 2009-08-15 16:16:19 alexk Exp $
 /**
  * @file Integration with Privatemsg module
  * @author mansspams http://drupal.org/user/293179
@@ -28,7 +28,8 @@ function user_relationships_api_privatemsg_sql_autocomplete_alter(&$fragments, $
   $fragments['inner_join'][] = "INNER JOIN {users} users_user_relationships_$uniqueprefix ON ur_$uniqueprefix.requestee_id = users_user_relationships_$uniqueprefix.uid";
   $fragments['query_args'][] = $user->uid;
   $fragments['where'][] = "ur_$uniqueprefix.approved = 1";
-  $fragments['where'][] = "ur_$uniqueprefix.requester_id =". $user->uid;
+  $fragments['where'][] = "ur_$uniqueprefix.requester_id = %d";
+  $fragments['query_args']['where'][] = $user->uid;
   $fragments['order_by'][] = 'name ASC'; 
   
   $uniqueprefix++;
