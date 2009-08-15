@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.module,v 1.1.2.16 2009-07-10 08:46:01 alexk Exp $
+// $Id: user_relationships_api.module,v 1.1.2.17 2009-08-15 21:10:26 alexk Exp $
 
 /**
  * @file
@@ -52,7 +52,7 @@ function _user_relationships_generate_query($param = array(), $options = array()
       $between_cond = "((ur.requester_id {$operator[0]} AND ur.requestee_id {$operator[1]}) OR (";
       //#479486 do not include reverse records of two-way relationships by default
       if (!isset($include_twoway_reverse)) {
-        $between_cond .= 'urt.is_oneway <> 0 AND ';
+        $between_cond .= '(ur.approved <> 1 OR urt.is_oneway <> 0) AND ';
         $twoway_reverse_clause = TRUE;
       }
       $between_cond .= "ur.requestee_id {$operator[0]} AND ur.requester_id {$operator[1]}))";

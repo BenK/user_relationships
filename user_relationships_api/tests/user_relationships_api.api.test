@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.api.test,v 1.1.2.4 2009-07-10 08:46:01 alexk Exp $
+// $Id: user_relationships_api.api.test,v 1.1.2.5 2009-08-15 21:10:26 alexk Exp $
 
 /**
  * @file
@@ -231,5 +231,14 @@ class UserRelationshipsApiTestCase extends DrupalWebTestCase {
     $this->assertEqual(count($result), 2);
     $result = user_relationships_load(array('between' => array($u3->uid, $u4->uid), 'approved' => 0), array('include_twoway_reverse' => 1));
     $this->assertEqual(count($result), 2);
+    //#520392 test just between
+    $result = user_relationships_load(array('between' => array($u3->uid, $u1->uid)));
+    $this->assertEqual(count($result), 4);
+    $result = user_relationships_load(array('between' => array($u3->uid, $u1->uid)), array('include_twoway_reverse' => 1));
+    $this->assertEqual(count($result), 4);
+    $result = user_relationships_load(array('between' => array($u1->uid, $u3->uid)));
+    $this->assertEqual(count($result), 4);
+    $result = user_relationships_load(array('between' => array($u1->uid, $u3->uid)), array('include_twoway_reverse' => 1));
+    $this->assertEqual(count($result), 4);
   }
 }
