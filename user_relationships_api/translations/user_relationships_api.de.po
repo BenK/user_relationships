@@ -1,69 +1,70 @@
-# $Id: user_relationships_api.de.po,v 1.1.2.1 2009-08-23 09:10:27 alexk Exp $
-#
+# $Id: user_relationships_api.de.po,v 1.1.2.2 2009-08-31 21:08:25 alexk Exp $
 # German translation of Drupal (general)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
 # Generated from files:
-#  user_relationship_blocks.module,v 1.1.2.9 2009/07/06 12:40:04 alexk
-#  user_relationships-actions_block.tpl.php,v 1.1.2.5 2008/10/30 12:49:33 alexk
-#  user_relationships_ui.module,v 1.1.2.22 2009/07/06 15:39:21 alexk
-#  user_relationship_blocks.info,v 1.1.2.4 2008/04/21 00:38:17 sprsquish
-#  user_relationship_defaults.info,v 1.1.2.4 2008/04/21 00:38:18 sprsquish
-#  user_relationship_elaborations.info,v 1.1.2.3 2008/04/21 00:38:18 sprsquish
-#  user_relationship_implications.info,v 1.1.2.4 2008/04/21 00:38:18 sprsquish
-#  user_relationship_invites.info,v 1.1.2.1 2009/03/10 18:40:53 jaydub
-#  user_relationship_mailer.info,v 1.1.2.4 2008/04/21 00:38:18 sprsquish
-#  user_relationship_migrate.info,v 1.1.2.1 2009/06/22 12:36:04 alexk
-#  user_relationship_node_access.info,v 1.1.4.4 2008/04/21 00:38:18 sprsquish
-#  user_relationship_service.info,v 1.1.2.1 2009/07/06 10:24:44 alexk
-#  user_relationship_views.info,v 1.1.2.1 2008/10/08 14:38:41 alexk
-#  user_relationships_api.info,v 1.1.2.4 2008/04/21 00:38:19 sprsquish
-#  user_relationships_ui.info,v 1.1.2.4 2008/04/21 00:38:19 sprsquish
-#  user_relationships-block.tpl.php,v 1.1.2.7 2009/07/06 12:40:04 alexk
-#  user_relationships-pending_block.tpl.php,v 1.1.2.8 2009/07/06 20:07:58 alexk
-#  user_relationship_defaults.module,v 1.1.2.8 2009/07/06 13:27:30 alexk
-#  user_relationships_ui.admin.inc,v 1.1.2.13 2009/07/06 20:22:33 alexk
-#  user_relationship_node_access.module,v 1.1.4.11 2009/07/06 13:11:07 alexk
-#  views_handler_field_user_relationships_requestee.inc,v 1.1.2.1 2008/10/08 14:38:41 alexk
-#  views_handler_field_user_relationships_requester.inc,v 1.1.2.1 2008/10/08 14:38:41 alexk
-#  user_relationships_ui.admin_actions.inc,v 1.1.2.12 2009/04/27 16:02:59 alexk
-#  user_relationships_ui.forms.inc,v 1.1.2.14 2009/07/06 15:39:21 alexk
-#  user_relationships_ui.theme.inc,v 1.1.2.7 2009/07/06 20:22:33 alexk
-#  user_relationships_ui.pages.inc,v 1.1.2.6 2009/07/06 15:39:21 alexk
-#  user_relationship_elaborations.module,v 1.1.2.9 2009/05/07 08:21:46 alexk
-#  user_relationship_implications.module,v 1.1.2.9 2009/07/06 13:13:58 alexk
-#  user_relationships.tpl.php,v 1.1.2.7 2009/03/24 08:46:35 alexk
-#  user_relationship_invites.module,v 1.1.2.3 2009/06/28 21:51:34 alexk
-#  user_relationship_mailer.module,v 1.1.2.8 2009/03/27 15:13:37 alexk
-#  user_relationship_migrate.module,v 1.1.2.1 2009/06/22 12:36:05 alexk
-#  user_relationship_service.inc,v 1.1.2.1 2009/07/06 10:24:44 alexk
-#  user_relationship_service.module,v 1.1.2.1 2009/07/06 10:24:44 alexk
-#  user_relationship_views.views.inc,v 1.1.2.2 2008/10/09 08:53:48 alexk
-#  views_handler_field_user_relationships_name.inc,v 1.1.2.1 2008/10/08 14:38:41 alexk
-#  views_handler_field_user_relationships_oneway.inc,v 1.1.2.1 2008/10/08 14:38:41 alexk
-#  views_handler_field_user_relationships_status.inc,v 1.1.2.1 2008/10/08 14:38:41 alexk
-#  views_handler_filter_user_relationships_status.inc,v 1.1.2.1 2008/10/08 14:38:41 alexk
-#  views_handler_filter_user_relationships_type.inc,v 1.1.2.2 2008/10/10 09:08:06 alexk
-#  user_relationships_api.actions.inc,v 1.1.2.5 2008/10/14 09:14:03 alexk
-#  user_relationships_api.api.inc,v 1.1.2.15 2009/07/06 15:55:04 alexk
-#  user_relationships_api.privatemsg.inc,v 1.1.2.1 2009/06/22 07:54:07 alexk
-#  user_relationships_api.module,v 1.1.2.15 2009/06/28 21:47:12 alexk
-#  user_relationships_ui/user_relationships_ui.js: n/a
-#  user_relationships_pending_requests.tpl.php,v 1.1.2.6 2009/03/24 08:46:35 alexk
+# user_relationship_blocks.module,v 1.1.2.10 2009/08/31 20:32:54 alexk
+# user_relationships-actions_block.tpl.php,v 1.1.2.5 2008/10/30 12:49:33 alexk
+# user_relationships_ui.module,v 1.1.2.26 2009/08/14 20:08:47 alexk
+# user_relationship_blocks.info,v 1.1.2.4 2008/04/21 00:38:17 sprsquish
+# user_relationship_defaults.info,v 1.1.2.4 2008/04/21 00:38:18 sprsquish
+# user_relationship_elaborations.info,v 1.1.2.4 2009/07/12 17:20:26 alexk
+# user_relationship_field_perms/user_relationship_field_perms.info: n/a
+# user_relationship_implications.info,v 1.1.2.4 2008/04/21 00:38:18 sprsquish
+# user_relationship_invites.info,v 1.1.2.1 2009/03/10 18:40:53 jaydub
+# user_relationship_mailer.info,v 1.1.2.4 2008/04/21 00:38:18 sprsquish
+# user_relationship_migrate.info,v 1.1.2.1 2009/06/22 12:36:04 alexk
+# user_relationship_node_access.info,v 1.1.4.4 2008/04/21 00:38:18 sprsquish
+# user_relationship_service.info,v 1.1.2.1 2009/07/06 10:24:44 alexk
+# user_relationship_views.info,v 1.1.2.1 2008/10/08 14:38:41 alexk
+# user_relationships_api.info,v 1.1.2.4 2008/04/21 00:38:19 sprsquish
+# user_relationships_ui.info,v 1.1.2.4 2008/04/21 00:38:19 sprsquish
+# user_relationships-block.tpl.php,v 1.1.2.7 2009/07/06 12:40:04 alexk
+# user_relationships-pending_block.tpl.php,v 1.1.2.8 2009/07/06 20:07:58 alexk
+# user_relationship_defaults.module,v 1.1.2.10 2009/08/14 21:05:02 alexk
+# user_relationships_ui.admin.inc,v 1.1.2.16 2009/08/14 20:08:47 alexk
+# user_relationship_node_access.module,v 1.1.4.12 2009/08/14 22:34:38 alexk
+# views_handler_field_user_relationships_requestee.inc,v 1.1.2.1 2008/10/08 14:38:41 alexk
+# views_handler_field_user_relationships_requester.inc,v 1.1.2.1 2008/10/08 14:38:41 alexk
+# user_relationships_ui.admin_actions.inc,v 1.1.2.12 2009/04/27 16:02:59 alexk
+# user_relationship_mailer_defaults.inc,v 1.1.2.8 2009/07/12 17:20:27 alexk
+# user_relationships_ui.forms.inc,v 1.1.2.15 2009/07/10 07:27:49 alexk
+# user_relationships_ui.theme.inc,v 1.1.2.7 2009/07/06 20:22:33 alexk
+# user_relationships_ui.pages.inc,v 1.1.2.6 2009/07/06 15:39:21 alexk
+# user_relationship_elaborations.module,v 1.1.2.9 2009/05/07 08:21:46 alexk
+# user_relationship_field_perms/user_relationship_field_perms.views.inc: n/a
+# user_relationship_field_perms/user_relationship_field_perms.module: n/a
+# user_relationship_implications.module,v 1.1.2.9 2009/07/06 13:13:58 alexk
+# user_relationships.tpl.php,v 1.1.2.7 2009/03/24 08:46:35 alexk
+# user_relationship_invites.module,v 1.1.2.3 2009/06/28 21:51:34 alexk
+# user_relationship_mailer.module,v 1.1.2.10 2009/07/12 17:20:27 alexk
+# user_relationship_migrate.module,v 1.1.2.1 2009/06/22 12:36:05 alexk
+# user_relationship_service.inc,v 1.1.2.1 2009/07/06 10:24:44 alexk
+# user_relationship_service.module,v 1.1.2.1 2009/07/06 10:24:44 alexk
+# user_relationship_views.views.inc,v 1.1.2.3 2009/07/12 17:20:27 alexk
+# views_handler_field_user_relationships_name.inc,v 1.1.2.1 2008/10/08 14:38:41 alexk
+# views_handler_field_user_relationships_oneway.inc,v 1.1.2.1 2008/10/08 14:38:41 alexk
+# views_handler_field_user_relationships_status.inc,v 1.1.2.1 2008/10/08 14:38:41 alexk
+# views_handler_filter_user_relationships_status.inc,v 1.1.2.1 2008/10/08 14:38:41 alexk
+# views_handler_filter_user_relationships_type.inc,v 1.1.2.3 2009/07/10 07:27:49 alexk
+# user_relationships_api.actions.inc,v 1.1.2.6 2009/07/10 07:27:49 alexk
+# user_relationships_api.api.inc,v 1.1.2.15 2009/07/06 15:55:04 alexk
+# user_relationships_api.privatemsg.inc,v 1.1.2.5 2009/08/15 16:16:19 alexk
+# user_relationships_api.module,v 1.1.2.17 2009/08/15 21:10:26 alexk
+# user_relationships_ui/user_relationships_ui.js: n/a
+# user_relationships_pending_requests.tpl.php,v 1.1.2.6 2009/03/24 08:46:35 alexk
+#
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Drupal User Relationships V6.x-1.0\n"
-"POT-Creation-Date: 2009-08-19 18:43+0200\n"
-"PO-Revision-Date: 2009-08-22 18:49+0100\n"
-"Last-Translator: Frank Tartler <frank.tartler@googlemail.com>\n"
-"Language-Team: Frank Tartler <frank.tartler@googlemail.com>\n"
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2009-08-31 22:43+0200\n"
+"PO-Revision-Date: 2009-08-31 22:43+0200\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: German <EMAIL@ADDRESS>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n!=1);\n"
-"X-Poedit-Language: German\n"
-"X-Poedit-Country: GERMANY\n"
-"X-Poedit-SourceCharset: utf-8\n"
 
 #: user_relationship_blocks/user_relationship_blocks.module:93
 msgid "Relationship requests"
@@ -87,9 +88,27 @@ msgstr "@username ist ein @rel_name von"
 msgid "@username's"
 msgstr "@username‘s"
 
-#: user_relationship_blocks/user_relationship_blocks.module:120
-msgid "@user @type"
-msgstr ""
+#: user_relationship_blocks/user_relationship_blocks.module:114
+#: user_relationships_ui/user_relationships_ui.module:475
+msgid "My relationships"
+msgstr "Meine Beziehungen"
+
+#: user_relationship_blocks/user_relationship_blocks.module:114
+msgid "@username's relationships"
+msgstr "Beziehungen von @username"
+
+#: user_relationship_blocks/user_relationship_blocks.module:118
+msgid "My @relationships"
+msgstr "Meine @relationships"
+
+#: user_relationship_blocks/user_relationship_blocks.module:118
+msgid "@username's @relationships"
+msgstr "@relationships von @username"
+
+#: user_relationship_blocks/user_relationship_blocks.module:150
+#: user_relationships_ui/user_relationships_ui.module:483
+msgid "All"
+msgstr "Alle"
 
 #: user_relationship_blocks/user_relationship_blocks.module:162
 msgid "Number of relationships to display in block"
@@ -112,7 +131,6 @@ msgid "author whose node is being viewed"
 msgstr "Autor dessen Beitrag angezeigt wird"
 
 #: user_relationship_blocks/user_relationship_blocks.module:171
-#, fuzzy
 msgid "NOTE: This block displays @relationship_name relationships of the @user_identifier."
 msgstr "HINWEIS: Dieser Block zeigt @relationship_name-Beziehungen von @user_identifier."
 
@@ -125,7 +143,6 @@ msgid "requestee"
 msgstr "Angefragter"
 
 #: user_relationship_blocks/user_relationship_blocks.module:175
-#, fuzzy
 msgid "Because this relationship is one-way this block will show relationships where the @user_identifier is the @relation"
 msgstr "Da diese Beziehung gerichtet ist zeigt dieser Block Beziehungen, bei denen @user_identifier @relation ist."
 
@@ -196,6 +213,7 @@ msgstr "Blöcke die mit User Relationships (Benutzerbeziehungen) verwendet werde
 #: user_relationship_blocks/user_relationship_blocks.info:0
 #: user_relationship_defaults/user_relationship_defaults.info:0
 #: user_relationship_elaborations/user_relationship_elaborations.info:0
+#: user_relationship_field_perms/user_relationship_field_perms.info:0
 #: user_relationship_implications/user_relationship_implications.info:0
 #: user_relationship_invites/user_relationship_invites.info:0
 #: user_relationship_mailer/user_relationship_mailer.info:0
@@ -206,7 +224,7 @@ msgstr "Blöcke die mit User Relationships (Benutzerbeziehungen) verwendet werde
 #: user_relationships_api/user_relationships_api.info:0
 #: user_relationships_ui/user_relationships_ui.info:0
 msgid "User Relationships"
-msgstr ""
+msgstr "Beziehungen der Benutzer"
 
 #: user_relationship_blocks/templates/user_relationships-actions_block.tpl.php:11
 #: user_relationships_ui/user_relationships_ui.module:617
@@ -217,9 +235,9 @@ msgstr "Ihre Beziehungen zu diesem Benutzer"
 msgid "@rel_name of"
 msgstr "@rel_name von"
 
-#: user_relationship_blocks/templates/user_relationships-block.tpl.php:15;19
+#: user_relationship_blocks/templates/user_relationships-block.tpl.php:15
 msgid "@rel_plural_name"
-msgstr ""
+msgstr "@rel_plural_name"
 
 #: user_relationship_blocks/templates/user_relationships-pending_block.tpl.php:16
 msgid "@rel_name to !username (!controls)"
@@ -246,11 +264,10 @@ msgid "Username"
 msgstr "Benutzername"
 
 #: user_relationship_defaults/user_relationship_defaults.module:122
-#, fuzzy
 msgid "Start typing the name of a user to automatically create a relationship to"
 msgstr "Es kann begonnen werden, den Namen eines Benutzers einzutippen, zu dem automatisch eine Beziehung erstellt werden soll"
 
-#: user_relationship_defaults/user_relationship_defaults.module:128;268
+#: user_relationship_defaults/user_relationship_defaults.module:128
 msgid "Relationship"
 msgstr "Beziehung"
 
@@ -271,15 +288,15 @@ msgstr "Es muss der Name eines bestehenden Benutzers eingegeben werden."
 msgid "You must enter an existing relationship's name."
 msgstr "Es muss der Name einer bestehenden Beziehung eingegeben werden."
 
-#: user_relationship_defaults/user_relationship_defaults.module:175;176
+#: user_relationship_defaults/user_relationship_defaults.module:175
 msgid "Default relationship %relationship_name of %username has been added."
 msgstr "Standardbeziehung %relationship_name von %username wurde hinzugefügt."
 
 #: user_relationship_defaults/user_relationship_defaults.module:176
-#: user_relationship_node_access/user_relationship_node_access.module:15;191
+#: user_relationship_node_access/user_relationship_node_access.module:15
 #: user_relationship_views/views_handler_field_user_relationships_requestee.inc:16
 #: user_relationship_views/views_handler_field_user_relationships_requester.inc:16
-#: user_relationships_ui/user_relationships_ui.admin_actions.inc:72;85
+#: user_relationships_ui/user_relationships_ui.admin_actions.inc:72
 msgid "view"
 msgstr "Anzeigen"
 
@@ -306,12 +323,12 @@ msgstr "Löschen"
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: user_relationship_defaults/user_relationship_defaults.module:216;217
+#: user_relationship_defaults/user_relationship_defaults.module:216
 msgid "Default relationship %relationship of %name has been deleted."
 msgstr "Standardbeziehung %relationship von %name wurde gelöscht."
 
 #: user_relationship_defaults/user_relationship_defaults.module:254
-#: user_relationship_node_access/user_relationship_node_access.module:15;191
+#: user_relationship_node_access/user_relationship_node_access.module:15
 #: user_relationships_ui/user_relationships_ui.pages.inc:27
 msgid "delete"
 msgstr "Löschen"
@@ -333,8 +350,8 @@ msgstr "Benutzer"
 msgid "Operations"
 msgstr "Operationen"
 
-#: user_relationship_defaults/user_relationship_defaults.module:176;217
-#: user_relationships_ui/user_relationships_ui.admin_actions.inc:68;81;126
+#: user_relationship_defaults/user_relationship_defaults.module:176
+#: user_relationships_ui/user_relationships_ui.admin_actions.inc:68
 msgid "u_relationship"
 msgstr ""
 
@@ -352,13 +369,13 @@ msgstr "UR-Standards"
 
 #: user_relationship_defaults/user_relationship_defaults.info:0
 msgid "Allows admins to specify relationships that are automatically created when a new user joins"
-msgstr "Erlaubt Administratoren, Beziehungen anzugeben, die automatisch beim Beitritt eines Benutzers erstellt werden"
+msgstr "Erlaubt Administratoren, Beziehungen anzugeben, die automatisch beim t eines Benutzers erstellt werden"
 
-#: user_relationship_elaborations/user_relationship_elaborations.module:134;164
+#: user_relationship_elaborations/user_relationship_elaborations.module:134
 msgid "Elaboration"
 msgstr "Einzelheiten"
 
-#: user_relationship_elaborations/user_relationship_elaborations.module:136;167
+#: user_relationship_elaborations/user_relationship_elaborations.module:136
 msgid "Please elaborate on this relationship (how/where you met, etc)"
 msgstr "Bitte Einzelheiten zu dieser Beziehung ausarbeiten (wie/wo das Kennenlernen stattfand, usw.)"
 
@@ -382,33 +399,126 @@ msgstr ""
 msgid "Allow users to elaborate on their relationships with others"
 msgstr "Ermöglicht Benutzern, Einzelheiten zu ihren Beziehungen mit anderen auszuarbeiten"
 
+#: user_relationship_field_perms/user_relationship_field_perms.views.inc:19
+msgid "Profile Fields"
+msgstr "Profilfelder"
+
+#: user_relationship_field_perms/user_relationship_field_perms.views.inc:20
+msgid "Displays the fields with profile field privacy settings."
+msgstr "Zeigt die Felder mit den Datenschutzeinstellungen des Profils an."
+
+#: user_relationship_field_perms/user_relationship_field_perms.module:17
+msgid "Placeholder for hidden fields"
+msgstr ""
+
+#: user_relationship_field_perms/user_relationship_field_perms.module:19
+msgid "Displaying profile nodes in Views: enter text that will show in place of a field hidden by visibility settings. Leave blank to show nothing. Plain text is preferred as CCK text fields that are plaintext will not output html if entered here."
+msgstr ""
+
+#: user_relationship_field_perms/user_relationship_field_perms.module:21
+msgid "<p>Please note that profile visibility field defaults are configured directly in the <a href=\"!link\">CCK content type administration area</a>.</p>"
+msgstr ""
+
+#: user_relationship_field_perms/user_relationship_field_perms.module:80
+msgid "User relationships visibility defaults"
+msgstr ""
+
+#: user_relationship_field_perms/user_relationship_field_perms.module:83
+msgid "Set default visibility by user relationships."
+msgstr ""
+
+#: user_relationship_field_perms/user_relationship_field_perms.module:98
+msgid "Show this field to"
+msgstr "Dieses Feld anzeigen für"
+
+#: user_relationship_field_perms/user_relationship_field_perms.module:101
+msgid "All users (users can override)"
+msgstr ""
+
+#: user_relationship_field_perms/user_relationship_field_perms.module:102
+msgid "No one"
+msgstr "Niemand"
+
+#: user_relationship_field_perms/user_relationship_field_perms.module:103
+msgid "Related users:"
+msgstr "Bekannte Benutzer:"
+
+#: user_relationship_field_perms/user_relationship_field_perms.module:110
+#: user_relationships_ui/user_relationships_ui.pages.inc:42
+msgid "Relationship Types"
+msgstr "Beziehungstypen"
+
+#: user_relationship_field_perms/user_relationship_field_perms.module:113
+msgid "Select the types of relationships you wish to show the field to."
+msgstr ""
+
+#: user_relationship_field_perms/user_relationship_field_perms.module:169
+msgid "Visibility of @field"
+msgstr "Sichtbarkeit von @field"
+
+#: user_relationship_field_perms/user_relationship_field_perms.module:172
+msgid "Select users who are allowed to view this field. It will be visible to site administrators no matter the setting."
+msgstr "Wählen Sie die Benutzer aus, die dieses Feld einsehen können. Unabhängig von Ihren Einstellungen ist das Feld für die Administratoren der Website immer sichtbar."
+
+#: user_relationship_field_perms/user_relationship_field_perms.module:188
+msgid "All users"
+msgstr "Alle Benutzer"
+
+#: user_relationship_field_perms/user_relationship_field_perms.module:199
+msgid "Select one or several relationships you wish to show the field to."
+msgstr "Wählen Sie eine oder mehrere Bekanntschaftsarten aus, für die Sie das Feld sichtbar machen möchten."
+
+#: user_relationship_field_perms/user_relationship_field_perms.module:213
+msgid "Profile Field Privacy"
+msgstr ""
+
+#: user_relationship_field_perms/user_relationship_field_perms.module:242
+msgid "Please choose at least one relationship type in %field_name."
+msgstr ""
+
+#: user_relationship_field_perms/user_relationship_field_perms.module:262
+msgid "Please choose at least one relationship type to show the field(s) to."
+msgstr ""
+
+#: user_relationship_field_perms/user_relationship_field_perms.module:471
+msgid "Profile field visibility settings have been saved."
+msgstr "Sichtbarkeitseinstellungen des Profilfeldes wurden gespeichert."
+
+#: user_relationship_field_perms/user_relationship_field_perms.module:600
+msgid "User Relationships per-field privacy form."
+msgstr ""
+
+#: user_relationship_field_perms/user_relationship_field_perms.module:47
+msgid "disregard relationship field privacy"
+msgstr ""
+
+#: user_relationship_field_perms/user_relationship_field_perms.module:31
+msgid "Profile field visibility"
+msgstr "Sichtbarkeit der Profilfelder"
+
+#: user_relationship_field_perms/user_relationship_field_perms.module:32
+msgid "Miscellaneous configuration of user profile field visibility."
+msgstr ""
+
+#: user_relationship_field_perms/user_relationship_field_perms.info:0
+msgid "UR-Field Permissions"
+msgstr ""
+
+#: user_relationship_field_perms/user_relationship_field_perms.info:0
+msgid "Set field-level permissions for CCK fields of content_profile nodes."
+msgstr ""
+
 #: user_relationship_implications/user_relationship_implications.module:53
 msgid "@type_name"
-msgstr ""
+msgstr "@type_name"
 
 #: user_relationship_implications/user_relationship_implications.module:77
 msgid "This relationship implies"
 msgstr "Diese Beziehung beinhaltet"
 
 #: user_relationship_implications/user_relationship_implications.module:82
-msgid ""
-"\n"
-"        <ul>\n"
-"          <li>Users will automatically have these relationships created between them when the implying relationship is created. (ex: Manager implies Coworker).</li>\n"
-"          <li>When the implied relationship is removed the implying relationship will not be removed. (ex: removing Coworker WILL NOT remove Manager)</li>\n"
-"          <li>If \"strict\" is set the implying relationship will be removed when the implied relationship is removed. (ex: removing Coworker WILL remove Manager)</li>\n"
-"          <li>Reverse is really only useful for one-way relationships. It allows things like Parent implies Offspring to work in the right direction</li>\n"
-"        </ul>\n"
-"      "
-msgstr ""
-"\n"
-"        <ul>\n"
-"          <li>Wenn die beinhaltende Beziehung erstellt wird werden diese Beziehungen automatisch ihnen erstellt. (Bsp.: Manager beinhaltet Mitarbeiter).</li>\n"
-"          <li>Wenn die beinhaltete Beziehung entfernt wird, wird die beinhaltende Beziehung nicht entfernt. (Bsp.: Entfernen von MItarbeiter ENTFERNT NICHT Manager)</li>\n"
-"          <li>Wenn „genau“ eingestellt ist wird die beinhaltende Beziehung gelöscht, wenn die beinhaltete Beziehung entfernt wird. (Bsp.: Entfernen von Mitarbeiter ENTFERNT Manager)</li>\n"
-"          <li>„Umgekehrt“ ist nur nützlich bei gerichteten Beziehungen. Es erlaubt Dingen wie ‚Eltern beinhaltet Nachwuchs‘ in die richtige Richtung zu funktionieren.</li>\n"
-"        </ul>\n"
-"      "
+msgid "\n        <ul>\n          <li>Users will automatically have these relationships created between them when the implying relationship is created. (ex: Manager implies Coworker).</li>\n          <li>When the implied relationship is removed the implying relationship will not be removed. (ex: removing Coworker WILL NOT remove Manager)</li>\n          <li>If \"strict\" is set the implying relationship will be removed when the implied relationship is removed. (ex: removing Coworker WILL remove Manager)</li>\n          <li>Reverse is really only useful for one-way relationships. It allows things like Parent implies Offspring to work in the right direction</li>\n        </ul>\n      "
+msgstr "\n        <ul>\n          <li>Wenn die beinhaltende Beziehung erstellt wird werden diese Beziehungen automatisch ihnen erstellt. (Bsp.: Manager beinhaltet Mitarbeiter).</li>\n          <li>Wenn die beinhaltete Beziehung entfernt wird, wird die beinhaltende Beziehung nicht entfernt. (Bsp.: Entfernen von MItarbeiter ENTFERNT NICHT Manager)</li>\n          <li>Wenn „genau“ eingestellt ist wird die beinhaltende Beziehung gelöscht, wenn die beinhaltete Beziehung entfernt wird. (Bsp.: Entfernen von Mitarbeiter ENTFERNT Manager)</li>\n          <li>„Umgekehrt“ ist nur nützlich bei gerichteten Beziehungen. Es erlaubt Dingen wie ‚Eltern beinhaltet Nachwuchs‘ in die richtige Richtung zu funktionieren.</li>\n        </ul>\n      "
 
 #: user_relationship_implications/user_relationship_implications.module:97
 #: user_relationship_node_access/user_relationship_node_access.module:20
@@ -462,12 +572,12 @@ msgid "Please confirm the %relationship_name request from !name"
 msgstr "Die %relationship_name-Anfrage von !name muss bestätigt werden"
 
 #: user_relationship_invites/user_relationship_invites.module:92
-#: user_relationships_ui/user_relationships_ui.forms.inc:207;258
+#: user_relationships_ui/user_relationships_ui.forms.inc:207
 msgid "Yes"
 msgstr "Ja"
 
 #: user_relationship_invites/user_relationship_invites.module:92
-#: user_relationships_ui/user_relationships_ui.forms.inc:207;258
+#: user_relationships_ui/user_relationships_ui.forms.inc:207
 msgid "No"
 msgstr "Nein"
 
@@ -492,7 +602,7 @@ msgid "Send Cancel messages"
 msgstr "Abbruchs-Nachrichten senden"
 
 #: user_relationship_mailer/user_relationship_mailer_defaults.inc:19
-#: user_relationships_ui/user_relationships_ui.theme.inc:69;72
+#: user_relationships_ui/user_relationships_ui.theme.inc:69
 msgid "Approve"
 msgstr "Bestätigen"
 
@@ -501,8 +611,7 @@ msgid "Send Approve messages"
 msgstr "Bestätigungs-Nachrichten senden"
 
 #: user_relationship_mailer/user_relationship_mailer_defaults.inc:21
-#: user_relationships_ui/user_relationships_ui.theme.inc:84;87;102
-#, fuzzy
+#: user_relationships_ui/user_relationships_ui.theme.inc:84
 msgid "Disapprove"
 msgstr "Ablehnen"
 
@@ -511,7 +620,7 @@ msgid "Send Disapprove messages"
 msgstr "Ablehnungs-Nachrichten senden"
 
 #: user_relationship_mailer/user_relationship_mailer_defaults.inc:23
-#: user_relationships_ui/user_relationships_ui.theme.inc:54;57
+#: user_relationships_ui/user_relationships_ui.theme.inc:54
 msgid "Remove"
 msgstr "Entfernen"
 
@@ -521,7 +630,6 @@ msgstr "Entfernen-Nachrichten senden"
 
 #: user_relationship_mailer/user_relationship_mailer_defaults.inc:25
 #: user_relationships_ui/user_relationships_ui.module:115
-#, fuzzy
 msgid "Pre-approved"
 msgstr "vor-bestätigt"
 
@@ -578,7 +686,6 @@ msgid "Gives the option to mail users when about relationship events (request, r
 msgstr "Gibt die Möglichkeit, Benutzer per E-Mail über Beziehungsereignisse (anfragen, entfernen, ablehnen, bestätigen, usw.) zu benachrichtigen."
 
 #: user_relationship_migrate/user_relationship_migrate.module:45
-#, fuzzy
 msgid "You ran this migration %date"
 msgstr "Diese Migration ist gelaufen am/um %date"
 
@@ -619,7 +726,6 @@ msgid "Buddylist2 migration successfully ran."
 msgstr "Buddylist2-Migration erfolgreich gelaufen."
 
 #: user_relationship_migrate/user_relationship_migrate.module:130
-#, fuzzy
 msgid "Buddies Migration took @amount"
 msgstr "Buddies-Migration dauerte @amount"
 
@@ -632,7 +738,6 @@ msgid "Pending relationships migration successfully ran."
 msgstr "Migration anstehender Beziehungen erfolgreich gelaufen."
 
 #: user_relationship_migrate/user_relationship_migrate.module:142
-#, fuzzy
 msgid "Pending Buddies Migration took @amount"
 msgstr "Migration anstehender Buddies dauerte @amount"
 
@@ -656,7 +761,7 @@ msgstr ""
 msgid "Allows admins to migrate buddylist2 relationships to user relationships"
 msgstr "Ermöglicht Administratoren Buddylist2-Beziehungen "
 
-#: user_relationship_node_access/user_relationship_node_access.module:15;191
+#: user_relationship_node_access/user_relationship_node_access.module:15
 msgid "update"
 msgstr "Aktualisieren"
 
@@ -674,11 +779,11 @@ msgstr "Beitrag verfassen an @type"
 
 #: user_relationship_node_access/user_relationship_node_access.module:149
 msgid "User Relationships Node Access"
-msgstr ""
+msgstr "Zugriff auf Beitrag über Bekanntschaften"
 
-#: user_relationship_node_access/user_relationship_node_access.module:149;395
+#: user_relationship_node_access/user_relationship_node_access.module:149
 msgid "Post to Social Network"
-msgstr ""
+msgstr "Beitrag in persönlichem Netzwerk"
 
 #: user_relationship_node_access/user_relationship_node_access.module:151
 msgid "Node access based on your relationships to other users, even if they are not in selected groups"
@@ -690,18 +795,17 @@ msgstr "Beitragszugriff basierend auf Ihren Beziehungen zu anderen Benutzern"
 
 #: user_relationship_node_access/user_relationship_node_access.module:176
 msgid "@group_post_ur_node_access_description"
-msgstr ""
+msgstr "@group_post_ur_node_access_description"
 
 #: user_relationship_node_access/user_relationship_node_access.module:177
-#, fuzzy
 msgid "If no box is ticked, then anyone can @action."
 msgstr "Wenn das Nein-Kästchen ausgewählt ist kann jeder @action."
 
 #: user_relationship_node_access/user_relationship_node_access.module:180
 msgid "@action"
-msgstr ""
+msgstr "@action"
 
-#: user_relationship_node_access/user_relationship_node_access.module:192;377;192
+#: user_relationship_node_access/user_relationship_node_access.module:192
 msgid "grant !type permission to related users"
 msgstr "Berechtigung !type an verbundene Benutzer gewähren"
 
@@ -711,7 +815,7 @@ msgstr ""
 
 #: user_relationship_node_access/user_relationship_node_access.module:192
 msgid "!type"
-msgstr ""
+msgstr "!type"
 
 #: user_relationship_node_access/user_relationship_node_access.module:216
 msgid "Posting to social network"
@@ -753,11 +857,11 @@ msgstr "Unbekannter Fehler"
 msgid "Error requesting relationship: @msg"
 msgstr "Fehler beim Anfragen der Beziehung: @msg"
 
-#: user_relationship_service/user_relationship_service.module:15;17
+#: user_relationship_service/user_relationship_service.module:15
 msgid "Provides user relationship methods to services applications. Requires services.module."
 msgstr "Stellt User-Relationship-Methoden für Services-Anwendungen bereit. Erfordert das Services-Modul."
 
-#: user_relationship_service/user_relationship_service.module:34;48;62;86;105
+#: user_relationship_service/user_relationship_service.module:34
 msgid "API version to use"
 msgstr "Zu verwendende API-Version"
 
@@ -810,7 +914,6 @@ msgid "Provides functions of User Relationships to Services module."
 msgstr "Stellt dem Services-Modul Funktionen von User Relationships bereit."
 
 #: user_relationship_views/user_relationship_views.views.inc:16
-#, fuzzy
 msgid "User relationships"
 msgstr "Benutzerbeziehungen"
 
@@ -822,7 +925,7 @@ msgstr "Benutzerbeziehung"
 msgid "Relationships that link users to one another. Use this to show user data, profile fields, or content_profile nodes of related users."
 msgstr "Beziehungen die Benutzer miteinander verbinden. Dies kann verwendet werden um Benutzerdaten, Profilfelder, oder content_profile-Beträge verbundener Benutzer anzuzeigen."
 
-#: user_relationship_views/user_relationship_views.views.inc:43;176
+#: user_relationship_views/user_relationship_views.views.inc:43
 msgid "RTID"
 msgstr ""
 
@@ -967,7 +1070,6 @@ msgstr "wechselseitig"
 
 #: user_relationship_views/views_handler_field_user_relationships_oneway.inc:12
 #: user_relationships_ui/user_relationships_ui.pages.inc:23
-#, fuzzy
 msgid "one way"
 msgstr "gerichtet"
 
@@ -981,12 +1083,12 @@ msgstr "anstehend"
 msgid "approved"
 msgstr "bestätigt"
 
-#: user_relationship_views/views_handler_filter_user_relationships_status.inc:12;22
+#: user_relationship_views/views_handler_filter_user_relationships_status.inc:12
 msgid "Status"
 msgstr "Status"
 
 #: user_relationship_views/views_handler_filter_user_relationships_status.inc:23
-#: user_relationships_ui/user_relationships_ui.module:114;490
+#: user_relationships_ui/user_relationships_ui.module:114
 msgid "Pending"
 msgstr "Anstehend"
 
@@ -1006,8 +1108,8 @@ msgstr "Es muss eine durch Kommata getrennte Liste der Typen eingegeben werden."
 #: user_relationship_views/views_handler_filter_user_relationships_type.inc:102
 msgid "Unable to find relationship type: @types"
 msgid_plural "Unable to find relationship types: @types"
-msgstr[0] "Beziehungstyp kann nicht gefunden werden: @types"
-msgstr[1] "Beziehungstypen können nicht gefunden werden: @types"
+msgstr[0] ""
+msgstr[1] ""
 
 #: user_relationship_views/user_relationship_views.info:0
 msgid "UR-Views"
@@ -1058,7 +1160,6 @@ msgid "After approving a relationship"
 msgstr "Nach dem Bestätigen einer Beziehung"
 
 #: user_relationships_api/user_relationships_api.actions.inc:48
-#, fuzzy
 msgid "When a relationship has been removed (specifically disapproved)"
 msgstr "Wenn eine Beziehung entfernt wurde (spezifisch abgelehnt)"
 
@@ -1115,7 +1216,6 @@ msgid "Show user pictures in relationship pages"
 msgstr "Benutzerbilder auf Beziehungsseiten anzeigen"
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:34
-#, fuzzy
 msgid "This will show user's picture next to the user name on My relationships pages."
 msgstr "Dies zeigt das Benutzerbild neben dem Benutzernamen auf ‚Meine Beziehungen‘-Seiten."
 
@@ -1393,10 +1493,6 @@ msgstr "Bearbeiten"
 msgid "No relationships available."
 msgstr "Keine Beziehungen verfügbar."
 
-#: user_relationships_ui/user_relationships_ui.pages.inc:42
-msgid "Relationship Types"
-msgstr "Beziehungstypen"
-
 #: user_relationships_ui/user_relationships_ui.pages.inc:25
 msgid "1 day"
 msgid_plural "@count days"
@@ -1444,7 +1540,6 @@ msgid "The %relationship_name relationship of !requester to !requestee has been 
 msgstr "Die %relationship_name-Beziehung von !requester mit !requestee wurde gelöscht."
 
 #: user_relationships_ui/user_relationships_ui.module:84
-#, fuzzy
 msgid "!requester has requested to be your %relationship_name.  Please view your !pending_relationship_requests to approve them."
 msgstr "!requester möchte Ihr(e) %relationship_name sein. Zum Bestätigen rufen müssen die !pending_relationship_requests aufgerufen werden."
 
@@ -1489,7 +1584,6 @@ msgid "Please choose the type of relationship."
 msgstr "Bitte einen Beziehungstyp auswählen."
 
 #: user_relationships_ui/user_relationships_ui.module:97
-#, fuzzy
 msgid "You may not create %relationship_name relationships."
 msgstr "Sie dürfen keine %relationship_name-Beziehungen erstellen."
 
@@ -1567,7 +1661,7 @@ msgstr "anstehende Beziehungsanfragen"
 
 #: user_relationships_ui/user_relationships_ui.module:197
 msgid "%relationship_name (!remove_link)"
-msgstr ""
+msgstr "%relationship_name (!remove_link)"
 
 #: user_relationships_ui/user_relationships_ui.module:198
 #: user_relationships_ui/templates/user_relationships.tpl.php:14
@@ -1583,7 +1677,7 @@ msgstr "(Diese zu Ihnen)"
 msgid "You have sent a new %relationship_name request to this user. (!pending_requests)"
 msgstr "Sie haben eine neue %relationship_name-Anfrage an diesen Benutzer gesendet. (!pending_requests)"
 
-#: user_relationships_ui/user_relationships_ui.module:222;230
+#: user_relationships_ui/user_relationships_ui.module:222
 msgid "pending requests"
 msgstr "anstehende Anfragen"
 
@@ -1599,7 +1693,7 @@ msgstr "Dieses Modul ermöglicht es, Beziehungstypen zu erstellen, die Benutzer 
 msgid "This page lets you setup user relationship types."
 msgstr "Diese Seite ermöglicht das Einrichten von Benutzerbeziehungstypen."
 
-#: user_relationships_ui/user_relationships_ui.module:636;412
+#: user_relationships_ui/user_relationships_ui.module:636
 msgid "Relationships"
 msgstr "Beziehungen"
 
@@ -1689,15 +1783,7 @@ msgstr "Einstellungen"
 
 #: user_relationships_ui/user_relationships_ui.module:467
 msgid "User Relationships Autocomplete"
-msgstr ""
-
-#: user_relationships_ui/user_relationships_ui.module:475
-msgid "My relationships"
-msgstr "Meine Beziehungen"
-
-#: user_relationships_ui/user_relationships_ui.module:483
-msgid "All"
-msgstr "Alle"
+msgstr "Bekanntschaften automatisch vervollständigen"
 
 #: user_relationships_ui/user_relationships_ui.info:0
 msgid "UR-UI"
@@ -1738,4 +1824,3 @@ msgstr "@rel_name von !requester"
 #: user_relationships_ui/templates/user_relationships_pending_requests.tpl.php:48
 msgid "No pending relationships found"
 msgstr "Keine anstehenden Beziehungen gefunden"
-

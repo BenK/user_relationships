@@ -1,9 +1,9 @@
-# $Id: user_relationships_api.pot,v 1.1.2.1 2009-08-15 15:50:08 alexk Exp $
+# $Id: user_relationships_api.pot,v 1.1.2.2 2009-08-31 21:08:25 alexk Exp $
 #
 # LANGUAGE translation of Drupal (general)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
 # Generated from files:
-#  user_relationship_blocks.module,v 1.1.2.9 2009/07/06 12:40:04 alexk
+#  user_relationship_blocks.module,v 1.1.2.10 2009/08/31 20:32:54 alexk
 #  user_relationships-actions_block.tpl.php,v 1.1.2.5 2008/10/30 12:49:33 alexk
 #  user_relationships_ui.module,v 1.1.2.26 2009/08/14 20:08:47 alexk
 #  user_relationship_blocks.info,v 1.1.2.4 2008/04/21 00:38:17 sprsquish
@@ -49,8 +49,8 @@
 #  views_handler_filter_user_relationships_type.inc,v 1.1.2.3 2009/07/10 07:27:49 alexk
 #  user_relationships_api.actions.inc,v 1.1.2.6 2009/07/10 07:27:49 alexk
 #  user_relationships_api.api.inc,v 1.1.2.15 2009/07/06 15:55:04 alexk
-#  user_relationships_api.privatemsg.inc,v 1.1.2.4 2009/08/14 20:08:47 alexk
-#  user_relationships_api.module,v 1.1.2.16 2009/07/10 08:46:01 alexk
+#  user_relationships_api.privatemsg.inc,v 1.1.2.5 2009/08/15 16:16:19 alexk
+#  user_relationships_api.module,v 1.1.2.17 2009/08/15 21:10:26 alexk
 #  user_relationships_ui/user_relationships_ui.js: n/a
 #  user_relationships_pending_requests.tpl.php,v 1.1.2.6 2009/03/24 08:46:35 alexk
 #
@@ -58,7 +58,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2009-08-15 17:49+0200\n"
+"POT-Creation-Date: 2009-08-31 22:33+0200\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -87,8 +87,24 @@ msgstr ""
 msgid "@username's"
 msgstr ""
 
-#: user_relationship_blocks/user_relationship_blocks.module:120
-msgid "@user @type"
+#: user_relationship_blocks/user_relationship_blocks.module:114 user_relationships_ui/user_relationships_ui.module:475
+msgid "My relationships"
+msgstr ""
+
+#: user_relationship_blocks/user_relationship_blocks.module:114
+msgid "@username's relationships"
+msgstr ""
+
+#: user_relationship_blocks/user_relationship_blocks.module:118
+msgid "My @relationships"
+msgstr ""
+
+#: user_relationship_blocks/user_relationship_blocks.module:118
+msgid "@username's @relationships"
+msgstr ""
+
+#: user_relationship_blocks/user_relationship_blocks.module:150 user_relationships_ui/user_relationships_ui.module:483
+msgid "All"
 msgstr ""
 
 #: user_relationship_blocks/user_relationship_blocks.module:162
@@ -1105,7 +1121,7 @@ msgstr ""
 msgid "User %user has no suitable roles to request a %rtype relationship"
 msgstr ""
 
-#: user_relationships_api/user_relationships_api.privatemsg.inc:58
+#: user_relationships_api/user_relationships_api.privatemsg.inc:59
 msgid "!name is not a friend of yours."
 msgstr ""
 
@@ -1709,14 +1725,6 @@ msgstr ""
 
 #: user_relationships_ui/user_relationships_ui.module:467
 msgid "User Relationships Autocomplete"
-msgstr ""
-
-#: user_relationships_ui/user_relationships_ui.module:475
-msgid "My relationships"
-msgstr ""
-
-#: user_relationships_ui/user_relationships_ui.module:483
-msgid "All"
 msgstr ""
 
 #: user_relationships_ui/user_relationships_ui.info:0

@@ -1,8 +1,8 @@
-# $Id: user_relationships_api.ru.po,v 1.1.2.1 2009-08-27 20:46:38 alexk Exp $
-# LANGUAGE translation of Drupal (general)
+# $Id: user_relationships_api.ru.po,v 1.1.2.2 2009-08-31 21:08:25 alexk Exp $
+# Russian translation of Drupal (general)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
 # Generated from files:
-# user_relationship_blocks.module,v 1.1.2.9 2009/07/06 12:40:04 alexk
+# user_relationship_blocks.module,v 1.1.2.10 2009/08/31 20:32:54 alexk
 # user_relationships-actions_block.tpl.php,v 1.1.2.5 2008/10/30 12:49:33 alexk
 # user_relationships_ui.module,v 1.1.2.26 2009/08/14 20:08:47 alexk
 # user_relationship_blocks.info,v 1.1.2.4 2008/04/21 00:38:17 sprsquish
@@ -48,8 +48,8 @@
 # views_handler_filter_user_relationships_type.inc,v 1.1.2.3 2009/07/10 07:27:49 alexk
 # user_relationships_api.actions.inc,v 1.1.2.6 2009/07/10 07:27:49 alexk
 # user_relationships_api.api.inc,v 1.1.2.15 2009/07/06 15:55:04 alexk
-# user_relationships_api.privatemsg.inc,v 1.1.2.4 2009/08/14 20:08:47 alexk
-# user_relationships_api.module,v 1.1.2.16 2009/07/10 08:46:01 alexk
+# user_relationships_api.privatemsg.inc,v 1.1.2.5 2009/08/15 16:16:19 alexk
+# user_relationships_api.module,v 1.1.2.17 2009/08/15 21:10:26 alexk
 # user_relationships_ui/user_relationships_ui.js: n/a
 # user_relationships_pending_requests.tpl.php,v 1.1.2.6 2009/03/24 08:46:35 alexk
 #, fuzzy
@@ -58,10 +58,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2009-08-15 17:49+0200\n"
-"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
-"Last-Translator: alexk <seldomused@gmail.com>\n"
-"Language-Team: Russian <seldomused@gmail.com>\n"
+"POT-Creation-Date: 2009-08-31 22:59+0200\n"
+"PO-Revision-Date: 2009-08-31 22:59+0200\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Russian <EMAIL@ADDRESS>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -89,21 +89,45 @@ msgstr "@username @rel_name пользователя"
 msgid "@username's"
 msgstr "пользователя @username"
 
-#: user_relationship_blocks/user_relationship_blocks.module:120
-msgid "@user @type"
-msgstr "@user @type"
+#: user_relationship_blocks/user_relationship_blocks.module:114
+#: user_relationships_ui/user_relationships_ui.module:475
+msgid "My relationships"
+msgstr "Мои связи"
+
+#: user_relationship_blocks/user_relationship_blocks.module:114
+msgid "@username's relationships"
+msgstr "Связи пользователя @username"
+
+#: user_relationship_blocks/user_relationship_blocks.module:118
+msgid "My @relationships"
+msgstr "Мои @relationships"
+
+#: user_relationship_blocks/user_relationship_blocks.module:118
+msgid "@username's @relationships"
+msgstr "@relationships пользователя @username"
+
+#: user_relationship_blocks/user_relationship_blocks.module:150
+#: user_relationships_ui/user_relationships_ui.module:483
+msgid "All"
+msgstr "Все"
 
 #: user_relationship_blocks/user_relationship_blocks.module:162
 msgid "Number of relationships to display in block"
-msgstr "Количество связей, показываемых в блоке"
+msgstr ""
+"Количество связей, показываемых в "
+"блоке"
 
 #: user_relationship_blocks/user_relationship_blocks.module:163
 msgid "Enter the maximum number of relationships to display in this block."
-msgstr "Введите количество связей, показываемых в блоке"
+msgstr ""
+"Введите количество связей, "
+"показываемых в блоке"
 
 #: user_relationship_blocks/user_relationship_blocks.module:166
 msgid "Number of relationships to display must be an integer greater than 0."
-msgstr "Количество связей, показываемых в блоке должно быть выше нуля"
+msgstr ""
+"Количество связей, показываемых в "
+"блоке должно быть выше нуля"
 
 #: user_relationship_blocks/user_relationship_blocks.module:170
 msgid "currently logged in user"
@@ -115,7 +139,9 @@ msgstr "автор просматриваемой статьи"
 
 #: user_relationship_blocks/user_relationship_blocks.module:171
 msgid "NOTE: This block displays @relationship_name relationships of the @user_identifier."
-msgstr "ВНИМАНИ: Этот блок показывает связи типа @relationship_name пользователя @user_identifier."
+msgstr ""
+"ВНИМАНИ: Этот блок показывает связи "
+"типа @relationship_name пользователя @user_identifier."
 
 #: user_relationship_blocks/user_relationship_blocks.module:174
 msgid "requester"
@@ -127,7 +153,10 @@ msgstr "получатель"
 
 #: user_relationship_blocks/user_relationship_blocks.module:175
 msgid "Because this relationship is one-way this block will show relationships where the @user_identifier is the @relation"
-msgstr "Поскольку этот тип связи односторонний, этот блок покажет связи где @user_identifier и есть @relation"
+msgstr ""
+"Поскольку этот тип связи "
+"односторонний, этот блок покажет "
+"связи где @user_identifier и есть @relation"
 
 #: user_relationship_blocks/user_relationship_blocks.module:181
 msgid "Which relationships should be displayed"
@@ -151,7 +180,16 @@ msgstr "Возвращает uid указанного пользователя"
 
 #: user_relationship_blocks/user_relationship_blocks.module:204
 msgid "(EXPERT ONLY) Enter a php snippet, surrounded by %php_snippet, which returns a numeric user id you want to work on. By default, for user pages, it is the user being viewed. For nodes or blogs, it is the node author. Clear the field to restore this default."
-msgstr "(Для экспертов) Введите код PHP, окруженный элементами %php_snippet, который вернет цифровое ID пользователя, чьи связи Вы хотите показывать. По умолчанию это пользователь, который отображен на странице. Для статей или блогов это их автор. Чтобы восстановить начальную установку, очистите это поле."
+msgstr ""
+"(Для экспертов) Введите код PHP, "
+"окруженный элементами %php_snippet, который "
+"вернет цифровое ID пользователя, чьи "
+"связи Вы хотите показывать. По "
+"умолчанию это пользователь, который "
+"отображен на странице. Для статей или "
+"блогов это их автор. Чтобы "
+"восстановить начальную установку, "
+"очистите это поле."
 
 #: user_relationship_blocks/user_relationship_blocks.module:271
 msgid "My Relationships: All relationships"
@@ -191,7 +229,9 @@ msgstr "UR-Блоки"
 
 #: user_relationship_blocks/user_relationship_blocks.info:0
 msgid "Blocks that can be used with User Relationships"
-msgstr "Блоки, которые работают с пользовательскими связями"
+msgstr ""
+"Блоки, которые работают с "
+"пользовательскими связями"
 
 #: user_relationship_blocks/user_relationship_blocks.info:0
 #: user_relationship_defaults/user_relationship_defaults.info:0
@@ -248,7 +288,9 @@ msgstr "Имя пользователя"
 
 #: user_relationship_defaults/user_relationship_defaults.module:122
 msgid "Start typing the name of a user to automatically create a relationship to"
-msgstr "Начните печатать имя пользователя, с которым создавать связь"
+msgstr ""
+"Начните печатать имя пользователя, с "
+"которым создавать связь"
 
 #: user_relationship_defaults/user_relationship_defaults.module:128
 msgid "Relationship"
@@ -265,15 +307,21 @@ msgstr "Сохранить"
 
 #: user_relationship_defaults/user_relationship_defaults.module:148
 msgid "You must enter an existing user's name."
-msgstr "Убедитесь, что введенный пользователь существует."
+msgstr ""
+"Убедитесь, что введенный пользователь "
+"существует."
 
 #: user_relationship_defaults/user_relationship_defaults.module:153
 msgid "You must enter an existing relationship's name."
-msgstr "Убедитесь, что введенный тип связи существует."
+msgstr ""
+"Убедитесь, что введенный тип связи "
+"существует."
 
 #: user_relationship_defaults/user_relationship_defaults.module:175
 msgid "Default relationship %relationship_name of %username has been added."
-msgstr "Стартовая связь %relationship_name с пользователем %username добавлена."
+msgstr ""
+"Стартовая связь %relationship_name с "
+"пользователем %username добавлена."
 
 #: user_relationship_defaults/user_relationship_defaults.module:176
 #: user_relationship_node_access/user_relationship_node_access.module:15
@@ -285,7 +333,10 @@ msgstr "просмотреть"
 
 #: user_relationship_defaults/user_relationship_defaults.module:193
 msgid "Are you sure you want to delete the default relationship %relationship of %name?"
-msgstr "Действительно ли Вы хотите удалить стартовую связь %relationship_name с пользователем %name?"
+msgstr ""
+"Действительно ли Вы хотите удалить "
+"стартовую связь %relationship_name с "
+"пользователем %name?"
 
 #: user_relationship_defaults/user_relationship_defaults.module:198
 #: user_relationships_ui/user_relationships_ui.admin.inc:225
@@ -308,7 +359,9 @@ msgstr "Отменить"
 
 #: user_relationship_defaults/user_relationship_defaults.module:216
 msgid "Default relationship %relationship of %name has been deleted."
-msgstr "Стартовая связь %relationship_name с пользователем %username удалена."
+msgstr ""
+"Стартовая связь %relationship_name с "
+"пользователем %username удалена."
 
 #: user_relationship_defaults/user_relationship_defaults.module:254
 #: user_relationship_node_access/user_relationship_node_access.module:15
@@ -352,7 +405,10 @@ msgstr "UR-Стартовые"
 
 #: user_relationship_defaults/user_relationship_defaults.info:0
 msgid "Allows admins to specify relationships that are automatically created when a new user joins"
-msgstr "Позволяет автоматически создавать связи с новыми зарегистрировавшимися пользователями"
+msgstr ""
+"Позволяет автоматически создавать "
+"связи с новыми зарегистрировавшимися "
+"пользователями"
 
 #: user_relationship_elaborations/user_relationship_elaborations.module:134
 msgid "Elaboration"
@@ -360,7 +416,9 @@ msgstr "Заметка"
 
 #: user_relationship_elaborations/user_relationship_elaborations.module:136
 msgid "Please elaborate on this relationship (how/where you met, etc)"
-msgstr "Опишите эту связь (где и как вы встретились, и т. п.)"
+msgstr ""
+"Опишите эту связь (где и как вы "
+"встретились, и т. п.)"
 
 #: user_relationship_elaborations/user_relationship_elaborations.module:145
 msgid "Elaborations"
@@ -372,7 +430,9 @@ msgstr "Не использовать интерфейс заметок"
 
 #: user_relationship_elaborations/user_relationship_elaborations.module:151
 msgid "Check this if you only need the API provided by the UR-Elaborations module"
-msgstr "Включите, если вы хотите использовать лишь API модуля UR-Заметки"
+msgstr ""
+"Включите, если вы хотите использовать "
+"лишь API модуля UR-Заметки"
 
 #: user_relationship_elaborations/user_relationship_elaborations.info:0
 msgid "UR-Elaborations"
@@ -380,7 +440,9 @@ msgstr "UR-Заметки"
 
 #: user_relationship_elaborations/user_relationship_elaborations.info:0
 msgid "Allow users to elaborate on their relationships with others"
-msgstr "Позволяет пользователям хранить заметки о их связях с другими"
+msgstr ""
+"Позволяет пользователям хранить "
+"заметки о их связях с другими"
 
 #: user_relationship_field_perms/user_relationship_field_perms.views.inc:19
 msgid "Profile Fields"
@@ -388,7 +450,9 @@ msgstr "Поля профиля"
 
 #: user_relationship_field_perms/user_relationship_field_perms.views.inc:20
 msgid "Displays the fields with profile field privacy settings."
-msgstr "Показывает поля с учетом конфиденциальности"
+msgstr ""
+"Показывает поля с учетом "
+"конфиденциальности"
 
 #: user_relationship_field_perms/user_relationship_field_perms.module:17
 msgid "Placeholder for hidden fields"
@@ -396,20 +460,35 @@ msgstr "Подстановка на место скрытых полей"
 
 #: user_relationship_field_perms/user_relationship_field_perms.module:19
 msgid "Displaying profile nodes in Views: enter text that will show in place of a field hidden by visibility settings. Leave blank to show nothing. Plain text is preferred as CCK text fields that are plaintext will not output html if entered here."
-msgstr "Для отображения полей в Views: введите текст, который будет показан на месте конфиденциального поля. Чтобы не показывать ничего, оставьте его пустым. Не рекомендуется использовать HTML, так как некоторые поля ССК могут стереть HTML."
+msgstr ""
+"Для отображения полей в Views: введите "
+"текст, который будет показан на месте "
+"конфиденциального поля. Чтобы не "
+"показывать ничего, оставьте его "
+"пустым. Не рекомендуется использовать "
+"HTML, так как некоторые поля ССК могут "
+"стереть HTML."
 
 #: user_relationship_field_perms/user_relationship_field_perms.module:21
 msgid "<p>Please note that profile visibility field defaults are configured directly in the <a href=\"!link\">CCK content type administration area</a>.</p>"
-msgstr "<p>Начальные установки конфиденциальности задаются прямо на <a href=\"!link\">страницах управления типами ССК</a>.</p>"
-""
+msgstr ""
+"<p>Начальные установки "
+"конфиденциальности задаются прямо на "
+"<a href=\"!link\">страницах управления типами "
+"ССК</a>.</p>"
 
 #: user_relationship_field_perms/user_relationship_field_perms.module:80
 msgid "User relationships visibility defaults"
-msgstr "Начальные установки конфиденциальности по связям"
+msgstr ""
+"Начальные установки "
+"конфиденциальности по связям"
 
 #: user_relationship_field_perms/user_relationship_field_perms.module:83
 msgid "Set default visibility by user relationships."
-msgstr "Выбор начальных установок конфиденциальности в зависимости от связей пользователей."
+msgstr ""
+"Выбор начальных установок "
+"конфиденциальности в зависимости от "
+"связей пользователей."
 
 #: user_relationship_field_perms/user_relationship_field_perms.module:98
 msgid "Show this field to"
@@ -417,7 +496,9 @@ msgstr "Это поле доступно"
 
 #: user_relationship_field_perms/user_relationship_field_perms.module:101
 msgid "All users (users can override)"
-msgstr "Всем (пользователь может ограничивать)"
+msgstr ""
+"Всем (пользователь может "
+"ограничивать)"
 
 #: user_relationship_field_perms/user_relationship_field_perms.module:102
 msgid "No one"
@@ -434,7 +515,9 @@ msgstr "Типы связей"
 
 #: user_relationship_field_perms/user_relationship_field_perms.module:113
 msgid "Select the types of relationships you wish to show the field to."
-msgstr "Выберите типы связей, которым поле будет показано."
+msgstr ""
+"Выберите типы связей, которым поле "
+"будет показано."
 
 #: user_relationship_field_perms/user_relationship_field_perms.module:169
 msgid "Visibility of @field"
@@ -442,7 +525,10 @@ msgstr "Конфиденциальность поля @field"
 
 #: user_relationship_field_perms/user_relationship_field_perms.module:172
 msgid "Select users who are allowed to view this field. It will be visible to site administrators no matter the setting."
-msgstr "Выберите пользователей, которым  будет видно это поле. Администраторы будут всегда иметь доступ."
+msgstr ""
+"Выберите пользователей, которым  "
+"будет видно это поле. Администраторы "
+"будут всегда иметь доступ."
 
 #: user_relationship_field_perms/user_relationship_field_perms.module:188
 msgid "All users"
@@ -450,7 +536,9 @@ msgstr "Всем"
 
 #: user_relationship_field_perms/user_relationship_field_perms.module:199
 msgid "Select one or several relationships you wish to show the field to."
-msgstr "Выберите типы связей, которым будет видно это поле."
+msgstr ""
+"Выберите типы связей, которым будет "
+"видно это поле."
 
 #: user_relationship_field_perms/user_relationship_field_perms.module:213
 msgid "Profile Field Privacy"
@@ -458,23 +546,34 @@ msgstr "Конфиденциальность полей профиля"
 
 #: user_relationship_field_perms/user_relationship_field_perms.module:242
 msgid "Please choose at least one relationship type in %field_name."
-msgstr "Пожалуйста выберите один или более тип связи для поля %field_name."
+msgstr ""
+"Пожалуйста выберите один или более "
+"тип связи для поля %field_name."
 
 #: user_relationship_field_perms/user_relationship_field_perms.module:262
 msgid "Please choose at least one relationship type to show the field(s) to."
-msgstr "Пожалуйста, выберите один или более тип связи, которым будут видны данные поля."
+msgstr ""
+"Пожалуйста, выберите один или более "
+"тип связи, которым будут видны данные "
+"поля."
 
 #: user_relationship_field_perms/user_relationship_field_perms.module:471
 msgid "Profile field visibility settings have been saved."
-msgstr "Конфиденциальность полей профиля сохранена."
+msgstr ""
+"Конфиденциальность полей профиля "
+"сохранена."
 
 #: user_relationship_field_perms/user_relationship_field_perms.module:600
 msgid "User Relationships per-field privacy form."
-msgstr "Форма конфиденциальности полей от пользовательских связей"
+msgstr ""
+"Форма конфиденциальности полей от "
+"пользовательских связей"
 
 #: user_relationship_field_perms/user_relationship_field_perms.module:47
 msgid "disregard relationship field privacy"
-msgstr "обходить конфиденциальность полей профиля по связям"
+msgstr ""
+"обходить конфиденциальность полей "
+"профиля по связям"
 
 #: user_relationship_field_perms/user_relationship_field_perms.module:31
 msgid "Profile field visibility"
@@ -482,7 +581,10 @@ msgstr "Конфиденциальность полей профиля"
 
 #: user_relationship_field_perms/user_relationship_field_perms.module:32
 msgid "Miscellaneous configuration of user profile field visibility."
-msgstr "Дополнительные настройки конфиденциальности полей пользовательского профиля"
+msgstr ""
+"Дополнительные настройки "
+"конфиденциальности полей "
+"пользовательского профиля"
 
 #: user_relationship_field_perms/user_relationship_field_perms.info:0
 msgid "UR-Field Permissions"
@@ -490,7 +592,9 @@ msgstr "UR-Конфиденциальность полей"
 
 #: user_relationship_field_perms/user_relationship_field_perms.info:0
 msgid "Set field-level permissions for CCK fields of content_profile nodes."
-msgstr "Установка конфиденциальности полей ССК от модуля content_profile."
+msgstr ""
+"Установка конфиденциальности полей "
+"ССК от модуля content_profile."
 
 #: user_relationship_implications/user_relationship_implications.module:53
 msgid "@type_name"
@@ -502,8 +606,31 @@ msgstr "Эта связь подразумевает"
 
 #: user_relationship_implications/user_relationship_implications.module:82
 msgid "\n        <ul>\n          <li>Users will automatically have these relationships created between them when the implying relationship is created. (ex: Manager implies Coworker).</li>\n          <li>When the implied relationship is removed the implying relationship will not be removed. (ex: removing Coworker WILL NOT remove Manager)</li>\n          <li>If \"strict\" is set the implying relationship will be removed when the implied relationship is removed. (ex: removing Coworker WILL remove Manager)</li>\n          <li>Reverse is really only useful for one-way relationships. It allows things like Parent implies Offspring to work in the right direction</li>\n        </ul>\n      "
-msgstr "\n        <ul>\n          <li>Эти связи будут созданы автоматически когда создается определяющая связь (например, "менеджер" определяет "сотрудник")</li>\n          <li>Когда зависимая связь удаляется, определяющая связь не будет удалена (например, при удалении "сотрудника" "менеджер" НЕ будет удален)</li>\n          <li>Если установлено "строго", то определяющая связь будет удалена при удалении зависимой связи (например, при удалении "сотрудника" будет удален и "менеджер")</li>\n          <li>"Обратная" используется для односторонних связей. Она позволяет работать, к примеру, паре связей "родитель" и "ребенок" в нужном направлении</li>\n        </ul>\n      "
-""
+msgstr ""
+"\n"
+"        <ul>\n"
+"          <li>Эти связи будут созданы "
+"автоматически когда создается "
+"определяющая связь (например, "
+"\"менеджер\" определяет "
+"\"сотрудник\")</li>\n"
+"          <li>Когда зависимая связь "
+"удаляется, определяющая связь не "
+"будет удалена (например, при удалении "
+"\"сотрудника\" \"менеджер\" НЕ будет "
+"удален)</li>\n"
+"          <li>Если установлено \"строго\", то "
+"определяющая связь будет удалена при "
+"удалении зависимой связи (например, "
+"при удалении \"сотрудника\" будет "
+"удален и \"менеджер\")</li>\n"
+"          <li>\"Обратная\" используется для "
+"односторонних связей. Она позволяет "
+"работать, к примеру, паре связей "
+"\"родитель\" и \"ребенок\" в нужном "
+"направлении</li>\n"
+"        </ul>\n"
+"      "
 
 #: user_relationship_implications/user_relationship_implications.module:97
 #: user_relationship_node_access/user_relationship_node_access.module:20
@@ -550,11 +677,16 @@ msgstr "UR-Зависимости"
 
 #: user_relationship_implications/user_relationship_implications.info:0
 msgid "Lets admins create implied relationships. For example 'Manager implies Coworker'"
-msgstr "Позволяет создавать зависимые связи. Например, "менеджер" подразумевает "сотрудник""
+msgstr ""
+"Позволяет создавать зависимые связи. "
+"Например, \"менеджер\" подразумевает "
+"\"сотрудник\""
 
 #: user_relationship_invites/user_relationship_invites.module:90
 msgid "Please confirm the %relationship_name request from !name"
-msgstr "Пожалуйста, подвердите запрос типа "%relationship_name" от пользователя !name"
+msgstr ""
+"Пожалуйста, подвердите запрос типа "
+"\"%relationship_name\" от пользователя !name"
 
 #: user_relationship_invites/user_relationship_invites.module:92
 #: user_relationships_ui/user_relationships_ui.forms.inc:207
@@ -572,7 +704,9 @@ msgstr "UR-Приглашения"
 
 #: user_relationship_invites/user_relationship_invites.info:0
 msgid "Gives users the option of specifying a relationship when inviting new users"
-msgstr "Позволяет пользователям установить связь при приглашении других на сайт"
+msgstr ""
+"Позволяет пользователям установить "
+"связь при приглашении других на сайт"
 
 #: user_relationship_mailer/user_relationship_mailer_defaults.inc:15
 msgid "Request"
@@ -584,7 +718,9 @@ msgstr "Посылать сообщения о запросах"
 
 #: user_relationship_mailer/user_relationship_mailer_defaults.inc:18
 msgid "Send Cancel messages"
-msgstr "Посылать сообщения об отмененных запросах"
+msgstr ""
+"Посылать сообщения об отмененных "
+"запросах"
 
 #: user_relationship_mailer/user_relationship_mailer_defaults.inc:19
 #: user_relationships_ui/user_relationships_ui.theme.inc:69
@@ -593,7 +729,9 @@ msgstr "Подтвердить"
 
 #: user_relationship_mailer/user_relationship_mailer_defaults.inc:20
 msgid "Send Approve messages"
-msgstr "Посылать сообщения о подтвержденных запросах"
+msgstr ""
+"Посылать сообщения о подтвержденных "
+"запросах"
 
 #: user_relationship_mailer/user_relationship_mailer_defaults.inc:21
 #: user_relationships_ui/user_relationships_ui.theme.inc:84
@@ -602,7 +740,9 @@ msgstr "Отказать"
 
 #: user_relationship_mailer/user_relationship_mailer_defaults.inc:22
 msgid "Send Disapprove messages"
-msgstr "Посылать сообщения об отказанных запросах"
+msgstr ""
+"Посылать сообщения об отказанных "
+"запросах"
 
 #: user_relationship_mailer/user_relationship_mailer_defaults.inc:23
 #: user_relationships_ui/user_relationships_ui.theme.inc:54
@@ -611,7 +751,9 @@ msgstr "Удалить"
 
 #: user_relationship_mailer/user_relationship_mailer_defaults.inc:24
 msgid "Send Remove messages"
-msgstr "Посылать сообщения об удаленных связях"
+msgstr ""
+"Посылать сообщения об удаленных "
+"связях"
 
 #: user_relationship_mailer/user_relationship_mailer_defaults.inc:25
 #: user_relationships_ui/user_relationships_ui.module:115
@@ -620,7 +762,9 @@ msgstr "Авто-подтвердить"
 
 #: user_relationship_mailer/user_relationship_mailer_defaults.inc:26
 msgid "Send Pre-approved messages"
-msgstr "Посылать сообщения об авто-подтвержденных запросах"
+msgstr ""
+"Посылать сообщения об "
+"авто-подтвержденных запросах"
 
 #: user_relationship_mailer/user_relationship_mailer.module:126
 msgid "Email Options"
@@ -628,11 +772,16 @@ msgstr "Настройки эл. почты"
 
 #: user_relationship_mailer/user_relationship_mailer.module:131
 msgid "Allow users to turn off relationship messages"
-msgstr "Пользователи могут отключить сообщения о связях"
+msgstr ""
+"Пользователи могут отключить "
+"сообщения о связях"
 
 #: user_relationship_mailer/user_relationship_mailer.module:133
 msgid "If you check this, users will have a new setting on their account edit page."
-msgstr "Включите эту опцию, чтобы у пользователей появилась новая опция в учетной записи."
+msgstr ""
+"Включите эту опцию, чтобы у "
+"пользователей появилась новая опция в "
+"учетной записи."
 
 #: user_relationship_mailer/user_relationship_mailer.module:151
 msgid "Send @op messages"
@@ -656,11 +805,15 @@ msgstr "Настройки эл. почты о связях"
 
 #: user_relationship_mailer/user_relationship_mailer.module:199
 msgid "Receive relationship email notifications"
-msgstr "Принимать уведомления о связях по эл. почте"
+msgstr ""
+"Принимать уведомления о связях по эл. "
+"почте"
 
 #: user_relationship_mailer/user_relationship_mailer.module:202
 msgid "Check this if you'd like to receive relationship related email notifications"
-msgstr "Включите эту опцию, чтобы получать уведомления о Ваших связях"
+msgstr ""
+"Включите эту опцию, чтобы получать "
+"уведомления о Ваших связях"
 
 #: user_relationship_mailer/user_relationship_mailer.info:0
 msgid "UR-Mailer"
@@ -668,7 +821,11 @@ msgstr "UR-Почта"
 
 #: user_relationship_mailer/user_relationship_mailer.info:0
 msgid "Gives the option to mail users when about relationship events (request, remove, disapprove, approve, etc)"
-msgstr "Позволяет рассылку эл. почты пользователях об изменениях в связях (запросы, удаления, отказы, подтверждения и т. д.)"
+msgstr ""
+"Позволяет рассылку эл. почты "
+"пользователях об изменениях в связях "
+"(запросы, удаления, отказы, "
+"подтверждения и т. д.)"
 
 #: user_relationship_migrate/user_relationship_migrate.module:45
 msgid "You ran this migration %date"
@@ -680,7 +837,9 @@ msgstr "Таблицы модуля buddylist не были найдены!"
 
 #: user_relationship_migrate/user_relationship_migrate.module:77
 msgid "%count buddylist records await your import."
-msgstr "%count записей модуля buddylist ожидают импорта."
+msgstr ""
+"%count записей модуля buddylist ожидают "
+"импорта."
 
 #: user_relationship_migrate/user_relationship_migrate.module:81
 msgid "Don't do the main migration"
@@ -688,7 +847,10 @@ msgstr "Не проводить основную миграцию"
 
 #: user_relationship_migrate/user_relationship_migrate.module:84
 msgid "Check this if you've already done the main migration and don't want to re-run it."
-msgstr "Включите эту опцию, если Вы уже провели основную миграцию и не хотите ее повторять."
+msgstr ""
+"Включите эту опцию, если Вы уже "
+"провели основную миграцию и не хотите "
+"ее повторять."
 
 #: user_relationship_migrate/user_relationship_migrate.module:87
 msgid "Relationship type for migrated relationships"
@@ -696,7 +858,9 @@ msgstr "Тип перенесенных связей"
 
 #: user_relationship_migrate/user_relationship_migrate.module:96
 msgid "Migrate %count pending requests"
-msgstr "Перенести %count неподтвержденных связей"
+msgstr ""
+"Перенести %count неподтвержденных "
+"связей"
 
 #: user_relationship_migrate/user_relationship_migrate.module:101
 msgid "Migrate!"
@@ -704,7 +868,9 @@ msgstr "Перенести!"
 
 #: user_relationship_migrate/user_relationship_migrate.module:114
 msgid "You must enter the name of an existing relationship type."
-msgstr "Вы должны ввести название существующего типа связи."
+msgstr ""
+"Вы должны ввести название "
+"существующего типа связи."
 
 #: user_relationship_migrate/user_relationship_migrate.module:129
 msgid "Buddylist2 migration successfully ran."
@@ -720,15 +886,21 @@ msgstr "При переносе связей произошла ошибка."
 
 #: user_relationship_migrate/user_relationship_migrate.module:141
 msgid "Pending relationships migration successfully ran."
-msgstr "Перенос неподтвердженных связей прошео успешно."
+msgstr ""
+"Перенос неподтвердженных связей "
+"прошео успешно."
 
 #: user_relationship_migrate/user_relationship_migrate.module:142
 msgid "Pending Buddies Migration took @amount"
-msgstr "Перенос неподтвержденных связей занял @amoun"
+msgstr ""
+"Перенос неподтвержденных связей "
+"занял @amoun"
 
 #: user_relationship_migrate/user_relationship_migrate.module:145
 msgid "There was a problem migrating pending relationships"
-msgstr "При переносе неподтвержденных связей произошла ошибка."
+msgstr ""
+"При переносе неподтвержденных связей "
+"произошла ошибка."
 
 #: user_relationship_migrate/user_relationship_migrate.module:25
 msgid "Migrate from buddylist2"
@@ -744,7 +916,9 @@ msgstr "UR Миграция с модуля Buddylist2"
 
 #: user_relationship_migrate/user_relationship_migrate.info:0
 msgid "Allows admins to migrate buddylist2 relationships to user relationships"
-msgstr "Позволяет перенос связей с модуля Buddylist2 в UR"
+msgstr ""
+"Позволяет перенос связей с модуля "
+"Buddylist2 в UR"
 
 #: user_relationship_node_access/user_relationship_node_access.module:15
 msgid "update"
@@ -772,11 +946,17 @@ msgstr "Поделиться с социальной сетью"
 
 #: user_relationship_node_access/user_relationship_node_access.module:151
 msgid "Node access based on your relationships to other users, even if they are not in selected groups"
-msgstr "Доступ к материалам на основе Ваших связей с другими пользователями, даже если они не состоят в выбранных группах"
+msgstr ""
+"Доступ к материалам на основе Ваших "
+"связей с другими пользователями, даже "
+"если они не состоят в выбранных "
+"группах"
 
 #: user_relationship_node_access/user_relationship_node_access.module:152
 msgid "Node access based on your relationships to other users"
-msgstr "Доступ к материалам на основе Ваших связей с другими пользователями"
+msgstr ""
+"Доступ к материалам на основе Ваших "
+"связей с другими пользователями"
 
 #: user_relationship_node_access/user_relationship_node_access.module:176
 msgid "@group_post_ur_node_access_description"
@@ -784,7 +964,9 @@ msgstr "@group_post_ur_node_access_description"
 
 #: user_relationship_node_access/user_relationship_node_access.module:177
 msgid "If no box is ticked, then anyone can @action."
-msgstr "Если не выбрана ни одна опция, то все могут @action."
+msgstr ""
+"Если не выбрана ни одна опция, то все "
+"могут @action."
 
 #: user_relationship_node_access/user_relationship_node_access.module:180
 msgid "@action"
@@ -792,11 +974,15 @@ msgstr "@action"
 
 #: user_relationship_node_access/user_relationship_node_access.module:192
 msgid "grant !type permission to related users"
-msgstr "Дать права на !type связанным пользователям"
+msgstr ""
+"Дать права на !type связанным "
+"пользователям"
 
 #: user_relationship_node_access/user_relationship_node_access.module:396
 msgid "User Relationship Node Access module form."
-msgstr "Форма доступа на основе пользовательских связей."
+msgstr ""
+"Форма доступа на основе "
+"пользовательских связей."
 
 #: user_relationship_node_access/user_relationship_node_access.module:192
 msgid "!type"
@@ -808,7 +994,9 @@ msgstr "Доступ через социальную сеть"
 
 #: user_relationship_node_access/user_relationship_node_access.module:217
 msgid "Set up sharing content based on user relationships"
-msgstr "Установки доступа к материалам на основе пользовательских связей"
+msgstr ""
+"Установки доступа к материалам на "
+"основе пользовательских связей"
 
 #: user_relationship_node_access/user_relationship_node_access.info:0
 msgid "UR-Node Access"
@@ -816,7 +1004,9 @@ msgstr "UR-Доступ к материалам"
 
 #: user_relationship_node_access/user_relationship_node_access.info:0
 msgid "Provides per node access control based on relationship to author"
-msgstr "Предоставляет доступ к материалам на основе связей с автором"
+msgstr ""
+"Предоставляет доступ к материалам на "
+"основе связей с автором"
 
 #: user_relationship_service/user_relationship_service.inc:26
 msgid "Error getting user relationships: @msg"
@@ -844,7 +1034,10 @@ msgstr "Ошибка при установлении связи: @msg"
 
 #: user_relationship_service/user_relationship_service.module:15
 msgid "Provides user relationship methods to services applications. Requires services.module."
-msgstr "Дает доступ к пользовательским связям через модуль Services. Этот модуль должен присутствовать."
+msgstr ""
+"Дает доступ к пользовательским связям "
+"через модуль Services. Этот модуль должен "
+"присутствовать."
 
 #: user_relationship_service/user_relationship_service.module:34
 msgid "API version to use"
@@ -868,7 +1061,9 @@ msgstr "Причина удаления (cancel, disapprove, remove)"
 
 #: user_relationship_service/user_relationship_service.module:76
 msgid "Delete an existing or pending relationship"
-msgstr "Удалить существующую или неподтвержденную связь"
+msgstr ""
+"Удалить существующую или "
+"неподтвержденную связь"
 
 #: user_relationship_service/user_relationship_service.module:91
 msgid "Relationship ID to approve"
@@ -880,15 +1075,21 @@ msgstr "Подвердить запрос на связь"
 
 #: user_relationship_service/user_relationship_service.module:110
 msgid "UID to request a relationship with"
-msgstr "UID пользователя, с которым установить связь"
+msgstr ""
+"UID пользователя, с которым установить "
+"связь"
 
 #: user_relationship_service/user_relationship_service.module:115
 msgid "Name of relationship type to create"
-msgstr "Название типа связи, которую надо создать"
+msgstr ""
+"Название типа связи, которую надо "
+"создать"
 
 #: user_relationship_service/user_relationship_service.module:119
 msgid "Request a relationship with another user"
-msgstr "Установить связь с другим пользователем"
+msgstr ""
+"Установить связь с другим "
+"пользователем"
 
 #: user_relationship_service/user_relationship_service.info:0
 msgid "UR-Services"
@@ -896,7 +1097,9 @@ msgstr "UR-Сервис"
 
 #: user_relationship_service/user_relationship_service.info:0
 msgid "Provides functions of User Relationships to Services module."
-msgstr "Дает доступ к функциям связей User Relationships через модуль Services"
+msgstr ""
+"Дает доступ к функциям связей User "
+"Relationships через модуль Services"
 
 #: user_relationship_views/user_relationship_views.views.inc:16
 msgid "User relationships"
@@ -908,7 +1111,12 @@ msgstr "Пользовательская связь"
 
 #: user_relationship_views/user_relationship_views.views.inc:38
 msgid "Relationships that link users to one another. Use this to show user data, profile fields, or content_profile nodes of related users."
-msgstr "Связи, которые присутствуют между пользователями. С помощью этого Ва можете показать данные о пользователе, поля профиля или данные content_profile связанных пользователей."
+msgstr ""
+"Связи, которые присутствуют между "
+"пользователями. С помощью этого Ва "
+"можете показать данные о "
+"пользователе, поля профиля или данные "
+"content_profile связанных пользователей."
 
 #: user_relationship_views/user_relationship_views.views.inc:43
 msgid "RTID"
@@ -920,7 +1128,9 @@ msgstr "ID типа связи"
 
 #: user_relationship_views/user_relationship_views.views.inc:54
 msgid "Bring in name, type, and other properties of relationships"
-msgstr "Доступ к названию, типу и другим данным связей"
+msgstr ""
+"Доступ к названию, типу и другим "
+"данным связей"
 
 #: user_relationship_views/user_relationship_views.views.inc:58
 msgid "Relationship type"
@@ -928,7 +1138,9 @@ msgstr "Тип связи"
 
 #: user_relationship_views/user_relationship_views.views.inc:59
 msgid "Singular or plural name of the relationship"
-msgstr "Название связи в единственном или множественном числе"
+msgstr ""
+"Название связи в единственном или "
+"множественном числе"
 
 #: user_relationship_views/user_relationship_views.views.inc:73
 msgid "Requester user"
@@ -936,11 +1148,16 @@ msgstr "Пользователь-отправитель"
 
 #: user_relationship_views/user_relationship_views.views.inc:74
 msgid "User who started the relationship"
-msgstr "Пользователь, которые инициировал связь"
+msgstr ""
+"Пользователь, которые инициировал "
+"связь"
 
 #: user_relationship_views/user_relationship_views.views.inc:92
 msgid "Bring in data about the user who started the relationship, or link to relationships that they have established"
-msgstr "Доступ к данным о пользователе, который инициировал связь, или доступ к его/ее связям"
+msgstr ""
+"Доступ к данным о пользователе, "
+"который инициировал связь, или доступ "
+"к его/ее связям"
 
 #: user_relationship_views/user_relationship_views.views.inc:96
 msgid "Requestee user"
@@ -952,7 +1169,11 @@ msgstr "Пользователь, который принял связь"
 
 #: user_relationship_views/user_relationship_views.views.inc:115
 msgid "Bring in data about the user who accepted the relationship, or link to relationships that other users have established to this one"
-msgstr "Доступ к данным о пользователе, который принял связь, или доступ к пользователям, которые инициировали связи к этому"
+msgstr ""
+"Доступ к данным о пользователе, "
+"который принял связь, или доступ к "
+"пользователям, которые инициировали "
+"связи к этому"
 
 #: user_relationship_views/user_relationship_views.views.inc:119
 msgid "Relationship status"
@@ -960,7 +1181,9 @@ msgstr "Статус связи"
 
 #: user_relationship_views/user_relationship_views.views.inc:120
 msgid "Pending/approved relationship status"
-msgstr "Подвержденный/неподтвержденный статус связи"
+msgstr ""
+"Подвержденный/неподтвержденный "
+"статус связи"
 
 #: user_relationship_views/user_relationship_views.views.inc:133
 msgid "Created date"
@@ -968,7 +1191,9 @@ msgstr "Дата создания"
 
 #: user_relationship_views/user_relationship_views.views.inc:134
 msgid "Date the relationship was requested or created"
-msgstr "Дата, когда связь была инициирована или создана"
+msgstr ""
+"Дата, когда связь была инициирована "
+"или создана"
 
 #: user_relationship_views/user_relationship_views.views.inc:144
 msgid "Updated date"
@@ -976,7 +1201,9 @@ msgstr "Дата обновления"
 
 #: user_relationship_views/user_relationship_views.views.inc:145
 msgid "Date the relationship was approved or edited"
-msgstr "Дата, когда связь была подтверждена или редактирована"
+msgstr ""
+"Дата, когда связь была подтверждена "
+"или редактирована"
 
 #: user_relationship_views/user_relationship_views.views.inc:157
 msgid "User relationship types"
@@ -988,7 +1215,11 @@ msgstr "Тип связи"
 
 #: user_relationship_views/user_relationship_views.views.inc:171
 msgid "Kinds of relationships that can link users to one another. Use this if you want to show the kinds of relationships your site offers."
-msgstr "Типы связей, присутствующих между пользователями. Используется, чтобы показать различные типы, определенные на Вашем сайте."
+msgstr ""
+"Типы связей, присутствующих между "
+"пользователями. Используется, чтобы "
+"показать различные типы, определенные "
+"на Вашем сайте."
 
 #: user_relationship_views/user_relationship_views.views.inc:177
 msgid "Type of the relationship"
@@ -1021,7 +1252,9 @@ msgstr "Тип"
 
 #: user_relationship_views/user_relationship_views.views.inc:222
 msgid "Whether the relationship is one way or mutual"
-msgstr "Является ли связь односторонней или взаимной"
+msgstr ""
+"Является ли связь односторонней или "
+"взаимной"
 
 #: user_relationship_views/user_relationship_views.views.inc:232
 msgid "Requires approval"
@@ -1029,7 +1262,9 @@ msgstr "Требует подтверждения"
 
 #: user_relationship_views/user_relationship_views.views.inc:233
 msgid "Whether relationship requests must be approved"
-msgstr "Должны ли запросы этого типа быть подтверждены"
+msgstr ""
+"Должны ли запросы этого типа быть "
+"подтверждены"
 
 #: user_relationship_views/user_relationship_views.views.inc:243
 #: user_relationships_ui/user_relationships_ui.pages.inc:14
@@ -1038,7 +1273,9 @@ msgstr "Истекание"
 
 #: user_relationship_views/user_relationship_views.views.inc:244
 msgid "Expiration period of pending relationship requests"
-msgstr "Срок действия неподтвержденных запросов"
+msgstr ""
+"Срок действия неподтвержденных "
+"запросов"
 
 #: user_relationship_views/views_handler_field_user_relationships_name.inc:26
 msgid "Singular/Plural"
@@ -1106,7 +1343,9 @@ msgstr "Сопрягает UR с модулем Views"
 
 #: user_relationships_api/user_relationships_api.actions.inc:15
 msgid "When either saving a new relationship type or updating an existing relationship type"
-msgstr "При сохранении нового типа связей или редактировании существующего типа"
+msgstr ""
+"При сохранении нового типа связей или "
+"редактировании существующего типа"
 
 #: user_relationships_api/user_relationships_api.actions.inc:18
 msgid "After saving a new relationship type"
@@ -1114,7 +1353,9 @@ msgstr "По сохранении нового типа связей"
 
 #: user_relationships_api/user_relationships_api.actions.inc:21
 msgid "After saving an existing relationship type"
-msgstr "По сохранении существующего типа связей"
+msgstr ""
+"По сохранении существующего типа "
+"связей"
 
 #: user_relationships_api/user_relationships_api.actions.inc:24
 msgid "After deleting a relationship type"
@@ -1126,15 +1367,21 @@ msgstr "При загрузке типа связей"
 
 #: user_relationships_api/user_relationships_api.actions.inc:33
 msgid "When either saving a new relationship or updating an existing relationship"
-msgstr "При сохранении новой или редактировании существующей связи"
+msgstr ""
+"При сохранении новой или "
+"редактировании существующей связи"
 
 #: user_relationships_api/user_relationships_api.actions.inc:36
 msgid "After a new relationship has been requested"
-msgstr "После создания нового запроса на связь"
+msgstr ""
+"После создания нового запроса на "
+"связь"
 
 #: user_relationships_api/user_relationships_api.actions.inc:39
 msgid "When a relationship has been removed (specifically cancelled)"
-msgstr "Когда связь была удалена (т.е. отменена)"
+msgstr ""
+"Когда связь была удалена (т.е. "
+"отменена)"
 
 #: user_relationships_api/user_relationships_api.actions.inc:42
 msgid "After saving an existing relationship"
@@ -1146,7 +1393,9 @@ msgstr "После подтверждения связи"
 
 #: user_relationships_api/user_relationships_api.actions.inc:48
 msgid "When a relationship has been removed (specifically disapproved)"
-msgstr "Когда связь была удалена (т.е. отвергнута)"
+msgstr ""
+"Когда связь была удалена (т.е. "
+"отвергнута)"
 
 #: user_relationships_api/user_relationships_api.actions.inc:51
 msgid "When a relationship has been removed"
@@ -1158,9 +1407,12 @@ msgstr "user_relationships_api"
 
 #: user_relationships_api/user_relationships_api.api.inc:168
 msgid "User %user has no suitable roles to request a %rtype relationship"
-msgstr "Когда пользователь %user не состоит в ролях, могущих создавать связи типа %rtype"
+msgstr ""
+"Когда пользователь %user не состоит в "
+"ролях, могущих создавать связи типа "
+"%rtype"
 
-#: user_relationships_api/user_relationships_api.privatemsg.inc:58
+#: user_relationships_api/user_relationships_api.privatemsg.inc:59
 msgid "!name is not a friend of yours."
 msgstr "!name не связан с Вами."
 
@@ -1174,7 +1426,10 @@ msgstr "UR-Функции"
 
 #: user_relationships_api/user_relationships_api.info:0
 msgid "API for User Relationships. This will only provide the programmer interface."
-msgstr "API для пользовательских связей. Здесь содержится только интерфейс для программирования."
+msgstr ""
+"API для пользовательских связей. Здесь "
+"содержится только интерфейс для "
+"программирования."
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:16
 msgid "General"
@@ -1186,23 +1441,35 @@ msgstr "Дозволять иметь несколько связей"
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:22
 msgid "Give users the option to create more than one relationship to each other."
-msgstr "Дать пользователям возможность создавать более одной связи между собой."
+msgstr ""
+"Дать пользователям возможность "
+"создавать более одной связи между "
+"собой."
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:27
 msgid "Show direct request links"
-msgstr "Использовать прямые ссылки на установление связи"
+msgstr ""
+"Использовать прямые ссылки на "
+"установление связи"
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:28
 msgid "Show a 'create relationship with...' link for each available relationship type."
-msgstr "Показывать ссылку 'создать связь с ...' для каждого типа связи."
+msgstr ""
+"Показывать ссылку 'создать связь с ...' "
+"для каждого типа связи."
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:33
 msgid "Show user pictures in relationship pages"
-msgstr "Показывать фото пользователя на страницах связей"
+msgstr ""
+"Показывать фото пользователя на "
+"страницах связей"
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:34
 msgid "This will show user's picture next to the user name on My relationships pages."
-msgstr "Эта опция покажет фото пользователей рядом с их именами на страницах 'Мои связи'"
+msgstr ""
+"Эта опция покажет фото пользователей "
+"рядом с их именами на страницах 'Мои "
+"связи'"
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:39
 msgid "Allow users to auto approve"
@@ -1210,7 +1477,10 @@ msgstr "Позволять авто-подтверждение"
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:40
 msgid "This will provide an option for users to set an \"auto-approve\" option to automatically approve to all requested relationships."
-msgstr "Это даст пользователям возможность подтверждать все запрошенные связи автоматически."
+msgstr ""
+"Это даст пользователям возможность "
+"подтверждать все запрошенные связи "
+"автоматически."
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:45
 msgid "Relationships per page"
@@ -1218,11 +1488,16 @@ msgstr "Связей на страницу"
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:47
 msgid "Number of relationships to show per page. If set to 0 all will be shown."
-msgstr "Количество связей, показываемых на одной странице. Впишите 0, чтобы показать все."
+msgstr ""
+"Количество связей, показываемых на "
+"одной странице. Впишите 0, чтобы "
+"показать все."
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:50
 msgid "The relationships per page setting is not an integer"
-msgstr "'Связей на страницу' должно быть числом"
+msgstr ""
+"'Связей на страницу' должно быть "
+"числом"
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:56
 #: user_relationships_ui/user_relationships_ui.module:686
@@ -1235,7 +1510,10 @@ msgstr "Личные сообщения только по связям"
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:62
 msgid "Allow Privatemsg to work only between related users"
-msgstr "Позволяет модулю Privatemsg работать только между связанными пользователями"
+msgstr ""
+"Позволяет модулю Privatemsg работать "
+"только между связанными "
+"пользователями"
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:65
 msgid "Allow sending messages to all users"
@@ -1243,11 +1521,19 @@ msgstr "Личные сообщения между всеми"
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:66
 msgid "Allow sending messages to all users, users have option to accept messages only from their confirmed relationships"
-msgstr "Позволяет рассылку личных сообщений всем пользователям. Пользователи имеют возможность принимать сообщения только от своих связей"
+msgstr ""
+"Позволяет рассылку личных сообщений "
+"всем пользователям. Пользователи "
+"имеют возможность принимать "
+"сообщения только от своих связей"
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:67
 msgid "Allow sending messages only to confirmed relationships (You probably should enable \"Suggest only relationships\" below)"
-msgstr "Позволяет рассылку сообщений только подтвержденным связям (Вам, скорее всего, стоит включить \"Подсказывать только связи\" ниже)"
+msgstr ""
+"Позволяет рассылку сообщений только "
+"подтвержденным связям (Вам, скорее "
+"всего, стоит включить \"Подсказывать "
+"только связи\" ниже)"
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:72
 msgid "Suggest only relationships in To: field"
@@ -1255,7 +1541,9 @@ msgstr "Подсказывать только связи в поле Кому"
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:73
 msgid "Show only user's relationships when autocompleting the To: field."
-msgstr "В поле Кому: показывать только тех, с кем пользователь имеет связь."
+msgstr ""
+"В поле Кому: показывать только тех, с "
+"кем пользователь имеет связь."
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:79
 msgid "AJAX Popup Positioning"
@@ -1263,11 +1551,18 @@ msgstr "Положение всплывающего окна"
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:82
 msgid "Some themes may require repositioning of AJAX confirmation dialogs. You may use these controls to set where the popup appears on the page or in relation to the mouse cursor."
-msgstr "Некоторые темы требуют определенного расположения всплывающих диалогов. С помощью этих настроек Вы можете определить положение диалога по отношению к курсору мыши."
+msgstr ""
+"Некоторые темы требуют определенного "
+"расположения всплывающих диалогов. С "
+"помощью этих настроек Вы можете "
+"определить положение диалога по "
+"отношению к курсору мыши."
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:86
 msgid "Elaboration form's css position"
-msgstr "Положение (css position) диалога подтверждения"
+msgstr ""
+"Положение (css position) диалога "
+"подтверждения"
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:89
 msgid "Mouse cursor"
@@ -1279,23 +1574,45 @@ msgstr "Фиксированное"
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:92
 msgid "Sets the css <em>position</em> property of AJAX confirmation popups."
-msgstr "Устанавливает свойство CSS <em>position</em> всплывающих диалогов."
+msgstr ""
+"Устанавливает свойство CSS <em>position</em> "
+"всплывающих диалогов."
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:96
 msgid "Elaboration form's css left value"
-msgstr "Левая граница (css left) диалога подтверждения"
+msgstr ""
+"Левая граница (css left) диалога "
+"подтверждения"
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:99
 msgid "Sets the css <em>left</em> property of AJAX confirmation popups. Try the value of 0 for 'Mouse cursor', or 0.5 for 'Fixed'. You may enter a distance in pixels, or as a % using a value 1 or less. Relative positioning requires a fixed position."
-msgstr "Устанавливает свойство CSS <em>left</em> всплывающих диалогов. Попробуйте использовать 0 для 'курсора мыши' или 0.5 для 'фиксированного'. Мы можете ввести расстояние в пикселях, или, при введении числа от 1 и меньше, процентное отношение."
+msgstr ""
+"Устанавливает свойство CSS <em>left</em> "
+"всплывающих диалогов. Попробуйте "
+"использовать 0 для 'курсора мыши' или 0.5 "
+"для 'фиксированного'. Мы можете ввести "
+"расстояние в пикселях, или, при "
+"введении числа от 1 и меньше, "
+"процентное отношение."
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:103
 msgid "Elaboration form's css top value"
-msgstr "Верхняя граница (css top) диалога подтверждения"
+msgstr ""
+"Верхняя граница (css top) диалога "
+"подтверждения"
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:106
 msgid "Sets the css <em>top</em> property of AJAX confirmation popups. Try the value of 0 for 'Mouse cursor', or 0.4 for 'Fixed'. You may enter a distance in pixels, or as a % using a value 1 or less. Relative positioning requires a fixed position."
-msgstr "Устанавливает свойство CSS <em>top</em> всплывающих диалогов. Попробуйте использовать 0 для 'курсора мыши' или 0.4 для 'фиксированного'. Мы можете ввести расстояние в пикселях, или, при введении числа от 1 и меньше, процентное отношение. Процентное отношение требует использования фиксированного положения."
+msgstr ""
+"Устанавливает свойство CSS <em>top</em> "
+"всплывающих диалогов. Попробуйте "
+"использовать 0 для 'курсора мыши' или 0.4 "
+"для 'фиксированного'. Мы можете ввести "
+"расстояние в пикселях, или, при "
+"введении числа от 1 и меньше, "
+"процентное отношение. Процентное "
+"отношение требует использования "
+"фиксированного положения."
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:119
 msgid "Messages"
@@ -1303,7 +1620,9 @@ msgstr "Сообщения"
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:121
 msgid "Notifications to users. Replaceable tokens are: @replaceables"
-msgstr "Уведомления пользователям. Заменяемые переменные: @replaceables"
+msgstr ""
+"Уведомления пользователям. "
+"Заменяемые переменные: @replaceables"
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:126
 msgid "Path to relationship requests"
@@ -1311,15 +1630,25 @@ msgstr "Путь на страницу списка запросов"
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:128
 msgid "replaces !pending_relationship_requests in messages such as what is shown to the user after login, change only if your requests list isn't 'relationships/requests'"
-msgstr "заменяет !pending_relationship_requests в сообщениях, как например, показываемых пользователям по входу на сайт; меняйте только если Ваш списой связей не находится на 'relationships/requests'"
+msgstr ""
+"заменяет !pending_relationship_requests в "
+"сообщениях, как например, "
+"показываемых пользователям по входу "
+"на сайт; меняйте только если Ваш "
+"списой связей не находится на "
+"'relationships/requests'"
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:147
 msgid "Example: buddy, friend, coworker, spouse."
-msgstr "Например: приятель, друг, коллега, супруг."
+msgstr ""
+"Например: приятель, друг, коллега, "
+"супруг."
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:156
 msgid "Example: buddies, friends, coworkers, spouses."
-msgstr "Например: приятели, друзья, коллеги, супруги."
+msgstr ""
+"Например: приятели, друзья, коллеги, "
+"супруги."
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:161
 msgid "This is a one-way relationship"
@@ -1327,7 +1656,10 @@ msgstr "Это односторонняя связь"
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:163
 msgid "Check this if this relationship should only go one way (ex Manager, Subscriber)"
-msgstr "Включите, если эта связь работает в одном напралении (например, менеджер, подписчик)"
+msgstr ""
+"Включите, если эта связь работает в "
+"одном напралении (например, менеджер, "
+"подписчик)"
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:168
 #: user_relationships_ui/user_relationships_ui.pages.inc:14
@@ -1336,7 +1668,9 @@ msgstr "Требует подтверждения"
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:170
 msgid "Check this if the requestee must approve the relationship"
-msgstr "Включите, если получатель должен подтвердить связь"
+msgstr ""
+"Включите, если получатель должен "
+"подтвердить связь"
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:174
 msgid "Request expires in"
@@ -1348,7 +1682,9 @@ msgstr "дней"
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:179
 msgid "After how many days should a request of this type be removed? (0 for never)"
-msgstr "После скольких дней запрос этого типа должен быть удален? (0 значит никогда)"
+msgstr ""
+"После скольких дней запрос этого типа "
+"должен быть удален? (0 значит никогда)"
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:183
 msgid "Role access"
@@ -1356,7 +1692,10 @@ msgstr "Доступ по ролям"
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:185
 msgid "You may choose which roles are allowed to request this relationship. If none are selected, all roles are allowed."
-msgstr "Вы можете выбрать роли, которые могут запрашивать эту связь. Не включайте ни одной, чтобы дать доступ всем ролям."
+msgstr ""
+"Вы можете выбрать роли, которые могут "
+"запрашивать эту связь. Не включайте ни "
+"одной, чтобы дать доступ всем ролям."
 
 #: user_relationships_ui/user_relationships_ui.admin.inc:223
 msgid "Are you sure you want to delete %name?"
@@ -1368,7 +1707,9 @@ msgstr "Название %name уже занято."
 
 #: user_relationships_ui/user_relationships_ui.admin_actions.inc:31
 msgid "Expiration period must be an integer greater than or equal to 0."
-msgstr "Срок действительности должен быть числом от нуля и выше."
+msgstr ""
+"Срок действительности должен быть "
+"числом от нуля и выше."
 
 #: user_relationships_ui/user_relationships_ui.admin_actions.inc:67
 msgid "Relationship %name has been added."
@@ -1384,15 +1725,21 @@ msgstr "Связь %name удалена."
 
 #: user_relationships_ui/user_relationships_ui.admin_actions.inc:68
 msgid "User Relationships form: relationship %name added."
-msgstr "Форма пользовательких связей: связь %name добавлена."
+msgstr ""
+"Форма пользовательких связей: связь "
+"%name добавлена."
 
 #: user_relationships_ui/user_relationships_ui.admin_actions.inc:81
 msgid "User Relationships form: relationship %name updated."
-msgstr "Форма пользовательких связей: связь %name обновлена."
+msgstr ""
+"Форма пользовательких связей: связь "
+"%name обновлена."
 
 #: user_relationships_ui/user_relationships_ui.admin_actions.inc:126
 msgid "User Relationships form: relationship %name deleted."
-msgstr "Форма пользовательких связей: связь %name удалена."
+msgstr ""
+"Форма пользовательких связей: связь "
+"%name удалена."
 
 #: user_relationships_ui/user_relationships_ui.forms.inc:39
 msgid "My relationship is"
@@ -1404,11 +1751,15 @@ msgstr "Послать запрос"
 
 #: user_relationships_ui/user_relationships_ui.forms.inc:135
 msgid "Are you sure you wish to send a new %rel_name request to %name?"
-msgstr "Подтвердите, пожалуйста, посылку запроса '%rel_name' пользователю %name."
+msgstr ""
+"Подтвердите, пожалуйста, посылку "
+"запроса '%rel_name' пользователю %name."
 
 #: user_relationships_ui/user_relationships_ui.forms.inc:135
 msgid "Are you sure you want to become %name's %rel_name?"
-msgstr "Подтвердите, пожалуйста, что Вы - %rel_name пользователя %name."
+msgstr ""
+"Подтвердите, пожалуйста, что Вы - %rel_name "
+"пользователя %name."
 
 #: user_relationships_ui/user_relationships_ui.forms.inc:136
 msgid "How do you relate to %name?"
@@ -1420,7 +1771,9 @@ msgstr "Отправить"
 
 #: user_relationships_ui/user_relationships_ui.forms.inc:178
 msgid "Are you sure you want to approve the %relationship_name relationship request from !name?"
-msgstr "Подтвердите, пожалуйста, запрос '%relationship_name' от пользователя !name."
+msgstr ""
+"Подтвердите, пожалуйста, запрос "
+"'%relationship_name' от пользователя !name."
 
 #: user_relationships_ui/user_relationships_ui.forms.inc:183
 msgid "Approve relationship"
@@ -1428,7 +1781,10 @@ msgstr "Подтвердить связь"
 
 #: user_relationships_ui/user_relationships_ui.forms.inc:186
 msgid "Are you sure you want to disapprove the %relationship_name relationship request from !name?"
-msgstr "Подтвердите, пожалуйста, что Вы отклоняете запрос '%relationship_name' от пользователя !name."
+msgstr ""
+"Подтвердите, пожалуйста, что Вы "
+"отклоняете запрос '%relationship_name' от "
+"пользователя !name."
 
 #: user_relationships_ui/user_relationships_ui.forms.inc:191
 msgid "Disapprove relationship"
@@ -1436,7 +1792,10 @@ msgstr "Отклонить запрос"
 
 #: user_relationships_ui/user_relationships_ui.forms.inc:194
 msgid "Are you sure you want to cancel your %relationship_name relationship request to !name?"
-msgstr "Подтвердите, пожалуйста, что Вы отменяете запрос '%relationship_name'  пользователю !name."
+msgstr ""
+"Подтвердите, пожалуйста, что Вы "
+"отменяете запрос '%relationship_name'  "
+"пользователю !name."
 
 #: user_relationships_ui/user_relationships_ui.forms.inc:199
 msgid "Cancel relationship"
@@ -1448,7 +1807,10 @@ msgstr "Удалить связь"
 
 #: user_relationships_ui/user_relationships_ui.forms.inc:254
 msgid "Are you sure you wish to delete the %relationship_name relationship with !name?"
-msgstr "Подтвердите, пожалуйста, что Вы удаляете связь '%relationship_name' с пользователем !name."
+msgstr ""
+"Подтвердите, пожалуйста, что Вы "
+"удаляете связь '%relationship_name' с "
+"пользователем !name."
 
 #: user_relationships_ui/user_relationships_ui.pages.inc:14
 msgid "Plural"
@@ -1506,15 +1868,21 @@ msgstr "!requestee получит Ваш запрос '%relationship_name'"
 
 #: user_relationships_ui/user_relationships_ui.module:79
 msgid "!requester's %relationship_name request has been approved."
-msgstr "Запрос '%relationship_name' от пользователя !requester подтвержден."
+msgstr ""
+"Запрос '%relationship_name' от пользователя "
+"!requester подтвержден."
 
 #: user_relationships_ui/user_relationships_ui.module:80
 msgid "!requester has declined your %relationship_name request."
-msgstr "!requestee отказал Вам на запрос '%relationship_name'"
+msgstr ""
+"!requestee отказал Вам на запрос "
+"'%relationship_name'"
 
 #: user_relationships_ui/user_relationships_ui.module:81
 msgid "Your %relationship_name request to !requestee has been canceled."
-msgstr "Ваш запрос '%relationship_name' пользователю !requester отменен."
+msgstr ""
+"Ваш запрос '%relationship_name' пользователю "
+"!requester отменен."
 
 #: user_relationships_ui/user_relationships_ui.module:82
 msgid "No action has been taken."
@@ -1522,27 +1890,40 @@ msgstr "Действий не предпринято."
 
 #: user_relationships_ui/user_relationships_ui.module:83
 msgid "The %relationship_name relationship of !requester to !requestee has been deleted."
-msgstr "Связь '%relationship_name' от пользователя !requester к пользователю !requestee удалена."
+msgstr ""
+"Связь '%relationship_name' от пользователя "
+"!requester к пользователю !requestee удалена."
 
 #: user_relationships_ui/user_relationships_ui.module:84
 msgid "!requester has requested to be your %relationship_name.  Please view your !pending_relationship_requests to approve them."
-msgstr "!requester послал/а Вам запрос '%relationship_name'. Нажмите на !pending_relationship_requests, чтобы подтвердить."
+msgstr ""
+"!requester послал/а Вам запрос '%relationship_name'. "
+"Нажмите на !pending_relationship_requests, чтобы "
+"подтвердить."
 
 #: user_relationships_ui/user_relationships_ui.module:85
 msgid "You are !requestee's newest %relationship_name."
-msgstr "Теперь Вы - %relationship_name пользователя !requestee"
+msgstr ""
+"Теперь Вы - %relationship_name пользователя "
+"!requestee"
 
 #: user_relationships_ui/user_relationships_ui.module:88
 msgid "You may not create any more relationships to this user."
-msgstr "Вы не можете создавать новые связи с этим пользователем."
+msgstr ""
+"Вы не можете создавать новые связи с "
+"этим пользователем."
 
 #: user_relationships_ui/user_relationships_ui.module:89
 msgid "There is already an earlier %relationship_name request sent to !requestee."
-msgstr "Запрос '%relationship_name' пользователю !requestee уже был послан ранее."
+msgstr ""
+"Запрос '%relationship_name' пользователю !requestee "
+"уже был послан ранее."
 
 #: user_relationships_ui/user_relationships_ui.module:90
 msgid "There is already an existing %relationship_name relationship with !requestee."
-msgstr "У Вас уже есть связь '%relationship_name' с пользователем !requestee."
+msgstr ""
+"У Вас уже есть связь '%relationship_name' с "
+"пользователем !requestee."
 
 #: user_relationships_ui/user_relationships_ui.module:91
 msgid "This user does not accept relationship requests."
@@ -1550,7 +1931,9 @@ msgstr "Этот пользователь не принимает связи."
 
 #: user_relationships_ui/user_relationships_ui.module:92
 msgid "You may not create a relationship to yourself."
-msgstr "Вы не можете связаться с самим/самой собой."
+msgstr ""
+"Вы не можете связаться с самим/самой "
+"собой."
 
 #: user_relationships_ui/user_relationships_ui.module:93
 msgid "This user does not exist."
@@ -1562,7 +1945,9 @@ msgstr "Такого типа связи нет."
 
 #: user_relationships_ui/user_relationships_ui.module:95
 msgid "An error has occurred. Please contact the site administrator."
-msgstr "Произошла ошибка. Пожалуйста, свяжитесь с администратором."
+msgstr ""
+"Произошла ошибка. Пожалуйста, "
+"свяжитесь с администратором."
 
 #: user_relationships_ui/user_relationships_ui.module:96
 msgid "Please choose the type of relationship."
@@ -1570,7 +1955,9 @@ msgstr "Пожалуйста, выберите тип связи."
 
 #: user_relationships_ui/user_relationships_ui.module:97
 msgid "You may not create %relationship_name relationships."
-msgstr "Вы не можете создавать связи типа '%relationship_name'. "
+msgstr ""
+"Вы не можете создавать связи типа "
+"'%relationship_name'. "
 
 #: user_relationships_ui/user_relationships_ui.module:107
 msgid "Informational Messages"
@@ -1660,7 +2047,9 @@ msgstr "(от них к Вам)"
 
 #: user_relationships_ui/user_relationships_ui.module:220
 msgid "You have sent a new %relationship_name request to this user. (!pending_requests)"
-msgstr "Вы послали запрос '%relationship_name' этому пользователю. (!pending_requests)"
+msgstr ""
+"Вы послали запрос '%relationship_name' этому "
+"пользователю. (!pending_requests)"
 
 #: user_relationships_ui/user_relationships_ui.module:222
 msgid "pending requests"
@@ -1668,11 +2057,16 @@ msgstr "неподтвержденные запросы"
 
 #: user_relationships_ui/user_relationships_ui.module:228
 msgid "This user has requested to be your %relationship_name. (!pending_requests)"
-msgstr "Этот пользователь послал Вам запрос '%relationship_name'. (!pending_requests)"
+msgstr ""
+"Этот пользователь послал Вам запрос "
+"'%relationship_name'. (!pending_requests)"
 
 #: user_relationships_ui/user_relationships_ui.module:359
 msgid "This module allows you to create relationship types that users can use to connect to each other."
-msgstr "Этот модуль позволяет определить типы связей, которые пользователи могут создавать друг с другом."
+msgstr ""
+"Этот модуль позволяет определить типы "
+"связей, которые пользователи могут "
+"создавать друг с другом."
 
 #: user_relationships_ui/user_relationships_ui.module:363
 msgid "This page lets you setup user relationship types."
@@ -1688,11 +2082,15 @@ msgstr "Настройки связей"
 
 #: user_relationships_ui/user_relationships_ui.module:667
 msgid "Automatically approve the following relationship requests"
-msgstr "Автоматически подтверждать следующие типы связей"
+msgstr ""
+"Автоматически подтверждать следующие "
+"типы связей"
 
 #: user_relationships_ui/user_relationships_ui.module:670
 msgid "Check off the types of relationships you'd like to automatically approve."
-msgstr "Включите типы связей, которые Вы хотели бы подтверждать автоматически."
+msgstr ""
+"Включите типы связей, которые Вы "
+"хотели бы подтверждать автоматически."
 
 #: user_relationships_ui/user_relationships_ui.module:693
 msgid "Allow private messages"
@@ -1700,7 +2098,10 @@ msgstr "Кто может посылать личные сообщения"
 
 #: user_relationships_ui/user_relationships_ui.module:694
 msgid "Allow/disallow users in or outside relationships to send you private messages."
-msgstr "Разрешение пользователям среди и вне Ваших связей послать Вам личные сообщения."
+msgstr ""
+"Разрешение пользователям среди и вне "
+"Ваших связей послать Вам личные "
+"сообщения."
 
 #: user_relationships_ui/user_relationships_ui.module:695
 msgid "Everyone"
@@ -1770,21 +2171,16 @@ msgstr "Настройки"
 msgid "User Relationships Autocomplete"
 msgstr "Подсказка от связей"
 
-#: user_relationships_ui/user_relationships_ui.module:475
-msgid "My relationships"
-msgstr "Мои связи"
-
-#: user_relationships_ui/user_relationships_ui.module:483
-msgid "All"
-msgstr "Все"
-
 #: user_relationships_ui/user_relationships_ui.info:0
 msgid "UR-UI"
 msgstr "UR-Пользовательский интерфейс"
 
 #: user_relationships_ui/user_relationships_ui.info:0
 msgid "User Relationships UI. This enables basic UI functionality for User Relationships"
-msgstr "Интерфейс для пользовательских связей. Содержит основные функции связей между пользователями."
+msgstr ""
+"Интерфейс для пользовательских "
+"связей. Содержит основные функции "
+"связей между пользователями."
 
 #: user_relationships_ui/user_relationships_ui.js:0
 msgid "Form Loading"
@@ -1796,7 +2192,10 @@ msgstr "Идет запись..."
 
 #: user_relationships_ui/user_relationships_ui.js:0
 msgid "Not saving? Please wait a few seconds, reload this page, and try again."
-msgstr "Не сохраняется? Пожалуйста, подождите несколько секунд, перезагрузите страницу и попробуйте еще раз."
+msgstr ""
+"Не сохраняется? Пожалуйста, подождите "
+"несколько секунд, перезагрузите "
+"страницу и попробуйте еще раз."
 
 #: user_relationships_ui/templates/user_relationships_pending_requests.tpl.php:11
 msgid "Sent Requests"
