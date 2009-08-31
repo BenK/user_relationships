@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_blocks.module,v 1.1.2.9 2009-07-06 12:40:04 alexk Exp $
+// $Id: user_relationship_blocks.module,v 1.1.2.10 2009-08-31 20:32:54 alexk Exp $
 /**
  * @file
  * User Relationship Blocks implementation
@@ -111,13 +111,13 @@ function theme_user_relationship_block_subject($bid, $account, $rtid, $extra) {
     global $user;
     $user_name = ($account->uid == $user->uid) ? 'My' : t("@username's", array('@username' => $account->name));
     if ($rtid == UR_BLOCK_ALL_TYPES) {
-      $type_name = 'Relationships';
+      $output = ($account->uid == $user->uid) ? t('My relationships') : t("@username's relationships", array('@username' => $account->name));
     }
     else {
       $rtype      = user_relationships_type_load($rtid);
-      $type_name  = $rtype->plural_name;
+      $output = ($account->uid == $user->uid) ? t('My @relationships', array('@relationships' => $rtype->plural_name)) : t("@username's @relationships", array('@username' => $account->name, '@relationships' => $rtype->plural_name));
     }
-    $output = t('@user @type', array('@user' => $user_name, '@type' => $type_name));
+    
     return $output;
   }
 }
@@ -147,11 +147,11 @@ function _user_relationship_blocks_form($block, $rtid, $extra, $bid) {
   
   if ($block != 'actions') {
     if ($rtid == UR_BLOCK_ALL_TYPES) {
-      $relationship_name = 'All';
+      $relationship_name = t('All');
     }
     else {
       $type = user_relationships_type_load($rtid);
-      $relationship_name = $type->name;
+      $relationship_name = t($type->name);
     }
 
     $form['size'] = array(
