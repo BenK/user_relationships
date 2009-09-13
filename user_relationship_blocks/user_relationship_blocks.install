@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_blocks.install,v 1.1.2.8 2009-07-05 19:45:48 alexk Exp $
+// $Id: user_relationship_blocks.install,v 1.1.2.9 2009-09-13 23:35:41 alexk Exp $
 /**
  * @file 
  * User relationship blocks installation
@@ -39,6 +39,19 @@ function user_relationship_blocks_install() {
  */
 function user_relationship_blocks_uninstall() {
   drupal_uninstall_schema('user_relationship_blocks');
+}
+
+/**
+ * Implementation of hook_update_N().
+ * Update 6000 creates db tables after upgrade from D5.
+ */
+function user_relationship_blocks_update_6000() {
+  //do not execute if table already exists, to catch normal D6 updates.
+  if (db_table_exists('user_relationship_blocks')) {
+    return array();
+  }
+  user_relationship_blocks_install();
+  return array();
 }
 
 /**
