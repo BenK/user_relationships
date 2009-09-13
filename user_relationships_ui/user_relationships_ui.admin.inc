@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.admin.inc,v 1.1.2.16 2009-08-14 20:08:47 alexk Exp $
+// $Id: user_relationships_ui.admin.inc,v 1.1.2.17 2009-09-13 23:45:23 alexk Exp $
 
 /**
  * @file
@@ -54,7 +54,6 @@ function user_relationships_ui_settings() {
       $form['privatemsg'] = array(
         '#type'   => 'fieldset',
         '#title'  => t('Private messages'),
-        '#weight' => -10,
       );
       $form['privatemsg']['user_relationships_restrict_privatemsg'] = array(
         '#type'           => 'radios',
@@ -80,6 +79,12 @@ function user_relationships_ui_settings() {
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
     '#description' => t('Some themes may require repositioning of AJAX confirmation dialogs. You may use these controls to set where the popup appears on the page or in relation to the mouse cursor.')
+  );
+  $form['positioning']['user_relationships_enable_ajax_popups'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Show AJAX confirmation popups'),
+    '#default_value' => variable_get('user_relationships_enable_ajax_popups', 1),
+    '#description' => t('Other popup settings below will only take effect if popups are enabled.')
   );
   $form['positioning']['user_relationships_position'] = array(
     '#type' => 'select',

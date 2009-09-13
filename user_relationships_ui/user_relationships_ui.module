@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.module,v 1.1.2.26 2009-08-14 20:08:47 alexk Exp $
+// $Id: user_relationships_ui.module,v 1.1.2.27 2009-09-13 23:45:23 alexk Exp $
 /**
  * @file
  * UI components of user_relationships
@@ -369,6 +369,10 @@ function user_relationships_ui_help($section) {
  * Init
  */
 function user_relationships_ui_init() {
+  //do not enable ajax functions if set in admin/user/relationships/settings
+  if (!variable_get('user_relationships_enable_ajax_popups', 1)) {
+    return;
+  }
   drupal_add_js(USER_RELATIONSHIPS_UI_PATH .'/user_relationships_ui.js');
   drupal_add_css(USER_RELATIONSHIPS_UI_PATH .'/user_relationships_ui.css');
   $settings['user_relationships_ui']['loadingimage'] = url(USER_RELATIONSHIPS_UI_PATH .'/images/loadingAnimation.gif');
