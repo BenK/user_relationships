@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_defaults.module,v 1.1.2.10 2009-08-14 21:05:02 alexk Exp $
+// $Id: user_relationship_defaults.module,v 1.1.2.11 2009-09-23 15:22:48 aufumy Exp $
 
 /**
  * Drupal Module: User Relationship Defaults
@@ -170,7 +170,7 @@ function user_relationship_defaults_add_form_submit($form, &$form_state) {
 
   $message_p = array(
     '%username'           => $user->name,
-    '%relationship_name'  => $relationship_type->name,
+    '%relationship_name'  => tt("user_relationships:rtid:$relationship_type->rtid:name", $relationship_type->name),
   );
   drupal_set_message(t('Default relationship %relationship_name of %username has been added.', $message_p));
   watchdog('u_relationship', 'Default relationship %relationship_name of %username has been added.', $message_p, WATCHDOG_NOTICE, l(t('view'), 'admin/user/relationships'));
@@ -191,7 +191,7 @@ function user_relationship_defaults_delete_form(&$form_state, &$default_relation
   $form = confirm_form(
     $form,
     t('Are you sure you want to delete the default relationship %relationship of %name?', array(
-      '%relationship' => $default_relationship->relationship_type->name,
+      '%relationship' => tt("user_relationships:rtid:$default_relationship->relationship_type->rtid:name", $default_relationship->relationship_type->name),
       '%name'         => $default_relationship->user->name,
     )),
     'admin/user/relationships',
@@ -211,7 +211,7 @@ function user_relationship_defaults_delete_form_submit($form, &$form_state) {
   db_query("DELETE FROM {user_relationship_defaults} WHERE rdid = %d", $default_relationship->rdid);
   $message_p = array(
     '%name'         => $default_relationship->user_name,
-    '%relationship' => $default_relationship->name,
+    '%relationship' => tt("user_relationships:rtid:$default_relationship->rtid:name", $default_relationship->name),
   );
   drupal_set_message(t('Default relationship %relationship of %name has been deleted.', $message_p));
   watchdog('u_relationship', 'Default relationship %relationship of %name has been deleted.', $message_p, WATCHDOG_NOTICE);

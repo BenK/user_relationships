@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.module,v 1.1.2.17 2009-08-15 21:10:26 alexk Exp $
+// $Id: user_relationships_api.module,v 1.1.2.18 2009-09-23 15:22:48 aufumy Exp $
 
 /**
  * @file
@@ -246,4 +246,13 @@ function user_relationships_api_user($type, &$edit, &$account, $category = NULL)
  if ($type == 'delete') {
    db_query("DELETE FROM {user_relationships} WHERE requester_id = %d OR requestee_id = %d", $account->uid, $account->uid);
  }
+}
+
+/**
+ * provide a degrade path for function tt found in module i18nstrings
+ */
+if (! module_exists('i18nstrings') && ! function_exists('tt')) {
+  function tt($name, $string, $langcode = NULL, $update = FALSE) {
+    return t($string, array(), $langcode);
+  }
 }

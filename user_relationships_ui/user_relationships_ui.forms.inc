@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.forms.inc,v 1.1.2.15 2009-07-10 07:27:49 alexk Exp $
+// $Id: user_relationships_ui.forms.inc,v 1.1.2.16 2009-09-23 15:22:48 aufumy Exp $
 
 /**
  * @file
@@ -132,7 +132,9 @@ function user_relationships_ui_request(&$form_state, $requestee) {
       t('Request relationship'),
       "user/$requestee->uid",
       $relationship ?
-      ($relationship->requires_approval ? t('Are you sure you wish to send a new %rel_name request to %name?', array('%name' => $requestee->name, '%rel_name' => $relationship->name, '%rel_plural_name' => $relationship->plural_name)) : t("Are you sure you want to become %name's %rel_name?", array('%name' => $requestee->name, '%rel_name' => $relationship->name))) :
+      ($relationship->requires_approval 
+       ? t('Are you sure you wish to send a new %rel_name request to %name?', array('%name' => $requestee->name, '%rel_name' => tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name), '%rel_plural_name' => tt("user_relationships:rtid:$relationship->rtid:plural_name", $relationship->plural_name))) 
+       : t("Are you sure you want to become %name's %rel_name?", array('%name' => $requestee->name, '%rel_name' => tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name)))) :
       t('How do you relate to %name?', array('%name' => $requestee->name)),
       t('Send'), t('Cancel'),
       'user_relationships_request_confirm'
@@ -177,7 +179,7 @@ function user_relationships_ui_pending_requested(&$form_state, $action, $account
     case 'approve':
       $confirmation_message = t('Are you sure you want to approve the %relationship_name relationship request from !name?', array(
         '@action'             => $action,
-        '%relationship_name'  => $relationship->name,
+        '%relationship_name'  => tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name),
         '!name'               => theme('username', user_load(array('uid' => ($viewed_id == $relationship->requester_id ? $relationship->requestee_id : $relationship->requester_id))))
       ));
       $action_message = t('Approve relationship');
@@ -185,7 +187,7 @@ function user_relationships_ui_pending_requested(&$form_state, $action, $account
     case 'disapprove':
       $confirmation_message = t('Are you sure you want to disapprove the %relationship_name relationship request from !name?', array(
         '@action'             => $action,
-        '%relationship_name'  => $relationship->name,
+        '%relationship_name'  => tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name),
         '!name'               => theme('username', user_load(array('uid' => ($viewed_id == $relationship->requester_id ? $relationship->requestee_id : $relationship->requester_id))))
       ));
       $action_message = t('Disapprove relationship');
@@ -193,7 +195,7 @@ function user_relationships_ui_pending_requested(&$form_state, $action, $account
     default:
       $confirmation_message = t('Are you sure you want to cancel your %relationship_name relationship request to !name?', array(
         '@action'             => $action,
-        '%relationship_name'  => $relationship->name,
+        '%relationship_name'  => tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name),
         '!name'               => theme('username', user_load(array('uid' => ($viewed_id == $relationship->requester_id ? $relationship->requestee_id : $relationship->requester_id))))
       ));
       $action_message = t('Cancel relationship');
@@ -252,7 +254,7 @@ function user_relationships_ui_remove(&$form_state, $account, $relationship) {
     ($viewed_id == $user->id ? 'relationships' : "user/{$viewed_id}/relationships/"),
 
     t("Are you sure you wish to delete the %relationship_name relationship with !name?", array(
-      '%relationship_name'  => $relationship->name,
+      '%relationship_name'  => tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name),
       '!name'               => theme('username', user_load(array('uid' => ($viewed_id == $relationship->requester_id ? $relationship->requestee_id : $relationship->requester_id))))
     )),
     t('Yes'), t('No'),

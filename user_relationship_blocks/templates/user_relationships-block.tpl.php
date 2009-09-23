@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships-block.tpl.php,v 1.1.2.7 2009-07-06 12:40:04 alexk Exp $
+// $Id: user_relationships-block.tpl.php,v 1.1.2.8 2009-09-23 15:22:48 aufumy Exp $
 /**
  * @file Main relationships listing block
  * List the relationships between the viewed user and the current user
@@ -9,14 +9,16 @@ if ($relationships) {
   $showing_all_types = $settings->rtid == UR_BLOCK_ALL_TYPES;
   $rows = array();
   foreach ($relationships as $rtid => $relationship) {
+    $tt_rel_name = tt("user_relationships:rtid:$rtid:name", $relationship->name);
+    $tt_rel_plural_name = tt("user_relationships:rtid:$rtid:plural_name", $relationship->plural_name); 
     if ($the_other_uid == $relationship->requester_id) {
       $rtype_heading = $relationship->is_oneway ? 
-        t("@rel_name of", array('@rel_name' => $relationship->name, '@rel_plural_name' => $relationship->plural_name)) : 
-        t("@rel_plural_name", array('@rel_name' => $relationship->name, '@rel_plural_name' => $relationship->plural_name));
+        t("@rel_name of", array('@rel_name' => $tt_rel_name, '@rel_plural_name' => $tt_rel_plural_name)) : 
+        t("@rel_plural_name", array('@rel_name' => $tt_rel_name, '@rel_plural_name' => $tt_rel_plural_name));
       $relatee = $relationship->requestee;
     }
     else {
-      $rtype_heading = t("@rel_plural_name", array('@rel_name' => $relationship->name, '@rel_plural_name' => $relationship->plural_name));
+      $rtype_heading = t("@rel_plural_name", array('@rel_name' => $tt_rel_name, '@rel_plural_name' => $tt_rel_plural_name));
       $relatee = $relationship->requester;
     }
 

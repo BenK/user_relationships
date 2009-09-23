@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_blocks.module,v 1.1.2.10 2009-08-31 20:32:54 alexk Exp $
+// $Id: user_relationship_blocks.module,v 1.1.2.11 2009-09-23 15:22:48 aufumy Exp $
 /**
  * @file
  * User Relationship Blocks implementation
@@ -101,10 +101,10 @@ function theme_user_relationship_block_subject($bid, $account, $rtid, $extra) {
     global $user;
     $rtype = user_relationships_type_load($rtid);
     if ($account->uid == $user->uid) {
-      return t('I am a @rel_name of', array('@rel_name' => $rtype->name, '@rel_plural_name' => $rtype->plural_name));
+      return t('I am a @rel_name of', array('@rel_name' => tt("user_relationships:rtid:$rtype->rtid:name", $rtype->name), '@rel_plural_name' => $rtype->plural_name));
     }
     else {
-      return t('@username is a @rel_name of', array('@username' => $account->name, '@rel_name' => $rtype->name, '@rel_plural_name' => $rtype->plural_name));
+      return t('@username is a @rel_name of', array('@username' => $account->name, '@rel_name' => tt("user_relationships:rtid:$rtype->rtid:name", $rtype->name), '@rel_plural_name' => $rtype->plural_name));
     }
   }
   else {
@@ -168,7 +168,7 @@ function _user_relationship_blocks_form($block, $rtid, $extra, $bid) {
     );
 
     $user_identifier = ($block == UR_BLOCK_MY) ? t('currently logged in user') : t('author whose node is being viewed');
-    $msg = t("NOTE: This block displays @relationship_name relationships of the @user_identifier.", array('@relationship_name' => $relationship_name, '@user_identifier' => $user_identifier));
+    $msg = t("NOTE: This block displays @relationship_name relationships of the @user_identifier.", array('@relationship_name' => tt("user_relationships:rtid:$rtid:name", $relationship_name), '@user_identifier' => $user_identifier));
 
     if ($extra) {
       $relation = $extra == 'you_to_them' ? t('requester') : t('requestee');

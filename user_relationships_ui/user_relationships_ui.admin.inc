@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.admin.inc,v 1.1.2.17 2009-09-13 23:45:23 alexk Exp $
+// $Id: user_relationships_ui.admin.inc,v 1.1.2.18 2009-09-23 15:22:48 aufumy Exp $
 
 /**
  * @file
@@ -225,7 +225,7 @@ function user_relationships_ui_type_delete(&$form_state, $relationship_type = NU
 
     return confirm_form(
       $form,
-      t('Are you sure you want to delete %name?', array('%name' => $relationship_type->name)),
+      t('Are you sure you want to delete %name?', array('%name' => tt("user_relationships:rtid:$relationship_type->rtid:name", $relationship_type->name))),
       'admin/user/relationships',
       t('This action cannot be undone.'),
       t('Delete'), t('Cancel')

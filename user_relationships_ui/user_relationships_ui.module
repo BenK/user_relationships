@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.module,v 1.1.2.27 2009-09-13 23:45:23 alexk Exp $
+// $Id: user_relationships_ui.module,v 1.1.2.28 2009-09-23 15:22:48 aufumy Exp $
 /**
  * @file
  * UI components of user_relationships
@@ -44,8 +44,12 @@ function user_relationships_ui_get_message($key, $relationship = NULL, $replacem
     $replaceables = array(
       '!requester'                => theme('username', $relationship->requester),
       '!requestee'                => theme('username', $relationship->requestee),
-      '%relationship_name'        => $relationship->name ? $relationship->name : $relationship->type->name,
-      '%relationship_plural_name' => $relationship->plural_name ? $relationship->plural_name : $relationship->type->plural_name,
+      '%relationship_name'        => $relationship->name 
+                                     ? tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name) 
+                                     : tt("user_relationships:rtid:$relationship->rtid:name", $relationship->type->name),
+      '%relationship_plural_name' => $relationship->plural_name 
+                                     ? tt("user_relationships:rtid:$relationship->rtid:plural_name", $relationship->plural_name) 
+                                     : tt("user_relationships:rtid:$relationship->rtid:plural_name", $relationship->type->plural_name),
     );
     $replacements = array_merge($replaceables, $replacements);
   }
@@ -176,9 +180,9 @@ function _user_relationships_ui_set_notifications(&$account) {
 function _user_relationships_ui_autocomplete_types($string = '') {
   $matches = array();
   if ($string) {
-    $result = db_query_range("SELECT name FROM {user_relationship_types} WHERE LOWER(name) LIKE LOWER('%%%s%%')", strtolower($string), 0, 10);
+    $result = db_query_range("SELECT rtid, name FROM {user_relationship_types} WHERE LOWER(name) LIKE LOWER('%%%s%%')", strtolower($string), 0, 10);
     while ($relationship = db_fetch_object($result)) {
-      $matches[$relationship->name] = check_plain($relationship->name);
+      $matches[$relationship->name] = check_plain(tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name));
    }
   }
   print drupal_to_js($matches);
@@ -195,7 +199,7 @@ function _user_relationships_ui_between(&$viewer, &$viewed) {
   foreach ($relationships as $relationship) {
     if ($relationship->approved && !$list[$relationship->rid]) {
       $list[$relationship->rid] = t('%relationship_name (!remove_link)', array(
-        '%relationship_name'  => $relationship->name . ($relationship->is_oneway ? ($relationship->requester_id == $viewer->uid ? t(' (You to Them)') : t(' (Them to You)')) : NULL),
+        '%relationship_name'  => tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name) . ($relationship->is_oneway ? ($relationship->requester_id == $viewer->uid ? t(' (You to Them)') : t(' (Them to You)')) : NULL),
         '!remove_link'        => theme('user_relationships_remove_link', $viewer->uid, $relationship->rid)
       ));
     }
@@ -218,7 +222,7 @@ function _user_relationships_ui_actions_between(&$viewer, &$viewed) {
   $relationships = user_relationships_load(array('requester_id' => $viewer->uid, 'requestee_id' => $viewed->uid, 'approved' => FALSE));
   foreach ($relationships as $relationship) {
     $list[] = t('You have sent a new %relationship_name request to this user. (!pending_requests)', array(
-      '%relationship_name'  => $relationship->name,
+      '%relationship_name'  => tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name),
       '!pending_requests'   => l(t('pending requests'), "relationships/requests"),
     ));
   }
@@ -226,7 +230,7 @@ function _user_relationships_ui_actions_between(&$viewer, &$viewed) {
   $relationships = user_relationships_load(array('requester_id' => $viewed->uid, 'requestee_id' => $viewer->uid, 'approved' => FALSE));
   foreach ($relationships as $relationship) {
     $list[] = t('This user has requested to be your %relationship_name. (!pending_requests)', array(
-      '%relationship_name'  => $relationship->name,
+      '%relationship_name'  => tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name),
       '!pending_requests'   => l(t('pending requests'), "user/{$viewer->uid}/relationships/requests"),
     ));
   }
@@ -307,7 +311,7 @@ function _user_relationships_ui_get_requestable_rtypes($requester, $requestee) {
     if (!user_relationships_api_can_request($requester, $rtype)) {
       continue;
     }
-    $relationships[$rtype->rtid] = $rtype->name;
+    $relationships[$rtype->rtid] = tt("user_relationships:rtid:$rtype->rtid:name", $rtype->name);
   }
   return $relationships;
 }
@@ -351,7 +355,7 @@ function user_relationships_ui_check_access($types, $account = NULL) {
  **********************************/
 
 /**
- * Help
+ * Implementation of hook_help().
  */
 function user_relationships_ui_help($section) {
   switch ($section) {
@@ -366,7 +370,7 @@ function user_relationships_ui_help($section) {
 }
 
 /**
- * Init
+ * Implementation of hook_init().
  */
 function user_relationships_ui_init() {
   //do not enable ajax functions if set in admin/user/relationships/settings
@@ -386,7 +390,7 @@ function user_relationships_ui_init() {
 }
 
 /**
- * Perm
+ * Implementation of hook_perm().
  */
 function user_relationships_ui_perm() {
   return array(
@@ -397,7 +401,7 @@ function user_relationships_ui_perm() {
 }
 
 /**
- * Footer
+ * Implementation of hook_footer().
  */
 function user_relationships_ui_footer($main = 0) {
   // This is the div we are utilizing for the form popups for confirmation.
@@ -405,7 +409,7 @@ function user_relationships_ui_footer($main = 0) {
 }
 
 /**
- * Menu
+ * Implementation of hook_menu().
  */
 function user_relationships_ui_menu() {
   include_once(drupal_get_path('module', 'user_relationships_api') .'/user_relationships_api.module');
@@ -596,7 +600,7 @@ function user_relationships_ui_menu() {
 }
 
 /**
- * User
+ * Implementation of hook_user().
  */
 function user_relationships_ui_user($type, &$edit, &$account, $category = NULL) {
   switch ($type) {
@@ -663,7 +667,7 @@ function user_relationships_ui_user($type, &$edit, &$account, $category = NULL) 
         $options = array();
         foreach ($relationships as $relationship) {
           if ($relationship->requires_approval) {
-            $options[$relationship->rtid] = $relationship->name;
+            $options[$relationship->rtid] = tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name);
           }
         }
         $form['user_relationships_ui_settings']['user_relationships_ui_auto_approve'] = array(
@@ -709,9 +713,18 @@ function user_relationships_ui_user($type, &$edit, &$account, $category = NULL) 
   }
 }
 
+/**
+ * Implementation of hook_locale().
+ */
+function user_relationships_ui_locale($op = 'groups') {
+  switch ($op) {
+    case 'groups':
+      return array('user_relationships' => t('User Relationships'));
+  }
+}
 
 /**
- * Theme
+ * Implementation of hook_theme().
  */
 function user_relationships_ui_theme() {
   $theme_funcs = array(
@@ -801,10 +814,14 @@ function template_preprocess_user_relationships(&$variables) {
   }
 
   if ($account->uid == $user->uid) {
-    $msg = $relationship_type ? t("My %relationships", array('%relationships' => $relationship_type->plural_name ? $relationship_type->plural_name : $relationship_type->name)) : t("All my relationships");
+    $msg = $relationship_type 
+           ? t("My %relationships", array('%relationships' => $relationship_type->plural_name ? tt("user_relationships:rtid:$relationship_type->rtid:plural_name", $relationship_type->plural_name) : tt("user_relationships:rtid:$relationship_type->rtid:name", $relationship_type->name))) 
+           : t("All my relationships");
   }
   else {
-    $msg = $relationship_type ? t("%username's %relationships", array('%username' => $account->name, '%relationships' => $relationship_type->plural_name ? $relationship_type->plural_name : $relationship_type->name)) : t("All %username's relationships", array('%username' => $account->name));
+    $msg = $relationship_type 
+           ? t("%username's %relationships", array('%username' => $account->name, '%relationships' => $relationship_type->plural_name ? tt("user_relationships:rtid:$relationship_type->rtid:plural_name", $relationship_type->plural_name) : tt("user_relationships:rtid:$relationship_type->rtid:name", $relationship_type->name))) 
+           : t("All %username's relationships", array('%username' => $account->name));
   }
 
   $variables['title'] = $msg;
