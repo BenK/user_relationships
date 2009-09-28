@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_views.module,v 1.1.2.2 2008-10-14 09:14:03 alexk Exp $
+// $Id: user_relationship_views.module,v 1.1.2.3 2009-09-28 15:08:59 aufumy Exp $
 
 /**
  * @file
@@ -46,7 +46,7 @@ function user_relationship_views_ajax_autocomplete_relationships_type($string = 
   if ($last_string != '') {
     $prefix = count($array) ? implode(', ', $array) .', ' : '';
 
-    $result = db_query_range("SELECT name FROM {user_relationship_types} WHERE LOWER(name) LIKE LOWER('%s%%')", $last_string, 0, 10);
+    $result = db_query_range("SELECT rtid, name FROM {user_relationship_types} WHERE LOWER(name) LIKE LOWER('%s%%')", $last_string, 0, 10);
 
     while ($rtype = db_fetch_object($result)) {
       $n = $rtype->name;
@@ -54,7 +54,7 @@ function user_relationship_views_ajax_autocomplete_relationships_type($string = 
       if (strpos($rtype->name, ',') !== FALSE || strpos($rtype->name, '"') !== FALSE) {
         $n = '"'. str_replace('"', '""', $rtype->name) .'"';
       }
-      $matches[$prefix . $n] = check_plain($rtype->name);
+      $matches[$prefix . $n] = check_plain(tt("user_relationships:rtid:$rtype->rtid:name", $rtype->name));
     }
   }
 
