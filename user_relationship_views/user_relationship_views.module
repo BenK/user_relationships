@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_views.module,v 1.1.2.3 2009-09-28 15:08:59 aufumy Exp $
+// $Id: user_relationship_views.module,v 1.1.2.4 2009-10-15 15:23:26 aufumy Exp $
 
 /**
  * @file
@@ -54,7 +54,7 @@ function user_relationship_views_ajax_autocomplete_relationships_type($string = 
       if (strpos($rtype->name, ',') !== FALSE || strpos($rtype->name, '"') !== FALSE) {
         $n = '"'. str_replace('"', '""', $rtype->name) .'"';
       }
-      $matches[$prefix . $n] = check_plain(tt("user_relationships:rtid:$rtype->rtid:name", $rtype->name));
+      $matches[$prefix . $n] = check_plain(ur_tt("user_relationships:rtid:$rtype->rtid:name", $rtype->name));
     }
   }
 

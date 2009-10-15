@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.module,v 1.1.2.18 2009-09-23 15:22:48 aufumy Exp $
+// $Id: user_relationships_api.module,v 1.1.2.19 2009-10-15 15:23:26 aufumy Exp $
 
 /**
  * @file
@@ -249,10 +249,13 @@ function user_relationships_api_user($type, &$edit, &$account, $category = NULL)
 }
 
 /**
- * provide a degrade path for function tt found in module i18nstrings
+ * Wrapper function for tt() if i18nstrings enabled.
  */
-if (! module_exists('i18nstrings') && ! function_exists('tt')) {
-  function tt($name, $string, $langcode = NULL, $update = FALSE) {
-    return t($string, array(), $langcode);
+function ur_tt($name, $string, $langcode = NULL, $update = FALSE) {
+  if (module_exists('i18nstrings')) {
+    return tt($name, $string, $langcode, $update);
+  } 
+  else {
+    return $string;
   }
 }

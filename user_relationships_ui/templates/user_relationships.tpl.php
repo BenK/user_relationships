@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships.tpl.php,v 1.1.2.9 2009-09-23 15:22:48 aufumy Exp $
+// $Id: user_relationships.tpl.php,v 1.1.2.10 2009-10-15 15:23:26 aufumy Exp $
 
 //$relationships array is loaded in template_preprocess_user_relationships()
 if ($relationships) {
@@ -11,7 +11,7 @@ if ($relationships) {
 
     $row = array(
       theme('username', $this_user),
-      tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name) . ($relationship->is_oneway ? ($this_user_str == 'requestee' ? t(' (You to Them)') : t(' (Them to You)')) : NULL),
+      ur_tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name) . ($relationship->is_oneway ? ($this_user_str == 'requestee' ? t(' (You to Them)') : t(' (Them to You)')) : NULL),
       $relationship->extra_for_display,
       $edit_access ? theme('user_relationships_remove_link', $account->uid, $relationship->rid) : '&nbsp;',
     );

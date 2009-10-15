@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships-pending_block.tpl.php,v 1.1.2.10 2009-09-28 15:08:59 aufumy Exp $
+// $Id: user_relationships-pending_block.tpl.php,v 1.1.2.11 2009-10-15 15:23:26 aufumy Exp $
 /**
  * @file
  * Template for relationships requests block
@@ -8,8 +8,8 @@
 if ($relationships) {
   $list = array();
   foreach ($relationships as $rtid => $relationship) {
-    $tt_rel_name = tt("user_relationships:rtid:$rtid:name", $relationship->name);
-    $tt_rel_plural_name = tt("user_relationships:rtid:$rtid:plural_name", $relationship->plural_name);
+    $tt_rel_name = ur_tt("user_relationships:rtid:$rtid:name", $relationship->name);
+    $tt_rel_plural_name = ur_tt("user_relationships:rtid:$rtid:plural_name", $relationship->plural_name);
     if ($user->uid == $relationship->requester_id) {
       $relation_to =& $relationship->requestee;
       $controls = theme('user_relationships_pending_request_cancel_link', $user->uid, $relationship->rid);
