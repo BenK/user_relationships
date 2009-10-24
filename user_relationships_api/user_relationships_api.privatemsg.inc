@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.privatemsg.inc,v 1.1.2.5 2009-08-15 16:16:19 alexk Exp $
+// $Id: user_relationships_api.privatemsg.inc,v 1.1.2.6 2009-10-24 22:39:07 alexk Exp $
 /**
  * @file Integration with Privatemsg module
  * @author mansspams http://drupal.org/user/293179
@@ -14,23 +14,15 @@ function user_relationships_api_privatemsg_sql_autocomplete_alter(&$fragments, $
   if (!variable_get('user_relationships_privatemsg_autocomplete_alter', 0)) {
     return;
   }
-  unset($fragments['select']);
-  unset($fragments['where']);
-  unset($fragments['order_by']);
 
   global $user;
   
   static $uniqueprefix = 0;
   
-  $fragments['primary_table'] = "{user_relationships} ur_$uniqueprefix";
-  $fragments['select'][] = "users_user_relationships_$uniqueprefix.name AS name";
-  $fragments['where'][] = "name LIKE '%s'";
-  $fragments['inner_join'][] = "INNER JOIN {users} users_user_relationships_$uniqueprefix ON ur_$uniqueprefix.requestee_id = users_user_relationships_$uniqueprefix.uid";
-  $fragments['query_args'][] = $user->uid;
+  $fragments['inner_join'][] = "INNER JOIN {user_relationships} ur_$uniqueprefix ON u.uid = ur_$uniqueprefix.requestee_id";
   $fragments['where'][] = "ur_$uniqueprefix.approved = 1";
   $fragments['where'][] = "ur_$uniqueprefix.requester_id = %d";
   $fragments['query_args']['where'][] = $user->uid;
-  $fragments['order_by'][] = 'name ASC'; 
   
   $uniqueprefix++;
 }
