@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_views.views.inc,v 1.1.2.3 2009-07-12 17:20:27 alexk Exp $
+// $Id: user_relationship_views.views.inc,v 1.1.2.4 2009-10-25 20:50:12 alexk Exp $
 
 /**
  * @file
@@ -136,6 +136,9 @@ function user_relationship_views_views_data() {
         'handler' => 'views_handler_field_date',
         'click sortable' => TRUE
       ),
+      'sort' => array(
+        'handler' => 'views_handler_sort_date',
+      ),
       'filter' => array(
         'handler' => 'views_handler_filter_date',
       ),
@@ -146,6 +149,9 @@ function user_relationship_views_views_data() {
       'field' => array(
         'handler' => 'views_handler_field_date',
         'click sortable' => TRUE
+      ),
+      'sort' => array(
+        'handler' => 'views_handler_sort_date',
       ),
       'filter' => array(
         'handler' => 'views_handler_filter_date',
