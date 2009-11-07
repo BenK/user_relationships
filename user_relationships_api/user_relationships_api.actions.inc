@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.actions.inc,v 1.1.2.6 2009-07-10 07:27:49 alexk Exp $
+// $Id: user_relationships_api.actions.inc,v 1.1.2.7 2009-11-07 19:17:26 alexk Exp $
 
 /**
  * @file *Incomplete* Actions implementation
@@ -10,25 +10,22 @@
 function user_relationships_api_hook_info() {
   return array(
     'user_relationships_api' => array(
-      'user_relationships_type' => array(
-        'presave' => array(
+      'user_relationships_api' => array(
+        'type_presave' => array(
           'runs when' => t('When either saving a new relationship type or updating an existing relationship type'),
         ),
-        'insert'  => array(
+        'type_insert'  => array(
           'runs when' => t('After saving a new relationship type'),
         ),
-        'update'  => array(
+        'type_update'  => array(
           'runs when' => t('After saving an existing relationship type'),
         ),
-        'delete'  => array(
+        'type_delete'  => array(
           'runs when' => t('After deleting a relationship type'),
         ),
-        'load'    => array(
+        'type_load'    => array(
           'runs when' => t('When a relationship type is loaded'),
         ),
-      ),
-
-      'user_relationships' => array(
         'presave'     => array(
           'runs when' => t('When either saving a new relationship or updating an existing relationship'),
         ),
@@ -61,22 +58,22 @@ function user_relationships_api_hook_info() {
  *
 function user_relationships_api_action_info() {
   return array(
-    'user_relationship_request_action' => array(
-      'type'          => 'user_relationship',
+    'user_relationships_api_request_action' => array(
+      'type'          => 'user_relationships_api',
       'description'   => t('Request a relationship'),
       'configurable'  => TRUE,
       'hooks'         => array(
         'user' => array('insert')
       ),
     ),
-    'user_relationship_remove_action' => array(
-      'type'          => 'user_relationship',
+    'user_relationships_api_remove_action' => array(
+      'type'          => 'user_relationships_api',
       'description'   => t('Remove a relationship'),
       'configurable'  => TRUE,
 //      'hooks'         => array('any' => TRUE),
     ),
     'user_relationship_cancel_action' => array(
-      'type'          => 'user_relationship',
+      'type'          => 'user_relationships_api',
       'description'   => t('Cancel a relationship request'),
       'configurable'  => FALSE,
 //      'hooks'         => array('any' => TRUE),
