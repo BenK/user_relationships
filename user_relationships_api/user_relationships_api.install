@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.install,v 1.1.2.8 2009-03-17 10:57:14 alexk Exp $
+// $Id: user_relationships_api.install,v 1.1.2.9 2009-11-07 21:24:54 alexk Exp $
 
 /**
  * @file
@@ -36,6 +36,7 @@ function user_relationships_api_schema() {
       'name'              => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'default' => ''),
       'plural_name'       => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'default' => ''),
       'is_oneway'         => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0, 'size' => 'tiny'),
+      'is_reciprocal'     => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0, 'size' => 'tiny'),
       'requires_approval' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0, 'size' => 'tiny'),
       'expires_val'       => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
     ),
@@ -93,5 +94,21 @@ function user_relationships_api_update_6101() {
   $schema = drupal_get_schema_unprocessed('user_relationships_api');
   _drupal_initialize_schema('user_relationships_api', $schema);
   db_create_table($ret, 'user_relationship_type_roles', $schema['user_relationship_type_roles']);
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N().
+ * Update 6102 adds the column is_reciprocal to the {user_relationship_types} table
+ */
+function user_relationships_api_update_6102() {
+  $new_fields = array(
+    'is_reciprocal' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0, 'size' => 'tiny'),
+  );
+
+  $ret = array();
+  foreach ($new_fields as $field => $spec) {
+    db_add_field($ret, 'user_relationship_types', $field, $spec);
+  }
   return $ret;
 }

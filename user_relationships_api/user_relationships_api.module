@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.module,v 1.1.2.20 2009-11-07 19:17:26 alexk Exp $
+// $Id: user_relationships_api.module,v 1.1.2.21 2009-11-07 21:24:54 alexk Exp $
 
 /**
  * @file
@@ -81,7 +81,7 @@ function _user_relationships_generate_query($param = array(), $options = array()
       $twoway_reverse_clause = TRUE;//#479486 these columns automatically should exclude duplicates
 
     default:
-      $types_cols = array('name', 'plural_name', 'is_oneway', 'requires_approval', 'expires_val');
+      $types_cols = array('name', 'plural_name', 'is_oneway', 'is_reciprocal', 'requires_approval', 'expires_val');
       $cond[] = "%s.%s {$operator}";
       $arguments[] = !in_array($key, $types_cols) ? 'ur' : 'urt';
       $arguments[] = $key;

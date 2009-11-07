@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.forms.inc,v 1.1.2.17 2009-10-15 15:23:26 aufumy Exp $
+// $Id: user_relationships_ui.forms.inc,v 1.1.2.18 2009-11-07 21:24:54 alexk Exp $
 
 /**
  * @file
@@ -16,10 +16,10 @@ function user_relationships_ui_request_form($requester, $requestee, $form_values
   if ($form_values['rtid']) {//given through form
     $default_relationship = $form_values['rtid'];
   }
-  else if (is_numeric(arg(3)) && user_relationships_type_load(arg(3))) {//given through URL arguments, e.g. relationship/{uid}/request/{rtid}
+  elseif (is_numeric(arg(3)) && user_relationships_type_load(arg(3))) {//given through URL arguments, e.g. relationship/{uid}/request/{rtid}
     $default_relationship = arg(3);
   }
-  else if (count($relationships) == 1) {//preselect the only one.
+  elseif (count($relationships) == 1) {//preselect the only one.
     $rtids = array_keys($relationships);
     $default_relationship = $rtids[0];
   }
@@ -84,7 +84,7 @@ function user_relationships_ui_request(&$form_state, $requestee) {
     );
     return $form;
   }
-  else if (!user_access('can have relationships', $requestee)) {
+  elseif (!user_access('can have relationships', $requestee)) {
     $form['error'] = array(
       '#type' => 'markup',
       '#prefix' => '<div>',
@@ -93,7 +93,7 @@ function user_relationships_ui_request(&$form_state, $requestee) {
     );
     return $form;
   }
-  else if ($user->uid == $requestee->uid) {
+  elseif ($user->uid == $requestee->uid) {
     $form['error'] = array(
       '#type' => 'markup',
       '#prefix' => '<div>',
@@ -102,7 +102,7 @@ function user_relationships_ui_request(&$form_state, $requestee) {
     );
     return $form;
   }
-  else if (!variable_get('user_relationships_allow_multiple', TRUE) &&
+  elseif (!variable_get('user_relationships_allow_multiple', TRUE) &&
            $relationships_count = user_relationships_load(array('between' => array($requester->uid, $requestee->uid)), array('count' => TRUE))) {
     $form['error'] = array(
       '#type' => 'markup',

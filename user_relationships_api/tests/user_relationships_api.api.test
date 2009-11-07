@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.api.test,v 1.1.2.5 2009-08-15 21:10:26 alexk Exp $
+// $Id: user_relationships_api.api.test,v 1.1.2.6 2009-11-07 21:24:54 alexk Exp $
 
 /**
  * @file
@@ -78,6 +78,18 @@ class UserRelationshipsApiTestCase extends DrupalWebTestCase {
     $rtype->expires_val = 0;
     user_relationships_type_save($rtype);
     $this->rtypes['approval-oneway'] = $rtype;
+    
+    //#348025 reciprocal one-way relationships
+    unset($rtype);
+    $rtype = new StdClass;
+    $rtype->name = 'approval-reciprocal';
+    $rtype->plural_name = 'approvals-reciprocal';
+    $rtype->is_oneway = TRUE;
+    $rtype->is_reciprocal = TRUE;
+    $rtype->requires_approval = TRUE;
+    $rtype->expires_val = 0;
+    user_relationships_type_save($rtype);
+    $this->rtypes['approval-reciprocal'] = $rtype;
     
     user_relationships_types_load(TRUE);
   }
@@ -240,5 +252,16 @@ class UserRelationshipsApiTestCase extends DrupalWebTestCase {
     $this->assertEqual(count($result), 4);
     $result = user_relationships_load(array('between' => array($u1->uid, $u3->uid)), array('include_twoway_reverse' => 1));
     $this->assertEqual(count($result), 4);
+  }
+  
+  //Test #348025 that user_relationship_load_types will load is_reciprocal flag
+  function testUserRelationshipsReciprocalTypes() {
+    $rtypes = user_relationships_types_load();
+    $rtype = $rtypes[$this->rtypes['approval-reciprocal']->rtid];
+    $this->assertTrue($rtype->is_reciprocal);
+    $rtype = $rtypes[$this->rtypes['approval-oneway']->rtid];
+    $this->assertFalse($rtype->is_reciprocal);
+    $rtype = $rtypes[$this->rtypes['approval']->rtid];
+    $this-> assertFalse($rtype->is_reciprocal);
   }
 }

@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.admin.inc,v 1.1.2.19 2009-10-15 15:23:26 aufumy Exp $
+// $Id: user_relationships_ui.admin.inc,v 1.1.2.20 2009-11-07 21:24:54 alexk Exp $
 
 /**
  * @file
@@ -161,13 +161,6 @@ function user_relationships_ui_type_edit(&$form_state, $relationship_type = NULL
     '#description'    => t("Example: buddies, friends, coworkers, spouses."),
     '#weight'         => -9,
   );
-  $form['is_oneway'] = array(
-    '#type'           => 'checkbox',
-    '#title'          => t('This is a one-way relationship'),
-    '#default_value'  => $relationship_type->is_oneway,
-    '#description'    => t('Check this if this relationship should only go one way (ex Manager, Subscriber)'),
-    '#weight'         => -8,
-  );
   $form['requires_approval'] = array(
     '#type'           => 'checkbox',
     '#title'          => t('Requires Approval'),
@@ -182,7 +175,21 @@ function user_relationships_ui_type_edit(&$form_state, $relationship_type = NULL
     '#size'           => 4,
     '#default_value'  => isset($relationship_type->expires_val) ? $relationship_type->expires_val : 0,
     '#description'    => t('After how many days should a request of this type be removed? (0 for never)'),
-    '#weight'         => -8,
+    '#weight'         => -7,
+  );
+  $form['is_oneway'] = array(
+    '#type'           => 'checkbox',
+    '#title'          => t('This is a one-way relationship'),
+    '#default_value'  => $relationship_type->is_oneway,
+    '#description'    => t('Check this if this relationship should only go one way (ex Manager, Subscriber)'),
+    '#weight'         => -6,
+  );
+  $form['is_reciprocal'] = array(
+    '#type'           => 'checkbox',
+    '#title'          => t('This one-way relationship can be reciprocated'),
+    '#default_value'  => $relationship_type->is_reciprocal,
+    '#description'    => t('Check if this one-way relationship can go either way'),
+    '#weight'         => -5,
   );
   $form['roles'] = array(
     '#title' => t('Role access'),

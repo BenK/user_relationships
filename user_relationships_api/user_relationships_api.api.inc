@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.api.inc,v 1.1.2.15 2009-07-06 15:55:04 alexk Exp $
+// $Id: user_relationships_api.api.inc,v 1.1.2.16 2009-11-07 21:24:54 alexk Exp $
 
 /**
  * @file
@@ -169,8 +169,16 @@ function user_relationships_request_relationship($requester, $requestee, $type, 
     //it would be good to return a reason why save is denied, but it's the API portion, it does not expose anything user-visible
     return FALSE;
   }
+
+  // check whether this relationship aleady exists
+  if (!$type->is_oneway || !$type->is_reciprocal) {
+    $existing = user_relationships_load(array('between' => array($requester->uid, $requestee->uid), 'rtid' => $type->rtid), array('count' => TRUE));
+  }
+  else {
+    $existing = user_relationships_load(array('requester_id' => $requester->uid, 'requestee_id' => $requestee->uid, 'rtid' => $type->rtid), array('count' => TRUE));
+  }
   
-  if (!user_relationships_load(array('between' => array($requester->uid, $requestee->uid), 'rtid' => $type->rtid), array('count' => TRUE))) {
+  if (!$existing) {
     $relationship = (object)array(
       'requester_id'  => $requester->uid,
       'requestee_id'  => $requestee->uid,

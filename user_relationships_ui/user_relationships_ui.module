@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.module,v 1.1.2.31 2009-10-24 19:44:06 alexk Exp $
+// $Id: user_relationships_ui.module,v 1.1.2.32 2009-11-07 21:24:54 alexk Exp $
 /**
  * @file
  * UI components of user_relationships
@@ -139,7 +139,7 @@ function _user_relationships_get_from_array($needle, &$haystack) {
     if ($key == $needle) {
       return $value;
     }
-    else if (is_array($value)) {
+    elseif (is_array($value)) {
       if ($msg = _user_relationships_get_from_array($needle, $value)) {
         return $msg;
       }
@@ -235,19 +235,27 @@ function _user_relationships_ui_actions_between(&$viewer, &$viewed) {
     ));
   }
 
+  // Compute if any more relationships can be created
   $types_count = (int)db_result(db_query("SELECT COUNT(*) FROM {user_relationship_types}"));
-  //relationship request link(s)
-  $relationships_count = user_relationships_load(array('between' => array($viewer->uid, $viewed->uid)), array('count' => TRUE));
+  $existing_relationships = user_relationships_load(array('between' => array($viewer->uid, $viewed->uid)), array('sort' => 'rtid'));
+  $all_relationships = user_relationships_types_load();
+  $relationships_count = 0;
+
+  // Unset the relationships which already exist
+  foreach ($existing_relationships as $rtid => $relationship_type) {
+    foreach ($relationship_type as $relationship) {
+      if (!$relationship->is_oneway || !$relationship->is_reciprocal || $relationship->requester_id == $viewer->uid) {
+        unset($all_relationships[$rtid]);
+        $relationships_count++;
+      }
+    }
+  }
+
   if (!$relationships_count || (variable_get('user_relationships_allow_multiple', TRUE) && ($relationships_count < $types_count))) {
     //if configured, create direct links
     if (variable_get('user_relationships_show_direct_links', 1)) {
       //draw a single link, or one for each relationship type
-      $existing_relationships = user_relationships_load(array('between' => array($viewer->uid, $viewed->uid)), array('sort' => 'rtid'));
-      $all_relationships = user_relationships_types_load();
       foreach ($all_relationships as $rtid => $relationship) {
-        if ($existing_relationships[$rtid]) {
-          continue;
-        }
         //check this type can be requested
         if (!user_relationships_api_can_request($viewer, $relationship)) {
           continue;

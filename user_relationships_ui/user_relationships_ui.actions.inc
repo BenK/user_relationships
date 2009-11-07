@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.actions.inc,v 1.1.2.12 2009-05-07 21:59:36 alexk Exp $
+// $Id: user_relationships_ui.actions.inc,v 1.1.2.13 2009-11-07 21:24:54 alexk Exp $
 
 /**
  * @file
@@ -51,16 +51,39 @@ function user_relationships_ui_request_validate($form, &$form_state) {
       }
     }
 
+    //check if this request contradicts existing relationships or requests of this type
+    //gather rtid's of relationships that have already been requested from requester to requestee
+    $test_relationships = array();
+    foreach ($current_relationships as $key => $value) {
+      foreach ($value as $val_rel) {
+        //existing two way relationships count no matter the direction
+        if (!$val_rel->is_oneway) {
+          $test_relationships[$key]=$value;
+          continue;
+        }
+        //if it's one way, but not reciprocal, then it counts no matter the direction
+        if (!$val_rel->is_reciprocal) {
+          $test_relationships[$key]=$value;
+          continue;
+        }
+        //remaining case is a reciprocal relationship - it counts unless the request is in the opposite direction
+        if ($requester->uid == $val_rel->requester_id) {
+          $test_relationships[$key]=$value;
+        }
+      }
+    }
+    //check if there aren't any available (not yet used) types that can be established
     if (!db_result(db_query(
       'SELECT COUNT(*) FROM {user_relationship_types}' . 
-      ($current_relationships ? ' WHERE rtid NOT IN ('. db_placeholders($current_relationships) .')' : ''),
-      array_keys($current_relationships)
+      ($test_relationships ? ' WHERE rtid NOT IN ('. db_placeholders($test_relationships) .')' : ''),
+      array_keys($test_relationships)
     ))) {
       drupal_set_message(user_relationships_ui_get_message('too_many_relationships'), 'error');
       drupal_goto();
     }
-    else if ($current_relationships[$rtid]) {
-      $message_name = $current_relationships[$rtid]->approved ? 'existing_relationship' : 'existing_request';
+    //check if desided relationship type is among the unused ones
+    elseif ($test_relationships[$rtid]) {
+      $message_name = $test_relationships[$rtid]->approved ? 'existing_relationship' : 'existing_request';
       form_set_error('rtid', user_relationships_ui_get_message($message_name, NULL, array(
         '!requester'                => $requester->name,
         '!requestee'                => $requestee->name,

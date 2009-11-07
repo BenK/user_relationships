@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.admin_actions.inc,v 1.1.2.12 2009-04-27 16:02:59 alexk Exp $
+// $Id: user_relationships_ui.admin_actions.inc,v 1.1.2.13 2009-11-07 21:24:54 alexk Exp $
 /**
  * @file
  * User Relationships admin submit handlers
@@ -58,6 +58,10 @@ function user_relationships_ui_setting_validation($element, $validations) {
 function user_relationships_ui_type_edit_submit($form, &$form_state) {
   $relationship_type = (object)$form_state['values'];
   if ($form_state['values']['action'] == 'add') {
+    //#348025 when editing a type, make sure that two-way relationships are not left as reciprocal, just in case, as the UI allows it.
+    if (!$relationship_type->is_oneway) {
+      $relationship_type->is_reciprocal = 0;
+    }
     drupal_write_record('user_relationship_types', $relationship_type);
 
     $form_state['values']['rtid'] = $relationship_type->rtid;
@@ -73,6 +77,10 @@ function user_relationships_ui_type_edit_submit($form, &$form_state) {
     );
   }
   else {
+    //#348025 when editing a type, make sure that two-way relationships are not left as reciprocal, just in case, as the UI allows it.
+    if (!$relationship_type->is_oneway) {
+      $relationship_type->is_reciprocal = 0;
+    }
     drupal_write_record('user_relationship_types', $relationship_type, 'rtid');
 
     _user_relationships_invoke('update', $relationship_type, TRUE);
