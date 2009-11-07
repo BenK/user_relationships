@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_views.views.inc,v 1.1.2.4 2009-10-25 20:50:12 alexk Exp $
+// $Id: user_relationship_views.views.inc,v 1.1.2.5 2009-11-07 21:47:04 alexk Exp $
 
 /**
  * @file
@@ -157,6 +157,13 @@ function user_relationship_views_views_data() {
         'handler' => 'views_handler_filter_date',
       ),
     ),
+    'status_link' => array(
+      'title' => t('Status link'),
+      'help' => t('Provides a link to change status of the relationship.'),
+      'field' => array(
+        'handler' => 'views_handler_field_user_relationships_status_link',
+      ),
+    ),
   );
   $tables['user_relationship_types'] = array(
     'table' => array(
@@ -275,6 +282,7 @@ function user_relationship_views_views_handlers() {
       'views_handler_field_user_relationships_requester' => array('parent' => 'views_handler_field_user_link'),
       'views_handler_filter_user_relationships_type' => array('parent' => 'views_handler_filter_in_operator'),
       'views_handler_field_user_relationships_oneway' => array('parent' => 'views_handler_field'),
+      'views_handler_field_user_relationships_status_link' => array('parent' => 'views_handler_field'),
     ),
   );
 }
