@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.socnet.inc,v 1.1.2.2 2009-06-28 17:26:50 alexk Exp $
+// $Id: user_relationships_api.socnet.inc,v 1.1.2.3 2009-11-07 19:30:07 alexk Exp $
 
 /**
  * @file
@@ -30,7 +30,7 @@ function user_relationships_api_socnet_is_related($uid1 = NULL, $uid2 = NULL, $r
   if ($relation_style == 'one-way') {
     $args['is_oneway'] = TRUE;
   }
-  else if ($relation_style == 'two-way') {
+  elseif ($relation_style == 'two-way') {
     $args['is_oneway'] = FALSE;
   }
   $count = user_relationships_load($args, array('count' => TRUE));
@@ -53,7 +53,7 @@ function user_relationships_api_socnet_is_pending($uid1 = NULL, $uid2 = NULL, $r
   if ($relation_style == 'one-way') {
     $args['is_oneway'] = TRUE;
   }
-  else if ($relation_style == 'two-way') {
+  elseif ($relation_style == 'two-way') {
     $args['is_oneway'] = FALSE;
   }
   $count = user_relationships_load($args, array('count' => TRUE));
@@ -83,7 +83,7 @@ function user_relationships_api_socnet_get_related_users($uid = NULL, $relation_
   if ($relation_style == 'one-way') {
     $args['is_oneway'] = TRUE;
   }
-  else if ($relation_style == 'two-way') {
+  elseif ($relation_style == 'two-way') {
     $args['is_oneway'] = FALSE;
   }
   $result = user_relationships_load($args, array('sort' => 'requestee_id'));
@@ -106,7 +106,7 @@ function user_relationships_api_socnet_all_pending_from($uid = NULL, $relation_n
   if ($relation_style == 'one-way') {
     $args['is_oneway'] = TRUE;
   }
-  else if ($relation_style == 'two-way') {
+  elseif ($relation_style == 'two-way') {
     $args['is_oneway'] = FALSE;
   }
   $result = user_relationships_load($args, array('sort' => 'requestee_id'));
@@ -129,7 +129,7 @@ function user_relationships_api_socnet_all_pending_to($uid = NULL, $relation_nam
   if ($relation_style == 'one-way') {
     $args['is_oneway'] = TRUE;
   }
-  else if ($relation_style == 'two-way') {
+  elseif ($relation_style == 'two-way') {
     $args['is_oneway'] = FALSE;
   }
   $result = user_relationships_load($args, array('sort' => 'requester_id'));
