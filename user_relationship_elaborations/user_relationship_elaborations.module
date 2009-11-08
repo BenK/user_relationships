@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_elaborations.module,v 1.1.2.9 2009-05-07 08:21:46 alexk Exp $
+// $Id: user_relationship_elaborations.module,v 1.1.2.10 2009-11-08 17:32:35 alexk Exp $
 
 /**
  * @file
@@ -57,10 +57,18 @@ function user_relationships_get_elaboration($rid) {
  */
 function user_relationship_elaborations_user_relationships($op, &$relationships) {
   if (!is_array($relationships)) {
-    $relationships->elaboration = db_result(db_query('SELECT elaboration FROM {user_relationship_elaborations} WHERE rid = %d'), $relationships->rid);
-
+    if (!$relationships->rid) {
+      return;
+    }
     if (in_array($op, array('cancel', 'delete', 'remove', 'disapprove'))) {
       db_query('DELETE FROM {user_relationship_elaborations} WHERE rid = %d', $relationships->rid);
+    }
+    else {
+      //load elaboration string
+      $elaboration = db_result(db_query('SELECT elaboration FROM {user_relationship_elaborations} WHERE rid = %d'), $relationships->rid);
+      if ($elaboration) {
+        $relationships->elaboration = $elaboration;
+      }
     }
   }
   else {
@@ -98,9 +106,11 @@ function _user_relationship_elaborations_walk_recursive($action, &$relationships
     }
     else {
       if ($action == 'find_rids') {
-        $data[$relationship->rid] = $relationship->rid;
+        if ($relationship->rid) {
+          $data[$relationship->rid] = $relationship->rid;
+        }
       }
-      else {
+      elseif ($data[$relationship->rid]) {
         $relationship->elaboration = $data[$relationship->rid];
       }
     }

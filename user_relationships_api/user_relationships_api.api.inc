@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.api.inc,v 1.1.2.16 2009-11-07 21:24:54 alexk Exp $
+// $Id: user_relationships_api.api.inc,v 1.1.2.17 2009-11-08 17:32:35 alexk Exp $
 
 /**
  * @file
@@ -155,7 +155,20 @@ function user_relationships_type_delete($rtid) {
  * @return
  *    object of the newly created relationship
  */
-function user_relationships_request_relationship($requester, $requestee, $type, $approved = FALSE) {
+function user_relationships_request_relationship($requester, $requestee = NULL, $type = NULL, $approved = FALSE) {
+  //#578372 check if this is a "new" type of invocation, where first argument is a relationship object
+  if (is_object($requester) && isset($requester->requester) && isset($requester->requestee) && isset($requester->type)) {
+    $relationship = $requester;
+    $requester = $relationship->requester;
+    $requestee = $relationship->requestee;
+    $type = $relationship->type;
+    if (isset($relationship->approved)) {
+      $approved = $relationship->approved;
+    }
+  }
+  else {
+    $relationship = new stdClass;
+  }
   // translate an ID into an object
   foreach (array('requester' => $requester, 'requestee' => $requestee, 'type' => $type) as $key => $value) {
     if (!is_object($value)) {
@@ -179,12 +192,10 @@ function user_relationships_request_relationship($requester, $requestee, $type, 
   }
   
   if (!$existing) {
-    $relationship = (object)array(
-      'requester_id'  => $requester->uid,
-      'requestee_id'  => $requestee->uid,
-      'approved'      => $approved || !$type->requires_approval || (isset($requestee->user_relationships_ui_auto_approve) && $requestee->user_relationships_ui_auto_approve[$type->rtid]),
-      'rtid'          => $type->rtid,
-    );
+    $relationship->requester_id = $requester->uid;
+    $relationship->requestee_id = $requestee->uid;
+    $relationship->approved = $approved || !$type->requires_approval || (isset($requestee->user_relationships_ui_auto_approve) && $requestee->user_relationships_ui_auto_approve[$type->rtid]);
+    $relationship->rtid = $type->rtid;
 
     return user_relationships_save_relationship($relationship);
   }

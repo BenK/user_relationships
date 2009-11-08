@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_mailer_defaults.inc,v 1.1.2.8 2009-07-12 17:20:27 alexk Exp $
+// $Id: user_relationship_mailer_defaults.inc,v 1.1.2.9 2009-11-08 17:32:35 alexk Exp $
 /**
  * @file User Relationships Mailer implementation. Contains all default strings and action definitions
  */
@@ -56,6 +56,8 @@ function user_relationship_mailer_replacements(&$relationship) {
 
     '@relationship_name'        => $relationship->relationship_type->name,
     '@relationship_plural_name' => $relationship->relationship_type->plural_name,
+  
+    '@elaboration'              => isset($relationship->elaboration) ? $relationship->elaboration : '',
   );
   
   // #443326 Integration with realname module

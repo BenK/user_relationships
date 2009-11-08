@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.actions.inc,v 1.1.2.13 2009-11-07 21:24:54 alexk Exp $
+// $Id: user_relationships_ui.actions.inc,v 1.1.2.14 2009-11-08 17:32:35 alexk Exp $
 
 /**
  * @file
@@ -102,11 +102,13 @@ function user_relationships_ui_request_validate($form, &$form_state) {
  * Process relationship request.
  */
 function user_relationships_ui_request_submit($form, &$form_state) {
-  $requester          = user_load($form_state['values']['requester']);
-  $requestee          = user_load($form_state['values']['requestee']);
-  $relationship_type  = user_relationships_type_load($form_state['values']['rtid']);
+  //#578372 leave all form values in the object for other functions to use
+  $relationship = (object) $form_state['values'];
+  $relationship->requester = user_load($form_state['values']['requester']);
+  $relationship->requestee = user_load($form_state['values']['requestee']);
+  $relationship->type = user_relationships_type_load($form_state['values']['rtid']);
 
-  $relationship = user_relationships_request_relationship($requester, $requestee, $relationship_type);
+  $relationship = user_relationships_request_relationship($relationship);
 
   if ($relationship === FALSE) {
     drupal_set_message(user_relationships_ui_get_message('unknown_error', $relationship));
