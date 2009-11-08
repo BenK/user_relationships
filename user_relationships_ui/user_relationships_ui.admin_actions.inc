@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.admin_actions.inc,v 1.1.2.13 2009-11-07 21:24:54 alexk Exp $
+// $Id: user_relationships_ui.admin_actions.inc,v 1.1.2.14 2009-11-08 12:27:31 alexk Exp $
 /**
  * @file
  * User Relationships admin submit handlers
@@ -65,7 +65,6 @@ function user_relationships_ui_type_edit_submit($form, &$form_state) {
     drupal_write_record('user_relationship_types', $relationship_type);
 
     $form_state['values']['rtid'] = $relationship_type->rtid;
-    $relationship_type = user_relationships_type_load($relationship_type->rtid, TRUE);
     _user_relationships_invoke('insert', $relationship_type, TRUE);
 
     drupal_set_message(t('Relationship %name has been added.', array('%name' => $relationship_type->name)));
