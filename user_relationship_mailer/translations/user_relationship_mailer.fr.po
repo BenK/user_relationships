@@ -1,0 +1,102 @@
+# French translation of User Relationships (6.x-1.0-rc3)
+# Copyright (c) 2009 by the French translation team
+# Generated from files:
+#  user_relationship_mailer.module,v 1.1.2.10 2009/07/12 17:20:27 alexk
+#  user_relationship_mailer.info,v 1.1.2.4 2008/04/21 00:38:18 sprsquish
+#  user_relationship_mailer_defaults.inc,v 1.1.2.9 2009/11/08 17:32:35 alexk
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: User Relationships (6.x-1.0-rc3)\n"
+"POT-Creation-Date: 2009-12-01 14:18+0000\n"
+"PO-Revision-Date: 2009-10-15 20:15+0000\n"
+"Language-Team: French\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n>1);\n"
+
+#: user_relationship_mailer/user_relationship_mailer.module:152
+msgid "Replacement strings are: %macros"
+msgstr "Les chaines de substitution sont : %macros"
+
+#: user_relationship_mailer/user_relationship_mailer.module:167
+msgid "Email subject"
+msgstr "Sujet du courriel"
+
+#: user_relationship_mailer/user_relationship_mailer.module:172
+msgid "Email message"
+msgstr "Message du courriel"
+
+#: user_relationship_mailer/user_relationship_mailer.module:133
+msgid ""
+"If you check this, users will have a new setting on their account edit "
+"page."
+msgstr "Si vous cochez ceci, les utilisateurs auront un nouveau réglage sur la page d'édition de compte."
+
+#: user_relationship_mailer/user_relationship_mailer.module:126
+msgid "Email Options"
+msgstr "Options des courriels"
+
+#: user_relationship_mailer/user_relationship_mailer.module:131
+msgid "Allow users to turn off relationship messages"
+msgstr "Autorise les utilisateurs à désactiver les messages de leurs relations"
+
+#: user_relationship_mailer/user_relationship_mailer.module:151
+msgid "Send @op messages"
+msgstr "Envoi des message @op"
+
+#: user_relationship_mailer/user_relationship_mailer.module:194
+msgid "Relationship email settings"
+msgstr "Paramètres de courriel concernant mes relations"
+
+#: user_relationship_mailer/user_relationship_mailer.module:199
+msgid "Receive relationship email notifications"
+msgstr "Recevoir les notifications par courriel concernant mes relations"
+
+#: user_relationship_mailer/user_relationship_mailer.module:202
+msgid ""
+"Check this if you'd like to receive relationship related email "
+"notifications"
+msgstr "Cochez ceci si vous souhaitez recevoir des notifications par courriel liées à vos relations"
+
+#: user_relationship_mailer/user_relationship_mailer.info:0
+msgid ""
+"Gives the option to mail users when about relationship events "
+"(request, remove, disapprove, approve, etc)"
+msgstr ""
+"Donne l'option d'envoyer un courriel aux utilisateurs concernant des évênements liés à des relations "
+"(requête, suppression, refus, approbation, ...)"
+
+#: user_relationship_mailer/user_relationship_mailer_defaults.inc:15
+msgid "Request"
+msgstr "Requête"
+
+#: user_relationship_mailer/user_relationship_mailer.info:0
+msgid "UR-Mailer"
+msgstr ""
+
+#: user_relationship_mailer/user_relationship_mailer_defaults.inc:16
+msgid "Send Request messages"
+msgstr "Envoi des messages de Requête"
+
+#: user_relationship_mailer/user_relationship_mailer_defaults.inc:18
+msgid "Send Cancel messages"
+msgstr "Envoi des messages d'Annulation"
+
+#: user_relationship_mailer/user_relationship_mailer_defaults.inc:20
+msgid "Send Approve messages"
+msgstr "Envoi des messages d'Approbation"
+
+#: user_relationship_mailer/user_relationship_mailer_defaults.inc:22
+msgid "Send Disapprove messages"
+msgstr "Envoi des messages de Refus"
+
+#: user_relationship_mailer/user_relationship_mailer_defaults.inc:24
+msgid "Send Remove messages"
+msgstr "Envoi des messages de Suppression"
+
+#: user_relationship_mailer/user_relationship_mailer_defaults.inc:26
+msgid "Send Pre-approved messages"
+msgstr "Envoi des messages de Pré-Approbation"
+

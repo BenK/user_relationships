@@ -1,0 +1,153 @@
+# French translation of User Relationships (6.x-1.0-rc3)
+# Copyright (c) 2009 by the French translation team
+# Generated from files:
+#  user_relationship_blocks.module,v 1.1.2.14 2009/10/25 16:46:20 alexk
+#  user_relationship_blocks.info,v 1.1.2.4 2008/04/21 00:38:17 sprsquish
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: User Relationships (6.x-1.0-rc3)\n"
+"POT-Creation-Date: 2009-12-01 14:18+0000\n"
+"PO-Revision-Date: 2009-09-04 12:39+0000\n"
+"Language-Team: French\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n>1);\n"
+
+#: user_relationship_blocks/user_relationship_blocks.module:183
+msgid "Random"
+msgstr "Au hasard"
+
+#: user_relationship_blocks/user_relationship_blocks.module:269
+msgid "My Relationships: All relationships"
+msgstr "Mes relations : Toutes les relations"
+
+#: user_relationship_blocks/user_relationship_blocks.module:270
+msgid "User Relationships: All relationships"
+msgstr "User Relationships : Toutes les relations"
+
+#: user_relationship_blocks/user_relationship_blocks.module:160
+msgid "Number of relationships to display in block"
+msgstr "Nombre de relations à afficher dans un block"
+
+#: user_relationship_blocks/user_relationship_blocks.module:161
+msgid "Enter the maximum number of relationships to display in this block."
+msgstr "Entrez le nombre maximum de relations à afficher dans un block."
+
+#: user_relationship_blocks/user_relationship_blocks.module:179
+msgid "Which relationships should be displayed"
+msgstr "Quelles relations doivent être affichées"
+
+#: user_relationship_blocks/user_relationship_blocks.module:271
+msgid "My Pending Relationships"
+msgstr "Mes relations en attente"
+
+#: user_relationship_blocks/user_relationship_blocks.module:272
+msgid "User Relationships: Actions"
+msgstr ""
+
+#: user_relationship_blocks/user_relationship_blocks.module:172
+msgid "requester"
+msgstr "demandeur"
+
+#: user_relationship_blocks/user_relationship_blocks.module:172
+msgid "requestee"
+msgstr "receveur"
+
+#: user_relationship_blocks/user_relationship_blocks.module:181
+msgid "Newest"
+msgstr "Plus récente"
+
+#: user_relationship_blocks/user_relationship_blocks.module:182
+msgid "Oldest"
+msgstr "Plus ancienne"
+
+#: user_relationship_blocks/user_relationship_blocks.info:0
+msgid "Blocks that can be used with User Relationships"
+msgstr "Blocks qui peuvent être utilisés avec User Relationships"
+
+#: user_relationship_blocks/user_relationship_blocks.module:90
+msgid "Relationship requests"
+msgstr "Requêtes de relations"
+
+#: user_relationship_blocks/user_relationship_blocks.module:101
+msgid "I am a @rel_name of"
+msgstr "Je suis un @rel_name de"
+
+#: user_relationship_blocks/user_relationship_blocks.module:104
+msgid "@username is a @rel_name of"
+msgstr "@username est un @rel_name de"
+
+#: user_relationship_blocks/user_relationship_blocks.module:109
+msgid "@username's"
+msgstr "de @username"
+
+#: user_relationship_blocks/user_relationship_blocks.module:164
+msgid "Number of relationships to display must be an integer greater than 0."
+msgstr "Le nombre de relations à afficher doit être un entier supérieur à 0."
+
+#: user_relationship_blocks/user_relationship_blocks.module:168
+msgid "currently logged in user"
+msgstr "utilisateur actuellement connecté"
+
+#: user_relationship_blocks/user_relationship_blocks.module:168
+msgid "author whose node is being viewed"
+msgstr "auteur du noeud actuellement visualisé"
+
+#: user_relationship_blocks/user_relationship_blocks.module:169
+msgid ""
+"NOTE: This block displays @relationship_name relationships of the "
+"@user_identifier."
+msgstr "NOTE: Ce block affiche la relation @relationship_name de l'utilisateur @user_identifier."
+
+#: user_relationship_blocks/user_relationship_blocks.module:173
+msgid ""
+"Because this relationship is one-way this block will show "
+"relationships where the @user_identifier is the @relation"
+msgstr "Parce que cette relation est dans un seul sens, ce block va afficher les relations où @user_identifier est le @relation"
+
+#: user_relationship_blocks/user_relationship_blocks.module:201
+msgid "Return uid of the target user"
+msgstr "Renvoit l'uid de l'utilisateur ciblé"
+
+#: user_relationship_blocks/user_relationship_blocks.module:202
+msgid ""
+"(EXPERT ONLY) Enter a php snippet, surrounded by %php_snippet, which "
+"returns a numeric user id you want to work on. By default, for user "
+"pages, it is the user being viewed. For nodes or blogs, it is the node "
+"author. Clear the field to restore this default."
+msgstr "(EXPERT UNIQUEMENT) Entrez un code php, entourré par %php_snippet, qui doit retourner un uid numérique. Par défaut, pour les pages utilisateurs, c'est l'utilisateur courrament visualisé. Pour les noeuds et les blogs, c'est l'auteur du noeud. Effacez le champ pour restaurer la valeur par défaut."
+
+#: user_relationship_blocks/user_relationship_blocks.module:285
+msgid "(You to Them, backward direction)"
+msgstr "(De Vous à Eux, sens inverse)"
+
+#: user_relationship_blocks/user_relationship_blocks.module:286
+msgid "(Them to You, normal direction)"
+msgstr "(De Eux à Vous, sens normal)"
+
+#: user_relationship_blocks/user_relationship_blocks.module:292
+msgid "My Relationships: @type @extra"
+msgstr "Mes relations : @type @extra"
+
+#: user_relationship_blocks/user_relationship_blocks.module:293
+msgid "User Relationships: @type @extra"
+msgstr "User Relationships : @type @extra"
+
+#: user_relationship_blocks/user_relationship_blocks.info:0
+msgid "UR-Blocks"
+msgstr "Blocks-UR"
+
+#: user_relationship_blocks/user_relationship_blocks.module:111
+msgid "@username's relationships"
+msgstr "relations de @username"
+
+#: user_relationship_blocks/user_relationship_blocks.module:116
+msgid "My @relationships"
+msgstr "Mes @relationships"
+
+#: user_relationship_blocks/user_relationship_blocks.module:117
+msgid "@username's @relationships"
+msgstr "@relationships de @username"
+

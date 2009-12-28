@@ -1,0 +1,193 @@
+# French translation of User Relationships (6.x-1.0-rc3)
+# Copyright (c) 2009 by the French translation team
+# Generated from files:
+#  user_relationship_defaults.module,v 1.1.2.12 2009/10/15 15:23:26 aufumy
+#  user_relationship_node_access.module,v 1.1.4.12 2009/08/14 22:34:38 alexk
+#  user_relationships_ui.pages.inc,v 1.1.2.7 2009/11/07 21:24:54 alexk
+#  user_relationship_mailer_defaults.inc,v 1.1.2.9 2009/11/08 17:32:35 alexk
+#  user_relationships_ui.theme.inc,v 1.1.2.9 2009/10/15 15:23:26 aufumy
+#  user_relationships_ui.admin.inc,v 1.1.2.20 2009/11/07 21:24:54 alexk
+#  user_relationship_views.views.inc,v 1.1.2.5 2009/11/07 21:47:04 alexk
+#  user_relationships_ui.forms.inc,v 1.1.2.18 2009/11/07 21:24:54 alexk
+#  user_relationships_ui.module,v 1.1.2.32 2009/11/07 21:24:54 alexk
+#  user_relationship_invites.module,v 1.1.2.3 2009/06/28 21:51:34 alexk
+#  views_handler_field_user_relationships_requestee.inc,v 1.1.2.1 2008/10/08 14:38:41 alexk
+#  views_handler_field_user_relationships_requester.inc,v 1.1.2.1 2008/10/08 14:38:41 alexk
+#  user_relationships_ui.admin_actions.inc,v 1.1.2.14 2009/11/08 12:27:31 alexk
+#  user_relationship_blocks.module,v 1.1.2.14 2009/10/25 16:46:20 alexk
+#  views_handler_filter_user_relationships_status.inc,v 1.1.2.1 2008/10/08 14:38:41 alexk
+#  views_handler_field_user_relationships_name.inc,v 1.1.2.1 2008/10/08 14:38:41 alexk
+#  user_relationships-actions_block.tpl.php,v 1.1.2.5 2008/10/30 12:49:33 alexk
+#  views_handler_field_user_relationships_oneway.inc,v 1.1.2.1 2008/10/08 14:38:41 alexk
+#  user_relationship_implications.module,v 1.1.2.9 2009/07/06 13:13:58 alexk
+#  user_relationships.tpl.php,v 1.1.2.10 2009/10/15 15:23:26 aufumy
+#  user_relationship_blocks.info,v 1.1.2.4 2008/04/21 00:38:17 sprsquish
+#  user_relationship_defaults.info,v 1.1.2.4 2008/04/21 00:38:18 sprsquish
+#  user_relationship_elaborations.info,v 1.1.2.4 2009/07/12 17:20:26 alexk
+#  user_relationship_implications.info,v 1.1.2.4 2008/04/21 00:38:18 sprsquish
+#  user_relationship_invites.info,v 1.1.2.1 2009/03/10 18:40:53 jaydub
+#  user_relationship_mailer.info,v 1.1.2.4 2008/04/21 00:38:18 sprsquish
+#  user_relationship_migrate.info,v 1.1.2.1 2009/06/22 12:36:04 alexk
+#  user_relationship_node_access.info,v 1.1.4.4 2008/04/21 00:38:18 sprsquish
+#  user_relationship_service.info,v 1.1.2.1 2009/07/06 10:24:44 alexk
+#  user_relationship_views.info,v 1.1.2.1 2008/10/08 14:38:41 alexk
+#  user_relationships_api.info,v 1.1.2.4 2008/04/21 00:38:19 sprsquish
+#  user_relationships_panels_visibility.info,v 1.1.2.1 2009/10/25 21:12:37 alexk
+#  user_relationships_ui.info,v 1.1.2.4 2008/04/21 00:38:19 sprsquish
+#  views_handler_field_user_relationships_status.inc,v 1.1.2.1 2008/10/08 14:38:41 alexk
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: User Relationships (6.x-1.0-rc3)\n"
+"POT-Creation-Date: 2009-12-01 14:18+0000\n"
+"PO-Revision-Date: 2009-11-27 14:29+0000\n"
+"Language-Team: French\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n>1);\n"
+
+#: user_relationship_defaults/user_relationship_defaults.module:254; user_relationship_node_access/user_relationship_node_access.module:15,191; user_relationships_ui/user_relationships_ui.pages.inc:27
+msgid "delete"
+msgstr "supprimer"
+
+#: user_relationship_mailer/user_relationship_mailer_defaults.inc:19; user_relationships_ui/user_relationships_ui.theme.inc:69,72
+msgid "Approve"
+msgstr "Approuver"
+
+#: user_relationship_defaults/user_relationship_defaults.module:199; user_relationships_ui/user_relationships_ui.admin.inc:238
+msgid "Delete"
+msgstr "Supprimer"
+
+#: user_relationship_defaults/user_relationship_defaults.module:137; user_relationships_ui/user_relationships_ui.admin.inc:215
+msgid "Submit"
+msgstr "Soumettre"
+
+#: user_relationship_defaults/user_relationship_defaults.module:268; user_relationships_ui/user_relationships_ui.pages.inc:14
+msgid "Operations"
+msgstr "Opérations"
+
+#: user_relationship_views/user_relationship_views.views.inc:234; user_relationships_ui/user_relationships_ui.pages.inc:14
+msgid "Type"
+msgstr "Type"
+
+#: user_relationship_defaults/user_relationship_defaults.module:199; user_relationship_mailer/user_relationship_mailer_defaults.inc:17; user_relationships_ui/user_relationships_ui.admin.inc:238; user_relationships_ui/user_relationships_ui.forms.inc:139; user_relationships_ui/user_relationships_ui.theme.inc:99; user_relationships_ui/user_relationships_ui.module:115
+msgid "Cancel"
+msgstr "Annuler"
+
+#: user_relationship_mailer/user_relationship_mailer_defaults.inc:23; user_relationships_ui/user_relationships_ui.theme.inc:54,57
+msgid "Remove"
+msgstr "Enlever"
+
+#: user_relationship_invites/user_relationship_invites.module:92; user_relationships_ui/user_relationships_ui.forms.inc:209,260
+msgid "Yes"
+msgstr "Oui"
+
+#: user_relationship_invites/user_relationship_invites.module:92; user_relationships_ui/user_relationships_ui.forms.inc:209,260
+msgid "No"
+msgstr "Non"
+
+#: user_relationship_defaults/user_relationship_defaults.module:176; user_relationship_node_access/user_relationship_node_access.module:15,191; user_relationship_views/views_handler_field_user_relationships_requestee.inc:16; user_relationship_views/views_handler_field_user_relationships_requester.inc:16; user_relationships_ui/user_relationships_ui.admin_actions.inc:75,92
+msgid "view"
+msgstr "voir"
+
+#: user_relationship_defaults/user_relationship_defaults.module:198; user_relationships_ui/user_relationships_ui.admin.inc:237
+msgid "This action cannot be undone."
+msgstr "Cette action ne peut être annulée."
+
+#: user_relationship_views/user_relationship_views.views.inc:206; user_relationships_ui/user_relationships_ui.admin.inc:149; user_relationships_ui/user_relationships_ui.pages.inc:14
+msgid "Name"
+msgstr "Nom"
+
+#: user_relationship_blocks/user_relationship_blocks.module:148; user_relationships_ui/user_relationships_ui.module:499
+msgid "All"
+msgstr "Tous / Toutes"
+
+#: user_relationships_ui/user_relationships_ui.admin.inc:56; user_relationships_ui/user_relationships_ui.module:703
+msgid "Private messages"
+msgstr "Messages privés"
+
+#: user_relationship_views/user_relationship_views.views.inc:256; user_relationships_ui/user_relationships_ui.pages.inc:14
+msgid "Expiration"
+msgstr ""
+
+#: user_relationship_views/views_handler_filter_user_relationships_status.inc:23; user_relationships_ui/user_relationships_ui.theme.inc:13
+msgid "Approved"
+msgstr "Approuvé"
+
+#: user_relationship_views/views_handler_filter_user_relationships_status.inc:23; user_relationships_ui/user_relationships_ui.module:118,506
+msgid "Pending"
+msgstr "En attente"
+
+#: user_relationship_views/user_relationship_views.views.inc:220; user_relationship_views/views_handler_field_user_relationships_name.inc:28; user_relationships_ui/user_relationships_ui.admin.inc:158
+msgid "Plural name"
+msgstr "Nom pluriel"
+
+#: user_relationships_ui/user_relationships_ui.admin.inc:166; user_relationships_ui/user_relationships_ui.pages.inc:14
+msgid "Requires Approval"
+msgstr "Nécessite une approbation"
+
+#: user_relationship_blocks/user_relationship_blocks.module:111; user_relationships_ui/user_relationships_ui.module:491
+msgid "My relationships"
+msgstr "Mes relations"
+
+#: user_relationship_blocks/templates/user_relationships-actions_block.tpl.php:11; user_relationships_ui/user_relationships_ui.module:633
+msgid "Your relationships to this user"
+msgstr "Votre relation avec cet utilisateur"
+
+#: user_relationship_blocks/user_relationship_blocks.module:93; user_relationship_blocks/templates/user_relationships-actions_block.tpl.php:16; user_relationships_ui/user_relationships_ui.module:642
+msgid "Relationship actions"
+msgstr "Actions du module Relationship"
+
+#: user_relationship_views/views_handler_field_user_relationships_oneway.inc:12; user_relationships_ui/user_relationships_ui.pages.inc:23
+msgid "one way"
+msgstr "dans un seul sens"
+
+#: user_relationship_views/views_handler_field_user_relationships_oneway.inc:12; user_relationships_ui/user_relationships_ui.pages.inc:23
+msgid "mutual"
+msgstr "mutuelle"
+
+#: user_relationship_implications/user_relationship_implications.module:332; user_relationships_ui/templates/user_relationships.tpl.php:29
+msgid "No relationships found"
+msgstr "Aucune relation trouvée"
+
+#: user_relationship_implications/user_relationship_implications.module:337; user_relationships_ui/user_relationships_ui.module:832
+msgid "%username's %relationships"
+msgstr "%relationships de %username"
+
+#: user_relationship_mailer/user_relationship_mailer_defaults.inc:21; user_relationships_ui/user_relationships_ui.theme.inc:84,87,102
+msgid "Disapprove"
+msgstr "Refusé"
+
+#: user_relationship_blocks/user_relationship_blocks.info:0; user_relationship_defaults/user_relationship_defaults.info:0; user_relationship_elaborations/user_relationship_elaborations.info:0; user_relationship_implications/user_relationship_implications.info:0; user_relationship_invites/user_relationship_invites.info:0; user_relationship_mailer/user_relationship_mailer.info:0; user_relationship_migrate/user_relationship_migrate.info:0; user_relationship_node_access/user_relationship_node_access.info:0; user_relationship_service/user_relationship_service.info:0; user_relationship_views/user_relationship_views.info:0; user_relationships_api/user_relationships_api.info:0; user_relationships_panels_visibility/user_relationships_panels_visibility.info:0; user_relationships_ui/user_relationships_ui.module:731; user_relationships_ui/user_relationships_ui.info:0
+msgid "User Relationships"
+msgstr ""
+
+#: user_relationship_views/views_handler_field_user_relationships_status.inc:12; user_relationship_views/views_handler_filter_user_relationships_status.inc:13
+msgid "pending"
+msgstr "en attente"
+
+#: user_relationship_views/views_handler_field_user_relationships_status.inc:12; user_relationship_views/views_handler_filter_user_relationships_status.inc:13
+msgid "approved"
+msgstr "approuvé"
+
+#: user_relationship_defaults/user_relationship_defaults.module:176,217; user_relationships_ui/user_relationships_ui.admin_actions.inc:71,88,133
+msgid "u_relationship"
+msgstr ""
+
+#: user_relationships_ui/user_relationships_ui.module:202; user_relationships_ui/templates/user_relationships.tpl.php:14
+msgid " (You to Them)"
+msgstr " (de Vous à Eux)"
+
+#: user_relationships_ui/user_relationships_ui.module:202; user_relationships_ui/templates/user_relationships.tpl.php:14
+msgid " (Them to You)"
+msgstr " (de Eux à Vous)"
+
+#: user_relationship_implications/user_relationship_implications.module:97; user_relationship_node_access/user_relationship_node_access.module:20
+msgid "Relationship Type"
+msgstr "Type de la Relation"
+
+#: user_relationship_mailer/user_relationship_mailer_defaults.inc:25; user_relationships_ui/user_relationships_ui.module:119
+msgid "Pre-approved"
+msgstr "Pré-approuvé"
+

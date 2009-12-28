@@ -1,0 +1,87 @@
+# French translation of User Relationships (6.x-1.0-rc3)
+# Copyright (c) 2009 by the French translation team
+# Generated from files:
+#  user_relationship_defaults.module,v 1.1.2.12 2009/10/15 15:23:26 aufumy
+#  user_relationship_defaults.info,v 1.1.2.4 2008/04/21 00:38:18 sprsquish
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: User Relationships (6.x-1.0-rc3)\n"
+"POT-Creation-Date: 2009-12-01 14:18+0000\n"
+"PO-Revision-Date: 2009-09-08 10:24+0000\n"
+"Language-Team: French\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n>1);\n"
+
+#: user_relationship_defaults/user_relationship_defaults.module:119
+msgid "Username"
+msgstr "Nom d'utilisateur"
+
+#: user_relationship_defaults/user_relationship_defaults.module:268
+msgid "User"
+msgstr "Utilisateur"
+
+#: user_relationship_defaults/user_relationship_defaults.module:95
+msgid "Add default"
+msgstr "Ajouter une valeur par défaut"
+
+#: user_relationship_defaults/user_relationship_defaults.module:103
+msgid "Delete default"
+msgstr "Supprimer la valeur par défaut"
+
+#: user_relationship_defaults/user_relationship_defaults.module:122
+msgid ""
+"Start typing the name of a user to automatically create a relationship "
+"to"
+msgstr "Commencez à taper le nom d'un utilisateur pour créer automatiquement une relation avec"
+
+#: user_relationship_defaults/user_relationship_defaults.module:128,268
+msgid "Relationship"
+msgstr "Relation"
+
+#: user_relationship_defaults/user_relationship_defaults.module:131
+msgid "Start typing the name of a relationship to use"
+msgstr "Commencez à taper le nom d'une relation à utiliser"
+
+#: user_relationship_defaults/user_relationship_defaults.module:148
+msgid "You must enter an existing user's name."
+msgstr "Vous devez entrer un nom d'utilisateur existant."
+
+#: user_relationship_defaults/user_relationship_defaults.module:153
+msgid "You must enter an existing relationship's name."
+msgstr "Vous devez entrer le nom d'une relation existante."
+
+#: user_relationship_defaults/user_relationship_defaults.module:175,176
+msgid "Default relationship %relationship_name of %username has been added."
+msgstr "La relation par défaut %relationship_name de %username a été ajoutée."
+
+#: user_relationship_defaults/user_relationship_defaults.module:193
+msgid ""
+"Are you sure you want to delete the default relationship %relationship "
+"of %name?"
+msgstr "Etes-vous surs de vouloir supprimer la relation par défaut %relationship de %name ?"
+
+#: user_relationship_defaults/user_relationship_defaults.module:216,217
+msgid "Default relationship %relationship of %name has been deleted."
+msgstr "La relation par défaut %relationship de %name a été supprimée."
+
+#: user_relationship_defaults/user_relationship_defaults.module:259
+msgid "No default relationships available."
+msgstr "Aucune relation par défaut n'est disponible."
+
+#: user_relationship_defaults/user_relationship_defaults.module:264
+msgid "Default Relationships"
+msgstr "Relation par défaut"
+
+#: user_relationship_defaults/user_relationship_defaults.info:0
+msgid ""
+"Allows admins to specify relationships that are automatically created "
+"when a new user joins"
+msgstr "Autorise les administrateurs à spécifier des relations qui sont automatiquement créées quand un nouvelle utilisateur se connecte"
+
+#: user_relationship_defaults/user_relationship_defaults.info:0
+msgid "UR-Defaults"
+msgstr ""
+
