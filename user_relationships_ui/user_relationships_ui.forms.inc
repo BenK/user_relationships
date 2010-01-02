@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.forms.inc,v 1.1.2.18 2009-11-07 21:24:54 alexk Exp $
+// $Id: user_relationships_ui.forms.inc,v 1.1.2.19 2010-01-02 16:43:30 alexk Exp $
 
 /**
  * @file
@@ -9,6 +9,9 @@ module_load_include('inc', 'user_relationships_ui', 'user_relationships_ui.actio
 
 /**
  * Request new user to user relationship
+ * @param $requester user object for the requesting user
+ * @param $requestee user object for the target user
+ * @param $form_values array $form['values'] when called from form_alter() 
  */
 function user_relationships_ui_request_form($requester, $requestee, $form_values = NULL) {
   $relationships = _user_relationships_ui_get_requestable_rtypes($requester, $requestee);
@@ -45,11 +48,11 @@ function user_relationships_ui_request_form($requester, $requestee, $form_values
   }
   $form['requester'] = array(
     '#type'   => 'value',
-    '#value'  => $requester
+    '#value'  => $requester->uid,
   );
   $form['requestee'] = array(
     '#type'   => 'value',
-    '#value'  => $requestee
+    '#value'  => $requestee->uid,
   );
 
   return $form;
@@ -113,7 +116,7 @@ function user_relationships_ui_request(&$form_state, $requestee) {
     return $form;
   }
   // This is the default which means we will display the form
-  $form = user_relationships_ui_request_form($requester->uid, $requestee->uid, $form_state);
+  $form = user_relationships_ui_request_form($requester, $requestee, $form_state);
   if (!$form['rtid']) {
     $data['error'] = array(
       '#type' => 'markup',
