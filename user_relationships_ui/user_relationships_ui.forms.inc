@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.forms.inc,v 1.1.2.20 2010-01-03 19:46:06 alexk Exp $
+// $Id: user_relationships_ui.forms.inc,v 1.1.2.21 2010-01-03 20:17:43 alexk Exp $
 
 /**
  * @file
@@ -204,6 +204,7 @@ function user_relationships_ui_pending_requested(&$form_state, $action, $account
       $action_message = t('Cancel relationship');
   }
 
+  global $user;
   $output = confirm_form(
     $form,
     $action_message,
