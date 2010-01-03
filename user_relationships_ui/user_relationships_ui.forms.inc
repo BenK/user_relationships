@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.forms.inc,v 1.1.2.19 2010-01-02 16:43:30 alexk Exp $
+// $Id: user_relationships_ui.forms.inc,v 1.1.2.20 2010-01-03 19:46:06 alexk Exp $
 
 /**
  * @file
@@ -16,7 +16,7 @@ module_load_include('inc', 'user_relationships_ui', 'user_relationships_ui.actio
 function user_relationships_ui_request_form($requester, $requestee, $form_values = NULL) {
   $relationships = _user_relationships_ui_get_requestable_rtypes($requester, $requestee);
   //try to find out desired relationship type
-  if ($form_values['rtid']) {//given through form
+  if (isset($form_values['rtid'])) {//given through form
     $default_relationship = $form_values['rtid'];
   }
   elseif (is_numeric(arg(3)) && user_relationships_type_load(arg(3))) {//given through URL arguments, e.g. relationship/{uid}/request/{rtid}
@@ -254,7 +254,7 @@ function user_relationships_ui_remove(&$form_state, $account, $relationship) {
   $output = confirm_form(
     $form,
     t('Remove relationship'),
-    ($viewed_id == $user->id ? 'relationships' : "user/{$viewed_id}/relationships/"),
+    ($viewed_id == $user->uid ? 'relationships' : "user/{$viewed_id}/relationships/"),
 
     t("Are you sure you wish to delete the %relationship_name relationship with !name?", array(
       '%relationship_name'  => ur_tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name),

@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.actions.inc,v 1.1.2.14 2009-11-08 17:32:35 alexk Exp $
+// $Id: user_relationships_ui.actions.inc,v 1.1.2.15 2010-01-03 19:46:06 alexk Exp $
 
 /**
  * @file
@@ -82,7 +82,7 @@ function user_relationships_ui_request_validate($form, &$form_state) {
       drupal_goto();
     }
     //check if desided relationship type is among the unused ones
-    elseif ($test_relationships[$rtid]) {
+    elseif (isset($test_relationships[$rtid])) {
       $message_name = $test_relationships[$rtid]->approved ? 'existing_relationship' : 'existing_request';
       form_set_error('rtid', user_relationships_ui_get_message($message_name, NULL, array(
         '!requester'                => $requester->name,
@@ -114,9 +114,10 @@ function user_relationships_ui_request_submit($form, &$form_state) {
     drupal_set_message(user_relationships_ui_get_message('unknown_error', $relationship));
   }
 
-  $relationship->requester = $requester;
-  $relationship->requestee = $requestee;
-  $relationship->type = $relationship_type;
+  //Not sure why these were here, they just cause php notices
+//  $relationship->requester = $requester;
+//  $relationship->requestee = $requestee;
+//  $relationship->type = $relationship_type;
 
   drupal_set_message(user_relationships_ui_get_message(($relationship->approved ? 'pre_approved' : 'submitted'), $relationship));
 
@@ -188,5 +189,5 @@ function user_relationships_ui_remove_submit($form, &$form_state) {
   user_relationships_delete_relationship($relationship, $user);
   drupal_set_message(user_relationships_ui_get_message('removed', $relationship));
 
-  return "user/{$form_values['viewed_id']}/relationships";
+  return "user/{$form_state['values']['viewed_id']}/relationships";
 }

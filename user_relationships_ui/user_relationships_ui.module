@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.module,v 1.1.2.33 2010-01-03 19:26:31 alexk Exp $
+// $Id: user_relationships_ui.module,v 1.1.2.34 2010-01-03 19:46:06 alexk Exp $
 /**
  * @file
  * UI components of user_relationships
@@ -31,23 +31,23 @@ function user_relationships_ui_get_message($key, $relationship = NULL, $replacem
   $msg = variable_get("user_relationships_ui_msg_{$key}", NULL);
 
   if ($relationship) {
-    if (!$relationship->requester) { 
+    if (!isset($relationship->requester)) { 
       $relationship->requester = user_load($relationship->requester_id); 
     }
-    if (!$relationship->requestee) {
+    if (!isset($relationship->requestee)) {
       $relationship->requestee = user_load($relationship->requestee_id);
     }
-    if (!($relationship->name || $relationship->type)) {
+    if (!(isset($relationship->name) || isset($relationship->type))) {
       $relationship->type = user_relationships_type_load($relationship->rtid);
     }
 
     $replaceables = array(
       '!requester'                => theme('username', $relationship->requester),
       '!requestee'                => theme('username', $relationship->requestee),
-      '%relationship_name'        => $relationship->name 
+      '%relationship_name'        => isset($relationship->name) 
                                      ? ur_tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name) 
                                      : ur_tt("user_relationships:rtid:$relationship->rtid:name", $relationship->type->name),
-      '%relationship_plural_name' => $relationship->plural_name 
+      '%relationship_plural_name' => isset($relationship->plural_name) 
                                      ? ur_tt("user_relationships:rtid:$relationship->rtid:plural_name", $relationship->plural_name) 
                                      : ur_tt("user_relationships:rtid:$relationship->rtid:plural_name", $relationship->type->plural_name),
     );
@@ -312,7 +312,7 @@ function _user_relationships_ui_get_requestable_rtypes($requester, $requestee) {
   $relationships = array();
   foreach ($relationship_types as $rtype) {
     //exclude already established relationships
-    if ($current_relationships[$rtype->rtid]) {
+    if (isset($current_relationships[$rtype->rtid])) {
       continue;
     }
     //exclude types that are not allowed
