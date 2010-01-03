@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.forms.inc,v 1.1.2.21 2010-01-03 20:17:43 alexk Exp $
+// $Id: user_relationships_ui.forms.inc,v 1.1.2.22 2010-01-03 22:23:16 alexk Exp $
 
 /**
  * @file
@@ -208,7 +208,7 @@ function user_relationships_ui_pending_requested(&$form_state, $action, $account
   $output = confirm_form(
     $form,
     $action_message,
-    ($viewed_id == $user->id ? 'relationships/requests' : "user/{$viewed_id}/relationships/requests"),
+    ($viewed_id == $user->uid ? 'relationships/requests' : "user/{$viewed_id}/relationships/requests"),
     $confirmation_message,
     t('Yes'), t('No'),
     'user_relationships_approve_confirm'
