@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_node_access.module,v 1.1.4.12 2009-08-14 22:34:38 alexk Exp $
+// $Id: user_relationship_node_access.module,v 1.1.4.13 2010-01-03 11:25:08 alexk Exp $
 // Copyright (C) 2008 Jonathan Brown
 // http://openpackage.biz/
 
@@ -276,10 +276,7 @@ function user_relationship_node_access_nodeapi(&$node, $op, $a3 = NULL, $a4 = NU
     break;
 
   case 'load':
-    $node->user_relationship_node_access = unserialize(db_result(db_query(
-      "SELECT permissions FROM {user_relationship_node_access} WHERE nid = %d",
-      $node->nid
-    )));
+    $node->user_relationship_node_access = _user_relationship_node_access_load_node_perms($node->nid);
     break;
 
   case 'delete':
@@ -328,6 +325,11 @@ function user_relationship_node_access_node_access_records($node) {
   }
 
   $grants = array();
+  
+  //#629774 ensure that node access data is loaded in the node, need this when node is edited by user other than node author
+  if (!isset($node->user_relationship_node_access)) {
+    $node->user_relationship_node_access = _user_relationship_node_access_load_node_perms($node->nid);
+  }
 
   if (isset($node->user_relationship_node_access) && is_array($node->user_relationship_node_access)) {
     foreach ($node->user_relationship_node_access as $rtid => $permissions) {
@@ -352,6 +354,20 @@ function user_relationship_node_access_node_access_records($node) {
   }
 
   return $grants;
+}
+
+/**
+ * Load UR-NA permissions for a node
+ * @param $nid node ID
+ * @return array {access key based on rtid} => {array of allowed actions on a node}
+ */
+function _user_relationship_node_access_load_node_perms($nid = NULL) {
+  if (!$nid) {
+    return NULL;
+  }
+  return unserialize(db_result(
+    db_query('SELECT permissions FROM {user_relationship_node_access} WHERE nid = %d', $nid)
+  ));
 }
 
 /**
