@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_api.module,v 1.1.2.21 2009-11-07 21:24:54 alexk Exp $
+// $Id: user_relationships_api.module,v 1.1.2.22 2010-01-03 13:44:35 alexk Exp $
 
 /**
  * @file
@@ -344,5 +344,5 @@ function user_relationships_api_token_values($type, $data = NULL, $options = arr
     );
   }
  
-  return $token_values;
+  return isset($token_values) ? $token_values : NULL;
 }

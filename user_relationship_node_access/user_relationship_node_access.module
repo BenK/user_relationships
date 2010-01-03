@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_node_access.module,v 1.1.4.13 2010-01-03 11:25:08 alexk Exp $
+// $Id: user_relationship_node_access.module,v 1.1.4.14 2010-01-03 13:44:15 alexk Exp $
 // Copyright (C) 2008 Jonathan Brown
 // http://openpackage.biz/
 
@@ -99,6 +99,7 @@ function user_relationship_node_access_form_alter(&$form, $form_state, $form_id)
   if (
     !isset($form['type']) ||
     is_null($form['type']) ||
+    !isset($form['type']['#value']) ||
     $form['type']['#value'] .'_node_form' != $form_id ||
     !count($types = user_relationships_types_load())
   ) {
@@ -124,7 +125,7 @@ function user_relationship_node_access_form_alter(&$form, $form_state, $form_id)
 
   // reverse the optimization made after saving
   $permissions = array();
-  if (is_array($form['#node']->user_relationship_node_access)) {
+  if (isset($form['#node']->user_relationship_node_access) && is_array($form['#node']->user_relationship_node_access)) {
     foreach ($form['#node']->user_relationship_node_access as $rtid => $permission) {
       foreach ($permission as $action => $trash) {
         $permissions[$action][$rtid] = $rtid;
@@ -166,7 +167,7 @@ function user_relationship_node_access_form_alter(&$form, $form_state, $form_id)
     $form['user_relationship_node_access']['#theme'] = 'user_relationship_node_access_form';
   }
   foreach ($author_allowed_perms as $action) {
-    $defaults = $permissions[$action] ? $permissions[$action] : array();
+    $defaults = isset($permissions[$action]) ? $permissions[$action] : array();
     $form['user_relationship_node_access'][$action] = array(
       '#type'           => 'checkboxes',
       '#multiple'       => TRUE,
@@ -336,9 +337,9 @@ function user_relationship_node_access_node_access_records($node) {
       $grants[] = array(
         'realm'         => "user_relationship_node_access_{$rtid}",
         'gid'           => $node->uid,
-        'grant_view'    => $permissions['view'],
-        'grant_update'  => $permissions['update'],
-        'grant_delete'  => $permissions['delete']
+        'grant_view'    => isset($permissions['view']) ? $permissions['view'] : NULL,
+        'grant_update'  => isset($permissions['update']) ? $permissions['update'] : NULL,
+        'grant_delete'  => isset($permissions['delete']) ? $permissions['delete'] : NULL,
       );
     }
   }
