@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_elaborations.module,v 1.1.2.11 2010-01-03 12:13:13 alexk Exp $
+// $Id: user_relationship_elaborations.module,v 1.1.2.12 2010-01-03 19:47:13 alexk Exp $
 
 /**
  * @file
@@ -57,7 +57,7 @@ function user_relationships_get_elaboration($rid) {
  */
 function user_relationship_elaborations_user_relationships($op, &$relationships) {
   if (!is_array($relationships)) {
-    if (!$relationships->rid) {
+    if (!isset($relationships->rid)) {
       return;
     }
     if (in_array($op, array('cancel', 'delete', 'remove', 'disapprove'))) {
