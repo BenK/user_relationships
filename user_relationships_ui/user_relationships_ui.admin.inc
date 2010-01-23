@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.admin.inc,v 1.1.2.20 2009-11-07 21:24:54 alexk Exp $
+// $Id: user_relationships_ui.admin.inc,v 1.1.2.21 2010-01-23 15:55:11 alexk Exp $
 
 /**
  * @file
@@ -198,7 +198,7 @@ function user_relationships_ui_type_edit(&$form_state, $relationship_type = NULL
     'roles' => array(
       '#type' => 'checkboxes',
       '#options' => user_roles(TRUE),
-      '#default_value' => is_array($relationship_type->roles) ? $relationship_type->roles : array(),
+      '#default_value' => isset($relationship_type->roles) ? $relationship_type->roles : array(),
     ),
   );
   $form['rtid'] = array(
