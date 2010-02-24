@@ -2,4 +2,12 @@
 name = UR-API
 description = "API for User Relationships. This will only provide the programmer interface."
 package = "User Relationships"
-core = 6.x
+core = 7.x
+files[]=user_relationships_api.actions.inc
+files[]=user_relationships_api.activity.inc
+files[]=user_relationships_api.api.inc
+files[]=user_relationships_api.privatemsg.inc
+files[]=user_relationships_api.socnet.inc
+files[]=user_relationships_api.module
+files[]=tests/user_relationships_api.api.test
+files[]=tests/user_relationships_api.socnet.test

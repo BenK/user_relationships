@@ -72,14 +72,10 @@ function user_relationships_types_load($reset = NULL) {
 
   if ($reset || empty($relationship_types_list)) {
     //clear the cached list, since some relationships may have disappeared
-    $relationship_types_list = array();
-    $results = db_query("SELECT * FROM {user_relationship_types}");
-    while ($relationship = db_fetch_object($results)) {
-      $relationship_types_list[$relationship->rtid] = $relationship;
-    }
+    $relationship_types_list = db_query("SELECT * FROM {user_relationship_types}")->fetchAllAssoc('rtid');
     //load role permissions for all types
-    $results = db_query('SELECT rtid, rid FROM {user_relationship_type_roles} ORDER BY rtid, rid');
-    while ($mapping = db_fetch_object($results)) {
+    $result = db_query('SELECT rtid, rid FROM {user_relationship_type_roles} ORDER BY rtid, rid');
+    foreach ($result as $mapping) {
       $rtype = $relationship_types_list[$mapping->rtid];
       // //roles is an associative array {role id} => {role id}
       $rtype->roles[$mapping->rid] = $mapping->rid;//] = $mapping->name;
@@ -133,8 +129,12 @@ function user_relationships_type_save(&$rtype) {
 function user_relationships_type_delete($rtid) {
   $rtype = user_relationships_type_load($rtid);
 
-  db_query('DELETE FROM {user_relationship_types} WHERE rtid = %d', $rtid);
-  db_query('DELETE FROM {user_relationships} WHERE rtid = %d', $rtid);
+  db_delete('user_relationship_types')
+    ->condition('rtid', $rtid)
+    ->execute();
+  db_delete('user_relationships')
+    ->condition('rtid', $rtid)
+    ->execute();
 
   _user_relationships_invoke('delete', $rtype, TRUE);
 }
@@ -224,40 +224,50 @@ function user_relationships_save_relationship(&$relationship, $op = 'request') {
   if ($op == 'approve') {
     $relationship->approved = 1;
   }
+
+  // Start a transaction so that we can roll back in case of an error.
+  $transaction = db_transaction();
+  try {
   
-  _user_relationships_invoke('presave', $relationship);
+    _user_relationships_invoke('presave', $relationship);
 
-  if (isset($relationship->rid)) {
-    // Delete possible requests coming the other direction
-    $relationship_type = user_relationships_type_load($relationship->rtid);
-    if (!$relationship_type->is_oneway) {
-      db_query(
-        'DELETE FROM {user_relationships} WHERE rtid = %d AND requester_id = %d AND requestee_id = %d',
-        $relationship->rtid, $relationship->requestee_id, $relationship->requester_id
-      );
-    }
-  }
-
-  //#454680 make sure that an update is performed if this is an existing relationship
-  if ($valid = drupal_write_record('user_relationships', $relationship, (isset($relationship->rid) ? array('rid') : array()))) {
-    // if the relationship has been approved and is two-way we need
-    // to do a double entry for DB efficiency
-    $relationship_type = user_relationships_type_load($relationship->rtid);
-    if ($relationship->approved && !$relationship_type->is_oneway) {
-      //#365623 drupal_write_record will not work because rid is a serial field, and we need to use the same rid
-      $valid = db_query('INSERT INTO {user_relationships} (rid, requester_id, requestee_id, rtid, approved, created_at, updated_at, flags) SELECT rid, requestee_id, requester_id, rtid, approved, created_at, updated_at, flags from {user_relationships} where rid = %d', $relationship->rid);
+    if (isset($relationship->rid)) {
+      // Delete possible requests coming the other direction
+      $relationship_type = user_relationships_type_load($relationship->rtid);
+      if (!$relationship_type->is_oneway) {
+        db_delete('user_relationshipts')
+          ->condition('rtid', $relationship->rtid)
+          ->condition('requester_id', $relationship->requestee_id)
+          ->condition('requestee_id', $relationship->requester_id)
+          ->execute();
+      }
     }
 
-    // second entry didn't go well. revert the first
-    if (!$valid) {
-      db_query('DELETE FROM {user_relationships} WHERE rid = %d', $relationship->rid);
-      unset($relationship->rid);
+    //#454680 make sure that an update is performed if this is an existing relationship
+    if (drupal_write_record('user_relationships', $relationship, (isset($relationship->rid) ? array('rid') : array()))) {
+      // if the relationship has been approved and is two-way we need
+      // to do a double entry for DB efficiency
+      $relationship_type = user_relationships_type_load($relationship->rtid);
+      if ($relationship->approved && !$relationship_type->is_oneway) {
+        //#365623 drupal_write_record will not work because rid is a serial field, and we need to use the same rid
+        $select = db_select('user_relationships', 'ur')
+          ->fields('ur', array('rid', 'requester_id', 'requestee_id', 'rtid', 'approved', 'created_at', 'updated_at', 'flags'))
+          ->condition('rid', $relationship->rid);
+        debug($select->__toString());
+        debug(db_insert('user_relationships')
+          ->from($select)->__toString());
+        db_insert('user_relationships')
+          ->from($select)
+          ->execute();
+     }
     }
-  }
 
-  if ($valid) {
     _user_relationships_invoke($op, $relationship);
     return $relationship;
+  }
+  catch (Exception $e) {
+    $transaction->rollback('user_relationships', $e->getMessage(), array(), WATCHDOG_ERROR);
+    return FALSE;
   }
 }
 
@@ -274,7 +284,9 @@ function user_relationships_save_relationship(&$relationship, $op = 'request') {
  */
 function user_relationships_delete_relationship(&$relationship, &$deleted_by, $op = 'remove') {
   $relationship->deleted_by = $deleted_by;
-  db_query("DELETE FROM {user_relationships} WHERE rid = %d", $relationship->rid);
+  db_delete('user_relationships')
+    ->condition('rid', $relationship->rid)
+    ->execute();
 
   _user_relationships_invoke($op, $relationship);
 }
@@ -348,22 +360,20 @@ function user_relationships_load($param = array(), $options = array(), $reset = 
   $arguments = array();
   if (is_numeric($param)) {
     if (!$reset && isset($relationships[$param])) {
-      return is_object($relationships[$param]) ? drupal_clone($relationships[$param]) : $relationships[$param];
+      return is_object($relationships[$param]) ? clone ($relationships[$param]) : $relationships[$param];
     }
     $rid = $param;
     $param = array('rid' => $param);
   }
 
-  $query = _user_relationships_generate_query($param, $options);
-
-  $results = db_query($query[(isset($count) && $count ? 'count' : 'query')], $query['arguments']);
+  $query = _user_relationships_generate_query($param, $options, isset($count) && $count);
 
   if (isset($count) && $count) {
-    return (int)db_result($results);
+    return (int)$query->execute()->fetchField();
   }
 
   $relationships = array();
-  while ($relationship = db_fetch_object($results)) {
+  foreach ($query->execute() as $relationship) {
     if (isset($include_user_info)) {
       user_relationships_api_translate_user_info($relationship);
     }

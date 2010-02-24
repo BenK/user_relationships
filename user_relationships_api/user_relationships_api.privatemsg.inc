@@ -9,22 +9,17 @@
  * Fills new Privatemsg autocomplete To: field with friends only.
  *
  */
-function user_relationships_api_privatemsg_sql_autocomplete_alter(&$fragments, $search, $names) {
+function privatemsg_filter_query_privatemsg_autocomplete_alter($query) {
   //#522078 killswitch for autocomplete
   if (!variable_get('user_relationships_privatemsg_autocomplete_alter', 0)) {
     return;
   }
-
   global $user;
-  
-  static $uniqueprefix = 0;
-  
-  $fragments['inner_join'][] = "INNER JOIN {user_relationships} ur_$uniqueprefix ON u.uid = ur_$uniqueprefix.requestee_id";
-  $fragments['where'][] = "ur_$uniqueprefix.approved = 1";
-  $fragments['where'][] = "ur_$uniqueprefix.requester_id = %d";
-  $fragments['query_args']['where'][] = $user->uid;
-  
-  $uniqueprefix++;
+
+  $query->innerJoin('user_relationships', 'ur', 'u.uid = ur.requestee_id');
+  $query
+    ->condition('ur.approved', 1)
+    ->condition('ur.requester_id', $user->uid);
 }
 
 
@@ -48,7 +43,7 @@ function user_relationships_api_privatemsg_block_message($author, $recipients) {
      ) {
       $blocked[] = array(
         'uid' => $recipient->uid,
-        'message' => t('!name is not a friend of yours.', array('!name' => theme('username', $recipient)))
+        'message' => t('!name is not a friend of yours.', array('!name' => theme('username', array('author' => $recipient))))
       );
     }
   }

@@ -115,6 +115,7 @@ class UserRelationshipsApiTestCase extends DrupalWebTestCase {
     user_relationships_request_relationship($u4, $u1, $this->rtypes['twoway']->rtid, FALSE);
     //test between
     $result = user_relationships_load(array('between' => array($u1->uid, $u2->uid)));
+    debug($result, NULL, TRUE);
     $this->assertEqual(count($result), 2);
     $result = user_relationships_load(array('between' => array($u1->uid, $u2->uid)), array('include_twoway_reverse' => 1));
     $this->assertEqual(count($result), 2);
