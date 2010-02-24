@@ -33,17 +33,3 @@ function user_relationship_invites_schema() {
 
   return $schema;
 }
-
-/**
- * Implementation of hook_install().
- */
-function user_relationship_invites_install() {
-  drupal_install_schema('user_relationship_invites');
-}
-
-/**
- * Implementation of hook_uninstall().
- */
-function user_relationship_invites_uninstall() {
-  drupal_uninstall_schema('user_relationship_invites');
-}

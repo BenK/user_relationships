@@ -20,7 +20,7 @@
  *    object with the invite data including the inviter user object and relationship_type object
 */
 function user_relationship_invites_get_invite($code) {
-  if ($invite = db_fetch_object(db_query("SELECT * FROM {user_relationship_invites} WHERE invite_code = '%s'", $code))) {
+  if ($invite = db_query("SELECT * FROM {user_relationship_invites} WHERE invite_code = :code", array(':code' => $code))->fetchObject()) {
     $invite->inviter = user_load(array('uid' => $invite->inviter_uid));
     $invite->relationship_type = user_relationships_type_load($invite->rtid);
   }
@@ -31,20 +31,12 @@ function user_relationship_invites_get_invite($code) {
 /**
  * Implementation of hook_form_alter().
 */
-function user_relationship_invites_form_alter(&$form, $form_state, $form_id) {
-  if (!(module_exists('invite') && module_exists('user_relationships_api') && module_exists('user_relationships_ui'))) {
-    return;
-  }
-
-  if ($form_id == 'invite_form') {
-    global $user;
-
-    $new_user = drupal_anonymous_user();
-    module_load_include('inc', 'user_relationships_ui', 'user_relationships_ui.forms');
-    $form += user_relationships_ui_request_form($user, $new_user, $form_state['values']);
-    $form['rtid']['#weight'] = 0;
-    $form['#validate'][] = 'user_relationship_invites_invite_form_validate';
-  }
+function user_relationship_invites_form_invite_form_alter(&$form, $form_state) {
+  $new_user = drupal_anonymous_user();
+  module_load_include('inc', 'user_relationships_ui', 'user_relationships_ui.forms');
+  $form += user_relationships_ui_request_form($user, $new_user, $form_state['values']);
+  $form['rtid']['#weight'] = 0;
+  $form['#validate'][] = 'user_relationship_invites_invite_form_validate';
 }
 
 /**
@@ -63,7 +55,13 @@ function user_relationship_invites_invite_form_validate($form, &$form_state) {
 function user_relationship_invites_invite($op, &$args) {
   switch ($op) {
     case 'invite':
-      db_query("INSERT INTO {user_relationship_invites} (inviter_uid, rtid, invite_code) VALUES (%d, %d, '%s')", $args['inviter']->uid, $args['inviter']->rtid, $args['code']);
+      db_insert('user_relationship_invites')
+        ->fields(array(
+          'inviter_uid' => $args['inviter']->uid,
+          'rtid' => $args['inviter']->rtid,
+          'invite_code' => $args['code'],
+        ))
+        ->execute();
       break;
   }
 }
