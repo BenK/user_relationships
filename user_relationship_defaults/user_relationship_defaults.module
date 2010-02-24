@@ -67,8 +67,8 @@ function user_relationship_defaults_load($reset = FALSE) {
   static $defaults = array();
 
   if ($reset || !$defaults) {
-    $results = db_query("SELECT * FROM {user_relationship_defaults}");
-    while ($default = db_fetch_object($results)) {
+    $result = db_query("SELECT * FROM {user_relationship_defaults}");
+    foreach ($result as $default) {
       $default->user              = user_load($default->uid);
       $default->user_name         = $default->user->name;
       $default->relationship_type = user_relationships_type_load($default->rtid);
@@ -103,7 +103,7 @@ function user_relationship_defaults_menu() {
     'title'             => 'Delete default',
     'access arguments'  => array('administer user relationships'),
     'page callback'     => 'drupal_get_form',
-    'page arguments'    => array('user_relationship_defaults_delete_form', 4),
+    'page arguments'    => array('user_relationship_defaults_delete_form', 5),
     'type'              => MENU_CALLBACK,
   );
 
@@ -113,7 +113,7 @@ function user_relationship_defaults_menu() {
 /**
  * Add new default relationship form
  */
-function user_relationship_defaults_add_form(&$form_state) {
+function user_relationship_defaults_add_form($form, &$form_state) {
   $form['username'] = array(
     '#type'               => 'textfield',
     '#title'              => t('Username'),
@@ -182,7 +182,7 @@ function user_relationship_defaults_add_form_submit($form, &$form_state) {
 /**
  * Default Relationship delete confirmation.
  */
-function user_relationship_defaults_delete_form(&$form_state, &$default_relationship) {
+function user_relationship_defaults_delete_form($form, &$form_state, &$default_relationship) {
   $form['rdid'] = array(
     '#type'   => 'value',
     '#value'  => $default_relationship->rdid
@@ -209,6 +209,9 @@ function user_relationship_defaults_delete_form_submit($form, &$form_state) {
   $default_relationship = user_relationship_default_load($form_state['values']['rdid']);
 
   db_query("DELETE FROM {user_relationship_defaults} WHERE rdid = %d", $default_relationship->rdid);
+  db_delete('user_relationship_defaults')
+    ->condition('rdid', $default_relationship->rdid)
+    ->execute();
   $message_p = array(
     '%name'         => $default_relationship->user_name,
     '%relationship' => ur_tt("user_relationships:rtid:$default_relationship->rtid:name", $default_relationship->name),
@@ -222,19 +225,29 @@ function user_relationship_defaults_delete_form_submit($form, &$form_state) {
 }
 
 /**
- * hook_user()
+ * Implements hook_user_insert().
  */
-function user_relationship_defaults_user($type, &$edit, &$account, $cagetory = NULL) {
-  if (
-      ($type == 'insert' && $account->status)  //if new user is already approved, create relationship
-      || ($type == 'after_update' && $account->status && !$account->login) //#519440 if admin approves a new user account, create relationship
-  ) {
-    //note that if a new account is approved, then blocked and unblocked before the user logged in once,
-    //it'll attempt to create default relationships again (there won't be any errors if they already exist, though)
-    $defaults = user_relationship_defaults_load();
-    foreach ($defaults as $default) {
-      user_relationships_request_relationship($default->user, $account, $default->relationship_type, TRUE);
-    }
+function user_relationship_defaults_user_insert(&$edit, $account) {
+  if ($account->status) {
+    _user_relationship_defaults_create_default_relationships($account);
+  }
+}
+
+/**
+ * Implements hook_user_update().
+ */
+function user_relationship_defaults_user_update(&$edit, $account) {
+  if ($account->status && !$account->login) {
+    _user_relationship_defaults_create_default_relationships($account);
+  }
+}
+
+function _user_relationship_defaults_create_default_relationships($account) {
+  //note that if a new account is approved, then blocked and unblocked before the user logged in once,
+  //it'll attempt to create default relationships again (there won't be any errors if they already exist, though)
+  $defaults = user_relationship_defaults_load();
+  foreach ($defaults as $default) {
+    user_relationships_request_relationship($default->user, $account, $default->relationship_type, TRUE);
   }
 }
 
@@ -249,7 +262,7 @@ function user_relationship_defaults_user_relationships_page_alter($page_id, &$pa
     $default_rows = array();
     foreach ($defaults as $default) {
       $default_rows[] = array(
-        theme('username', $default->user),
+        theme('username', array('account' => $default->user)),
         $default->relationship_type->name,
         l(t('delete'), "admin/config/people/relationships/defaults/{$default->rdid}/delete"),
       );
@@ -262,10 +275,12 @@ function user_relationship_defaults_user_relationships_page_alter($page_id, &$pa
     $page['defaults'] = array(
       '#type'   => 'fieldset',
       '#title'  => t('Default Relationships'),
-      '#weight' => 2
+      '#weight' => 2,
+      '#pre_render' => array(),
+      '#attributes' => array(),
     );
       $page['defaults']['list'] = array(
-        '#value' => theme('table', array(t('User'), t('Relationship'), t('Operations')), $default_rows)
+        '#markup' => theme('table', array('header' => array(t('User'), t('Relationship'), t('Operations')), 'rows' => $default_rows))
       );
     break;
   }
@@ -276,6 +291,8 @@ function user_relationship_defaults_user_relationships_page_alter($page_id, &$pa
  */
 function user_relationship_defaults_user_relationships($op, &$relationship_type) {
   if ($op == 'delete type') {
-    db_query("DELETE FROM {user_relationship_defaults} WHERE rtid = %d", $relationship_type->rtid);
+    db_delete('user_relationship_defaults')
+      ->condition('rtid', $relationship_type->rtid)
+      ->execute();
   }
 }

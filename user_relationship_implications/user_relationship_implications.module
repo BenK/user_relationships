@@ -17,10 +17,10 @@
 function user_relationship_implications_theme() {
   return array(
     'user_relationship_implications_page' => array(
-      'arguments' => array('uid' => NULL, 'relationship' => NULL),
+      'variables' => array('uid' => NULL, 'relationship' => NULL),
     ),
     'user_relationship_implications_form_table' => array(
-      'arguments' => array('form' => NULL),
+      'render element' => 'form',
     ),
   );
 }
@@ -72,7 +72,7 @@ function user_relationship_implications_form_user_relationships_ui_type_edit_alt
     }
   }
 
-  if ($form['implications']) {
+  if (isset($form['implications'])) {
     $implications_form = array(
       '#title'          => t('This relationship implies'),
       '#type'           => 'fieldset',
@@ -93,7 +93,8 @@ function user_relationship_implications_form_user_relationships_ui_type_edit_alt
   }
 }
 
-function theme_user_relationship_implications_form_table($form) {
+function theme_user_relationship_implications_form_table($variables) {
+  $form = $variables['form'];
   $headers = array(t('Relationship Type'), t('Strict'), t('Reverse'));
   $rows = array();
 
@@ -107,7 +108,7 @@ function theme_user_relationship_implications_form_table($form) {
       drupal_render(array_shift($elements)),
     );
   }
-  return theme('table', $headers, $rows);
+  return theme('table', array('header' => $headers, 'rows' => $rows));
 }
 
 /**
@@ -117,7 +118,9 @@ function user_relationship_implications_edit_submit($form, &$form_state) {
   // the rtid is in a different place when adding a new type vs. editing an existing type
   $rtid = $form_state['values']['rtid'];
 
-  db_query("DELETE FROM {user_relationship_implications} WHERE rtid = %d", $rtid);
+  db_delete('user_relationship_implications')
+    ->condition('rtid', $rtid)
+    ->execute();
 
   foreach ($form_state['values']['implications']['opts'] as $implies_rtid => $elements) {
     if ($elements["implies_{$implies_rtid}"]) {
@@ -143,16 +146,18 @@ function user_relationship_implications_user_relationships_type($op, &$rtypes) {
     }
 
     $results = db_query("SELECT * FROM {user_relationship_implications}");
-    while ($implication = db_fetch_object($results)) {
+    foreach ($results as $implication) {
       $rtypes[$implication->rtid]->implies[$implication->implies_rtid] = $implication;
       $rtypes[$implication->implies_rtid]->implied_by[$implication->rtid] = $implication;
     }
   }
   else if ($op == 'delete') {
-    $results = db_query(
-      "DELETE FROM {user_relationship_implications} WHERE rtid = %d OR implies_rtid = %d",
-      $rtypes->rtid, $rtypes->rtid
-    );
+    db_delete('user_relationship_implications')
+      ->condition(db_or()
+        ->condition('rtid', $rtypes->rtid)
+        ->condition('implies_rtid', $rtypes->rtid)
+      )
+      ->execute();
   }
 }
 
@@ -279,11 +284,14 @@ function user_relationship_implications_user_relationships_page_alter($page_id, 
 /**
  * Categorized list of relationships for a given user
  */
-function theme_user_relationship_implications_page($uid = NULL, $relationship = NULL) {
+function theme_user_relationship_implications_page($variables) {
   global $user;
 
+  $uid = $variables['uid'];
+  $relation = $variables['relation'];
+
   if (empty($uid)) {
-    $viewed_user =& $user;
+    $viewed_user = $user;
   }
   else {
     $viewed_user = user_load(array('uid' => $uid));
@@ -300,39 +308,36 @@ function theme_user_relationship_implications_page($uid = NULL, $relationship = 
     $params['rtid'] = $relationship->rtid;
   }
 
-  $query = _user_relationships_generate_query($params);
+    // To Page or not to Page
+  $variables['relationships_per_page'] = variable_get('user_relationships_relationships_per_page', 16);
+  $options = array('include_user_info' => TRUE, 'paging' => $variables['relationships_per_page']);
 
-  if ($relationships_per_page = variable_get('user_relationships_relationships_per_page', 16)) {
-    $results = pager_query($query['query'], $relationships_per_page, 0, $query['count'], $query['arguments']);
-  }
-  else {
-    $results = db_query($query['query'], $query['arguments']);
-  }
+  $query = _user_relationships_generate_query($params, $options);
 
   $edit_access = ($user->uid == $uid && user_access('maintain own relationships')) || user_access('administer users');
   $online_interval = time() - variable_get('user_block_seconds_online', 180);
 
-  while ($relation = db_fetch_object($results)) {
+  foreach ($query->execute() as $relation) {
     $this_user = $viewed_user->uid == $relation->requestee_id ? 'requester_id' : 'requestee_id';
-    $this_user = user_load(array('uid' => $relation->$this_user));
+    $this_user = user_load($relation->$this_user);
     $relations = array();
 
     $this_users_relationships = user_relationships_load(array('user' => $this_user->uid));
     $rows[] = array(
-      theme('username', $this_user),
-      theme('item_list', _user_relationship_implications_load_relationship_names($this_users_relationships, $viewed_user->uid)),
+      theme('username', array('account' => $this_user)),
+      theme('item_list', array('items' => _user_relationship_implications_load_relationship_names($this_users_relationships, $viewed_user->uid))),
       $this_user->access > $online_interval ? t('online') : t('not online'),
-      $edit_access ? theme('user_relationships_remove_link', $viewed_user->uid, $relation) : '&nbsp;',
+      $edit_access ? theme('user_relationships_remove_link', array('uid' => $viewed_user->uid, 'rid' => $relation->rid)) : '&nbsp;',
     );
   }
   if (count($rows)) {
-    $output .= theme('table', array(), $rows, array('class' => array('user-relationship-implications-listing-table')));
+    $output .= theme('table', array('rows' => $rows, 'attributes' => array('class' => array('user-relationship-implications-listing-table'))));
   }
   else {
     $output .= t('No relationships found');
   }
 
-  $output .= theme('pager', NULL, $relationships_per_page);
+  $output .= theme('pager');
 
   drupal_set_title(t("%username's %relationships", array(
     '%username' => $viewed_user->name,

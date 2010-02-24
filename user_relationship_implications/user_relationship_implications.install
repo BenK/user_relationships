@@ -24,32 +24,3 @@ function user_relationship_implications_schema() {
   return $schema;
 }
 
-/**
- * Install
- */
-function user_relationship_implications_install() {
-  drupal_install_schema('user_relationship_implications');
-}
-
-/**
- * Uninstall
- */
-function user_relationship_implications_uninstall() {
-  drupal_uninstall_schema('user_relationship_implications');
-}
-
-/**
- * Updates
- */
-function user_relationship_implications_update_1() {
-  $ret = array();
-
-  db_add_field(
-    $ret,
-    'user_relationship_implications',
-    'reverse',
-    array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0, 'size' => 'tiny')
-  );
-
-  return $ret;
-}

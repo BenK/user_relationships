@@ -20,14 +20,14 @@
  * @return
  *    An elaboration object or FALSE if the save was not successful
  */
-function user_relationships_save_elaboration($rid, &$elaboration) {
+function user_relationships_save_elaboration($rid, $elaboration) {
   $record = array(
     'rid'         => $rid,
     'elaboration' => $elaboration,
   );
 
   //#456056 need to check if a record already exists, and update. do not assume there is no such rid
-  $existing_rid = $message = db_result(db_query("SELECT rid FROM {user_relationship_elaborations} WHERE rid = %d", $rid));
+  $existing_rid = db_query("SELECT rid FROM {user_relationship_elaborations} WHERE rid = :rid", array(':rid' => $rid))->fetchField();
   return drupal_write_record('user_relationship_elaborations', $record, ($existing_rid ? array('rid') : array()));
 }
 
@@ -38,7 +38,9 @@ function user_relationships_save_elaboration($rid, &$elaboration) {
  *    an integer, the relationship ID
  */
 function user_relationships_delete_elaboration($rid) {
-  db_query("DELETE FROM {user_relationship_elaborations} WHERE rid = %d", $rid);
+  db_delete('user_relationship_elaborations')
+    ->condition('rid', $rid)
+    ->execute();
 }
 
 /**
@@ -48,8 +50,7 @@ function user_relationships_delete_elaboration($rid) {
  *    an integer, the relationship ID
  */
 function user_relationships_get_elaboration($rid) {
-  $message = db_result(db_query("SELECT elaboration FROM {user_relationship_elaborations} WHERE rid = %d", $rid));
-  return $message;
+  return db_query("SELECT elaboration FROM {user_relationship_elaborations} WHERE rid = :rid", array(':rid' => $rid))->fetchField();
 }
 
 /**
@@ -61,11 +62,13 @@ function user_relationship_elaborations_user_relationships($op, &$relationships)
       return;
     }
     if (in_array($op, array('cancel', 'delete', 'remove', 'disapprove'))) {
-      db_query('DELETE FROM {user_relationship_elaborations} WHERE rid = %d', $relationships->rid);
+      db_delete('user_relationship_elaborations')
+        ->condition('rid', $relationships->rid)
+        ->execute();
     }
     else {
       //load elaboration string
-      $elaboration = db_result(db_query('SELECT elaboration FROM {user_relationship_elaborations} WHERE rid = %d'), $relationships->rid);
+      $elaboration = db_query('SELECT elaboration FROM {user_relationship_elaborations} WHERE rid = :rid', array(':rid' => $relationships->rid))->fetchField();
       if ($elaboration) {
         $relationships->elaboration = $elaboration;
       }
@@ -79,14 +82,13 @@ function user_relationship_elaborations_user_relationships($op, &$relationships)
 
     if ($rids) {
       if (in_array($op, array('cancel', 'delete', 'remove', 'disapprove'))) {
-        db_query('DELETE FROM {user_relationship_elaborations} WHERE rid IN ('. db_placeholders($rids) .')', $rids);
+         db_delete('user_relationship_elaborations')
+          ->condition('rid', $relationships->rid)
+          ->execute();
       }
       else {
         //load elaboration data into these relationships
-        $results = db_query('SELECT rid, elaboration FROM {user_relationship_elaborations} WHERE rid IN ('. db_placeholders($rids) .')', $rids);
-        while ($result = db_fetch_object($results)) {
-          $elaborations[$result->rid] = $result->elaboration;
-        }
+        $elaborations = db_query('SELECT rid, elaboration FROM {user_relationship_elaborations} WHERE rid IN (:rids)', array(':rids' => $rids))->fetchAllKeyed();
   
         _user_relationship_elaborations_walk_recursive('load', $relationships, $elaborations);
       }
@@ -142,7 +144,7 @@ function user_relationship_elaborations_form_alter(&$form, $form_state, $form_id
         $form['elaboration'] = array(
           '#type'           => 'textarea',
           '#title'          => t('Elaboration'),
-          '#default_value'  => $form_state['post']['elaboration'] ? $form_state['post']['elaboration'] : user_relationships_get_elaboration($form['rid']['#value']),
+          '#default_value'  => isset($form_state['values']['elaboration']) ? $form_state['values']['elaboration'] : user_relationships_get_elaboration($form['rid']['#value']),
           '#description'    => t('Please elaborate on this relationship (how/where you met, etc)')
         );
         $form['#submit'][] = 'user_relationship_elaborations_submit';

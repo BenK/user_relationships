@@ -37,22 +37,6 @@ function user_relationship_blocks_user_relationships_type($op, &$rtype) {
   }
 }
 
-
-
-/**
- * Implementation for hook_block
- */
-function user_relationship_blocks_block($op = 'list', $bid = '', $edit = array()) {
-
-  switch ($op) {
-    case 'list':      return _user_relationship_blocks_list();
-    case 'configure': return _user_relationship_blocks_form($block, $rtid, $extra, $bid);
-    case 'save':      return _user_relationship_blocks_settings(NULL, $edit);
-    case 'view':      return _user_relationship_blocks_view($block, $rtid, $extra, $bid);
-  }
-}
-
-
 /**
  * Implementation for hook_theme
  */
@@ -152,7 +136,7 @@ function user_relationship_blocks_block_configure($delta) {
   // need this file. it has the validator in it
   include_once(drupal_get_path('module', 'user_relationships_ui') .'/user_relationships_ui.admin_actions.inc');
   //current block settings
-  $settings = _user_relationship_blocks_settings($delta);
+  $settings = user_relationship_blocks_block_save($delta);
   
   if ($block != 'actions') {
     if ($rtid == UR_BLOCK_ALL_TYPES) {
@@ -237,7 +221,7 @@ function user_relationship_blocks_block_view($delta) {
     return;
   }
 
-  $settings = _user_relationship_blocks_settings($delta);
+  $settings = user_relationship_blocks_block_save($delta);
   $settings->rtid = $rtid;
   $settings->block_type = $block_type;
 
@@ -328,26 +312,26 @@ function user_relationship_blocks_block_info() {
 /**
  * Push or pull the settings from the database
  */
-function _user_relationship_blocks_settings($bid = NULL, $new_settings = NULL) {
+function user_relationship_blocks_block_save($delta = NULL, $edit = NULL) {
   static $settings = array();
 
-  if (isset($new_settings)) {
+  if (isset($edit)) {
     //can't find a better spot for this. If get_account php snippet is cleared by user, revert to default value
-    if (!$new_settings['get_account']) {
-      $new_settings['get_account'] = _user_relationship_blocks_find_user_php();
+    if (!$edit['get_account']) {
+      $edit['get_account'] = _user_relationship_blocks_find_user_php();
     }
-    drupal_write_record('user_relationship_blocks', $new_settings, 'bid');
+    drupal_write_record('user_relationship_blocks', $edit, 'bid');
 
-    $settings[$key] = (object)$new_settings;
+    $settings[$key] = (object)$edit;
   }
-  else if ($bid && (!isset($settings[$bid]) || !$settings[$bid])) {
-    $settings[$bid] = db_query("SELECT * FROM {user_relationship_blocks} WHERE bid = :bid", array(':bid' => $bid))->fetchObject();
+  else if ($delta && (!isset($settings[$delta]) || !$settings[$delta])) {
+    $settings[$delta] = db_query("SELECT * FROM {user_relationship_blocks} WHERE bid = :bid", array(':bid' => $delta))->fetchObject();
   }
   else {
     $settings = db_query("SELECT * FROM {user_relationship_blocks}")->fetchAllAssoc('bid');
   }
 
-  return $bid ? $settings[$bid] : $settings;
+  return $delta ? $settings[$delta] : $settings;
 }
 
 
@@ -356,7 +340,7 @@ function _user_relationship_blocks_settings($bid = NULL, $new_settings = NULL) {
  * This makes sure it's not writing over user defined settings
  */
 function _user_relationship_blocks_insert_defaults() {
-  $current_bids = array_keys(_user_relationship_blocks_settings());
+  $current_bids = array_keys(user_relationship_blocks_block_save());
   $all_bids     = user_relationship_blocks_block_info();
   foreach ($all_bids as $bid => $block) {
     if (!in_array($bid, $current_bids)) {

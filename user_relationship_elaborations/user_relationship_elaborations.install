@@ -18,16 +18,8 @@ function user_relationship_elaborations_schema() {
 }
 
 /**
- * Install
- */
-function user_relationship_elaborations_install() {
-  drupal_install_schema('user_relationship_elaborations');
-}
-
-/**
  * Uninstall
  */
 function user_relationship_elaborations_uninstall() {
-  drupal_uninstall_schema('user_relationship_elaborations');
   variable_del('user_relationships_elaborations_api_only');
 }

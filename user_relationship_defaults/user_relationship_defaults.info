@@ -4,4 +4,5 @@ description = "Allows admins to specify relationships that are automatically cre
 dependencies[] = user_relationships_api
 dependencies[] = user_relationships_ui
 package = "User Relationships"
-core = 6.x
+core = 7.x
+files[]=user_relationship_defaults.module
