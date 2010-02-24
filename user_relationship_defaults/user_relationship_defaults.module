@@ -91,7 +91,7 @@ function user_relationship_defaults_load($reset = FALSE) {
 function user_relationship_defaults_menu() {
   $items = array();
 
-  $items['admin/user/relationships/defaults/add'] = array(
+  $items['admin/config/people/relationships/defaults/add'] = array(
     'title'             => 'Add default',
     'access arguments'  => array('administer user relationships'),
     'page callback'     => 'drupal_get_form',
@@ -99,7 +99,7 @@ function user_relationship_defaults_menu() {
     'type'              => MENU_LOCAL_TASK,
     'weight'            => 2
   );
-  $items['admin/user/relationships/defaults/%user_relationship_default/delete'] = array(
+  $items['admin/config/people/relationships/defaults/%user_relationship_default/delete'] = array(
     'title'             => 'Delete default',
     'access arguments'  => array('administer user relationships'),
     'page callback'     => 'drupal_get_form',
@@ -173,9 +173,9 @@ function user_relationship_defaults_add_form_submit($form, &$form_state) {
     '%relationship_name'  => ur_tt("user_relationships:rtid:$relationship_type->rtid:name", $relationship_type->name),
   );
   drupal_set_message(t('Default relationship %relationship_name of %username has been added.', $message_p));
-  watchdog('u_relationship', 'Default relationship %relationship_name of %username has been added.', $message_p, WATCHDOG_NOTICE, l(t('view'), 'admin/user/relationships'));
+  watchdog('u_relationship', 'Default relationship %relationship_name of %username has been added.', $message_p, WATCHDOG_NOTICE, l(t('view'), 'admin/config/people/relationships'));
 
-  $form_state['redirect'] = 'admin/user/relationships';
+  $form_state['redirect'] = 'admin/config/people/relationships';
 }
 
 
@@ -194,7 +194,7 @@ function user_relationship_defaults_delete_form(&$form_state, &$default_relation
       '%relationship' => ur_tt("user_relationships:rtid:$default_relationship->relationship_type->rtid:name", $default_relationship->relationship_type->name),
       '%name'         => $default_relationship->user->name,
     )),
-    'admin/user/relationships',
+    'admin/config/people/relationships',
     t('This action cannot be undone.'),
     t('Delete'), t('Cancel')
   );
@@ -218,7 +218,7 @@ function user_relationship_defaults_delete_form_submit($form, &$form_state) {
 
   user_relationship_defaults_load(TRUE);
 
-  $form_state['redirect'] = 'admin/user/relationships';
+  $form_state['redirect'] = 'admin/config/people/relationships';
 }
 
 /**
@@ -251,7 +251,7 @@ function user_relationship_defaults_user_relationships_page_alter($page_id, &$pa
       $default_rows[] = array(
         theme('username', $default->user),
         $default->relationship_type->name,
-        l(t('delete'), "admin/user/relationships/defaults/{$default->rdid}/delete"),
+        l(t('delete'), "admin/config/people/relationships/defaults/{$default->rdid}/delete"),
       );
     }
 

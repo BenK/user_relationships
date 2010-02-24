@@ -143,7 +143,7 @@ function user_relationships_ui_settings() {
 /**
  * Relationship type edit page.
  */
-function user_relationships_ui_type_edit(&$form_state, $relationship_type = NULL) {
+function user_relationships_ui_type_edit($form, &$form_state, $relationship_type = NULL) {
   $form['name'] = array(
     '#type'           => 'textfield',
     '#title'          => t('Name'),
@@ -223,7 +223,7 @@ function user_relationships_ui_type_edit(&$form_state, $relationship_type = NULL
 /**
  * Relationship type delete page.
  */
-function user_relationships_ui_type_delete(&$form_state, $relationship_type = NULL) {
+function user_relationships_ui_type_delete($form, &$form_state, $relationship_type = NULL) {
   if ($relationship_type) {
     $form['rtid'] = array(
       '#type'   => 'value',
@@ -233,13 +233,13 @@ function user_relationships_ui_type_delete(&$form_state, $relationship_type = NU
     return confirm_form(
       $form,
       t('Are you sure you want to delete %name?', array('%name' => ur_tt("user_relationships:rtid:$relationship_type->rtid:name", $relationship_type->name))),
-      'admin/user/relationships',
+      'admin/config/people/relationships',
       t('This action cannot be undone.'),
       t('Delete'), t('Cancel')
     );
   }
   else {
     drupal_set_message(user_relationships_ui_get_message('non_existent_type'));
-    drupal_goto('admin/user/relationships');
+    drupal_goto('admin/config/people/relationships');
   }
 }

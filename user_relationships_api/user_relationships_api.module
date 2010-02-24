@@ -38,7 +38,7 @@ function _user_relationships_invoke($type, &$relationship, $is_type = FALSE) {
 /**
  * Helper function to generate the main and count queries from a list of parameters and options
  */
-function _user_relationships_generate_query($param = array(), $options = array(), $countQuery = FALSE) {
+function _user_relationships_generate_query($param = array(), $options = array()) {
   extract($options, EXTR_SKIP);
 
   $twoway_reverse_clause = FALSE;//#479486
@@ -116,34 +116,47 @@ function _user_relationships_generate_query($param = array(), $options = array()
     $twoway_reverse_clause = TRUE;
   }
 
-  if ($countQuery) {
-  $query->addExpression('COUNT(DISTINCT rid)', 'count');
+  if (!empty($only_count) || !empty($paging)) {
+    $count = clone $query;
+    $count->addExpression('COUNT(DISTINCT rid)', 'count');
   }
-  else {
-    $query
-      ->distinct()
-      ->fields('ur')
-      ->fields('urt');
+  $query
+    ->distinct()
+    ->fields('ur')
+    ->fields('urt');
 
-    if (isset($include_user_info) && $include_user_info) {
-      $query->addField('requesters', 'name', 'requester_name');
-      $query->addField('requesters', 'mail', 'requester_mail');
-      $query->addField('requesters', 'data', 'requester_data');
-      $query->addField('requesters', 'picture', 'requester_picture');
-      $query->addField('requestees', 'name', 'requestees_name');
-      $query->addField('requestees', 'mail', 'requestees_mail');
-      $query->addField('requestees', 'data', 'requestees_data');
-      $query->addField('requestees', 'picture', 'requestees_picture');
+  if (isset($include_user_info) && $include_user_info) {
+    $query->addField('requesters', 'name', 'requester_name');
+    $query->addField('requesters', 'mail', 'requester_mail');
+    $query->addField('requesters', 'data', 'requester_data');
+    $query->addField('requesters', 'picture', 'requester_picture');
+    $query->addField('requestees', 'name', 'requestee_name');
+    $query->addField('requestees', 'mail', 'requestee_mail');
+    $query->addField('requestees', 'data', 'requestee_data');
+    $query->addField('requestees', 'picture', 'requestee_picture');
 
-      $query->innerJoin('users', 'requesters', 'ur.requester_id = requesters.uid');
-      $query->innerJoin('users', 'requestees', 'ur.requestee_id = requestees.uid');
+    $query->innerJoin('users', 'requesters', 'ur.requester_id = requesters.uid');
+    $query->innerJoin('users', 'requestees', 'ur.requestee_id = requestees.uid');
+  }
+  if (!empty($order)) {
+    if (is_array($order)) {
+      $query->orderBy($order[0], $order[1]);
     }
-    if (!empty($order)) {
+    else {
       $query->orderBy($order);
     }
-    if (!empty($limit)) {
-      $query->limit($limit);
-    }
+  }
+  if (!empty($limit)) {
+    $query->range(0, $limit);
+  }
+  if (!empty($only_count)) {
+    return $count;
+  }
+  if (!empty($paging)) {
+    $query
+      ->extend('PagerDefault')
+      ->limit($paging)
+      ->setCountQuery($count);
   }
   return $query;
 }
@@ -152,8 +165,11 @@ function _user_relationships_generate_query($param = array(), $options = array()
 /**
  * hook_perm()
  */
-function user_relationships_api_perm() {
-  return array('can have relationships');
+function user_relationships_api_permission() {
+  return array('can have relationships' => array(
+    'title' => t('Can have relationships'),
+    'description' => t('TODO'),
+  ));
 }
 
 

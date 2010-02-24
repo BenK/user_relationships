@@ -9,20 +9,14 @@
  * Validate the submitted relationship type
  */
 function user_relationships_ui_type_edit_validate($form, &$form_state) {
-  // My god this is ugly
-  if (
-    (isset($form_state['values']['rtid']) &&
-      db_result(db_query(
-        "SELECT name FROM {user_relationship_types}
-         WHERE LOWER(name) = LOWER('%s')
-           AND rtid != %d",
-        $form_state['values']['name'], $form_state['values']['rtid'])
-      )
-    ) ||
-    (!isset($form_state['values']['rtid']) &&
-      db_result(db_query("SELECT name FROM {user_relationship_types} WHERE LOWER(name) = LOWER('%s')", $form_state['values']['name']))
-    )
-  ) {
+  // My god this is ugly. => Not anymore :)
+  $select = db_select('user_relationship_types', 'urt')
+    ->fields('urt', array('name'))
+    ->where("LOWER(name) = LOWER(:name)", array(':name' => $form_state['values']['name']));
+  if (isset($form_state['values']['rtid'])) {
+    $select->condition('rtid', $form_state['values']['rtid'], '<>');
+  }
+  if ($select->execute()->fetchField()) {
     form_set_error('name', t('%name has already been used.', array('%name' => $form_state['values']['name'])));
   }
 
@@ -89,12 +83,14 @@ function user_relationships_ui_type_edit_submit($form, &$form_state) {
       'u_relationship',
       'User Relationships form: relationship %name updated.', array('%name' => $relationship_type->name),
       WATCHDOG_NOTICE,
-      l(t('view'), 'admin/user/relationships/'. $relationship_type->rtid .'/edit')
+      l(t('view'), 'admin/config/people/relationships/'. $relationship_type->rtid .'/edit')
     );
   }
   
   //save role permissions for this rtype
-  db_query('DELETE FROM {user_relationship_type_roles} WHERE rtid = %d', $relationship_type->rtid);
+  db_delete('user_relationship_type_roles')
+    ->condition('rtid', $relationship_type->rtid)
+    ->execute();
   if ($form_state['values']['roles']) {
     $role_record = new StdClass;
     $role_record->rtid = $relationship_type->rtid;
@@ -109,7 +105,7 @@ function user_relationships_ui_type_edit_submit($form, &$form_state) {
   user_relationships_types_load(TRUE);
   menu_rebuild();
 
-  $form_state['redirect'] = 'admin/user/relationships';
+  $form_state['redirect'] = 'admin/config/people/relationships';
 }
 
 
@@ -119,9 +115,15 @@ function user_relationships_ui_type_edit_submit($form, &$form_state) {
 function user_relationships_ui_type_delete_submit($form, &$form_state) {
   $relationship_type = user_relationships_type_load($form_state['values']['rtid']);
 
-  db_query("DELETE FROM {user_relationship_types} WHERE rtid = %d", $relationship_type->rtid);
-  db_query("DELETE FROM {user_relationships} WHERE rtid = %d", $relationship_type->rtid);
-  db_query('DELETE FROM {user_relationship_type_roles} WHERE rtid = %d', $relationship_type->rtid);
+  db_delete('user_relationship_type_roles')
+    ->condition('rtid', $relationship_type->rtid)
+    ->execute();
+  db_delete('user_relationships')
+    ->condition('rtid', $relationship_type->rtid)
+    ->execute();
+  db_delete('user_relationship_types')
+    ->condition('rtid', $relationship_type->rtid)
+    ->execute();
 
   _user_relationships_invoke('delete', $relationship_type, TRUE);
 
@@ -136,5 +138,5 @@ function user_relationships_ui_type_delete_submit($form, &$form_state) {
     WATCHDOG_NOTICE
   );
 
-  $form_state['redirect'] = 'admin/user/relationships';
+  $form_state['redirect'] = 'admin/config/people/relationships';
 }

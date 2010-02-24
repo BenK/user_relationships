@@ -21,7 +21,7 @@ module_load_include('inc', 'user_relationship_migrate', "user_relationship_migra
 function user_relationship_migrate_menu() {
   $items = array();
 
-  $items['admin/user/relationships/migrate'] = array(
+  $items['admin/config/people/relationships/migrate'] = array(
     'title'     => 'Migrate from buddylist2',
     'page callback'  => 'user_relationship_migrate_page',
     'access arguments' => array('administer user relationships'),
@@ -29,7 +29,7 @@ function user_relationship_migrate_menu() {
     'weight'    => 4,
   );
 
-  $items['admin/user/relationships/migrate/error'] = array(
+  $items['admin/config/people/relationships/migrate/error'] = array(
     'title'     => 'Migrating from buddylist2 error',
     'page callback'  => 'user_relationship_migrate_error',
     'access arguments' => array('administer user relationships'),
@@ -148,6 +148,6 @@ function user_relationship_migrate_form_submit($form, &$form_state) {
 
   variable_set('user_relationship_migrate_last_run', time());
 
-  $form_state['redirect'] = 'admin/user/relationships/migrate';
+  $form_state['redirect'] = 'admin/config/people/relationships/migrate';
 }
 

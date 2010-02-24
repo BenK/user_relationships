@@ -30,7 +30,9 @@ function user_relationship_blocks_user_relationships_type($op, &$rtype) {
     break;
 
   case 'delete':
-    db_query("DELETE FROM {user_relationship_blocks} WHERE bid LIKE '%%%s%%'", UR_BLOCK_SEPARATOR . $rtype->rtid);
+    db_delete('user_relationship_blocks')
+      ->condition('bid', '%' . UR_BLOCK_SEPARATOR . $rtype->rtid)
+      ->execute();
     break;
   }
 }
@@ -41,14 +43,6 @@ function user_relationship_blocks_user_relationships_type($op, &$rtype) {
  * Implementation for hook_block
  */
 function user_relationship_blocks_block($op = 'list', $bid = '', $edit = array()) {
-  if ($op != 'list') {
-    //pad array with nulls before calling list() to avoid php notices
-    $exploded = explode(UR_BLOCK_SEPARATOR, $bid);
-    while (count($exploded) < 3) {
-      $exploded[] = NULL;
-    }
-    list($block, $rtid, $extra) = $exploded;
-  }
 
   switch ($op) {
     case 'list':      return _user_relationship_blocks_list();
@@ -65,21 +59,21 @@ function user_relationship_blocks_block($op = 'list', $bid = '', $edit = array()
 function user_relationship_blocks_theme() {
   return array(
     'user_relationship_block_subject' => array(
-      'arguments' => array('account' => NULL, 'rtid' => NULL, 'extra' => NULL)
+      'variables' => array('account' => NULL, 'rtid' => NULL, 'extra' => NULL)
     ),
 
     'user_relationships_block' => array(
-      'arguments' => array('account' => NULL, 'settings' => NULL, 'extra' => NULL),
+      'variables' => array('account' => NULL, 'settings' => NULL, 'extra' => NULL),
       'path'      => drupal_get_path('module', 'user_relationship_blocks') .'/templates',
       'template'  => 'user_relationships-block',
     ),
     'user_relationships_pending_block' => array(
-      'arguments' => array('account' => NULL, 'settings' => NULL),
+      'variables' => array('account' => NULL, 'settings' => NULL),
       'path'      => drupal_get_path('module', 'user_relationship_blocks') .'/templates',
       'template'  => 'user_relationships-pending_block',
     ),
     'user_relationships_actions_block' => array(
-      'arguments' => array('account' => NULL, 'settings' => NULL) ,
+      'variables' => array('account' => NULL, 'settings' => NULL) ,
       'path'      => drupal_get_path('module', 'user_relationship_blocks') .'/templates',
       'template'  => 'user_relationships-actions_block',
     ),
@@ -90,7 +84,11 @@ function user_relationship_blocks_theme() {
 /**
  * Theme function to generate the title of a block
  */
-function theme_user_relationship_block_subject($bid, $account, $rtid, $extra) {
+function theme_user_relationship_block_subject($variables) {
+  $bid = $variables['bid'];
+  $account = $variables['account'];
+  $rtid = $variables['rtid'];
+  $extra = $variables['extra'];
   if ($bid == 'pending') {
     return t('Relationship requests');
   }
@@ -137,16 +135,24 @@ function theme_user_relationship_block_subject($bid, $account, $rtid, $extra) {
 /**
  * helper function user_relationship_blocks_block delegates to when $op == 'configure'
  */
-function _user_relationship_blocks_form($block, $rtid, $extra, $bid) {
+function user_relationship_blocks_block_configure($delta) {
+
+  //pad array with nulls before calling list() to avoid php notices
+  $exploded = explode(UR_BLOCK_SEPARATOR, $delta);
+  while (count($exploded) < 3) {
+    $exploded[] = NULL;
+  }
+  list($block, $rtid, $extra) = $exploded;
+
   // No form needed for the pending block so don't even bother
-  if ($block == 'pending') { 
+  if ($block == 'pending') {
     return;
   }
 
   // need this file. it has the validator in it
   include_once(drupal_get_path('module', 'user_relationships_ui') .'/user_relationships_ui.admin_actions.inc');
   //current block settings
-  $settings = _user_relationship_blocks_settings($bid);
+  $settings = _user_relationship_blocks_settings($delta);
   
   if ($block != 'actions') {
     if ($rtid == UR_BLOCK_ALL_TYPES) {
@@ -196,7 +202,7 @@ function _user_relationship_blocks_form($block, $rtid, $extra, $bid) {
 
   $form['bid'] = array(
     '#type'   => 'hidden',
-    '#value'  => $bid,
+    '#value'  => $delta,
   );
   $form['get_account'] = array(
     '#type'           => 'textarea',
@@ -215,14 +221,23 @@ function _user_relationship_blocks_form($block, $rtid, $extra, $bid) {
 /**
  * helper function user_relationship_blocks_block delegates to when $op == 'view'
  */
-function _user_relationship_blocks_view($block_type, $rtid, $extra, $bid) {
+function user_relationship_blocks_block_view($delta) {
   global $user;
+
+  //pad array with nulls before calling list() to avoid php notices
+  $exploded = explode(UR_BLOCK_SEPARATOR, $delta);
+  while (count($exploded) < 3) {
+    $exploded[] = NULL;
+  }
+  list($block_type, $rtid, $extra) = $exploded;
+
+
   $is_my_block = ($block_type == UR_BLOCK_MY || $block_type == 'pending');
   if ($is_my_block && !$user->uid) {
     return;
   }
 
-  $settings = _user_relationship_blocks_settings($bid);
+  $settings = _user_relationship_blocks_settings($delta);
   $settings->rtid = $rtid;
   $settings->block_type = $block_type;
 
@@ -230,15 +245,15 @@ function _user_relationship_blocks_view($block_type, $rtid, $extra, $bid) {
   if ($is_my_block && $user->uid) {
     $account =& $user;
   }
-  else if ($uid = drupal_eval($settings->get_account)) {
+  else if (module_exists('php') && $uid = drupal_eval($settings->get_account)) {
     $account = user_load($uid);
   }
 
   if (isset($account)) {
     $add_to_string = in_array($block_type, array('pending', 'actions')) ? "_{$block_type}" : '';
     return array(
-      'subject' => theme('user_relationship_block_subject', $bid, $account, $rtid, $extra),
-      'content' => theme("user_relationships{$add_to_string}_block", $account, $settings, $extra),
+      'subject' => theme('user_relationship_block_subject', array('bid' => $delta, 'account' => $account, 'rtid' => $rtid, 'extra' => $extra)),
+      'content' => theme("user_relationships{$add_to_string}_block", array('account' => $account, 'settings' => $settings, 'extra' => $extra)),
     );
   }
 }
@@ -266,15 +281,15 @@ PHP;
 /**
  * helper function user_relationship_blocks_block delegates to when $op == 'list'
  */
-function _user_relationship_blocks_list() {
+function user_relationship_blocks_block_info() {
   $my   = UR_BLOCK_MY . UR_BLOCK_SEPARATOR;
   $usr  = UR_BLOCK_USER . UR_BLOCK_SEPARATOR;
   // return list of all blocks defined by the module
   $blocks = array(
-    $my . UR_BLOCK_ALL_TYPES  => array('info' => t('My Relationships: All relationships'), 'cache' => BLOCK_NO_CACHE),
-    $usr . UR_BLOCK_ALL_TYPES => array('info' => t('User Relationships: All relationships'), 'cache' => BLOCK_NO_CACHE),
-    'pending' => array('info' => t('My Pending Relationships'), 'cache' => BLOCK_NO_CACHE),
-    'actions' => array('info' => t('User Relationships: Actions'), 'cache' => BLOCK_NO_CACHE),
+    $my . UR_BLOCK_ALL_TYPES  => array('info' => t('My Relationships: All relationships'), 'cache' => DRUPAL_NO_CACHE),
+    $usr . UR_BLOCK_ALL_TYPES => array('info' => t('User Relationships: All relationships'), 'cache' => DRUPAL_NO_CACHE),
+    'pending' => array('info' => t('My Pending Relationships'), 'cache' => DRUPAL_NO_CACHE),
+    'actions' => array('info' => t('User Relationships: Actions'), 'cache' => DRUPAL_NO_CACHE),
   );
 
   $types = user_relationships_types_load();
@@ -300,7 +315,7 @@ function _user_relationship_blocks_list() {
       foreach ($block_types as $bid => $title) {
         $blocks[$bid] = array(
           'info' => $title,
-          'cache' => BLOCK_NO_CACHE,
+          'cache' => DRUPAL_NO_CACHE,
         );
       }
     }
@@ -326,13 +341,10 @@ function _user_relationship_blocks_settings($bid = NULL, $new_settings = NULL) {
     $settings[$key] = (object)$new_settings;
   }
   else if ($bid && (!isset($settings[$bid]) || !$settings[$bid])) {
-    $settings[$bid] = db_fetch_object(db_query("SELECT * FROM {user_relationship_blocks} WHERE bid = '%s'", $bid));
+    $settings[$bid] = db_query("SELECT * FROM {user_relationship_blocks} WHERE bid = :bid", array(':bid' => $bid))->fetchObject();
   }
   else {
-    $results = db_query("SELECT * FROM {user_relationship_blocks}");
-    while ($setting = db_fetch_object($results)) {
-      $settings[$setting->bid] = $setting;
-    }
+    $settings = db_query("SELECT * FROM {user_relationship_blocks}")->fetchAllAssoc('bid');
   }
 
   return $bid ? $settings[$bid] : $settings;
@@ -345,13 +357,17 @@ function _user_relationship_blocks_settings($bid = NULL, $new_settings = NULL) {
  */
 function _user_relationship_blocks_insert_defaults() {
   $current_bids = array_keys(_user_relationship_blocks_settings());
-  $all_bids     = _user_relationship_blocks_list();
+  $all_bids     = user_relationship_blocks_block_info();
   foreach ($all_bids as $bid => $block) {
     if (!in_array($bid, $current_bids)) {
-      db_query(
-        "INSERT INTO {user_relationship_blocks} (bid, size, sort, get_account) VALUES ('%s', %d, '%s', '%s')",
-        $bid, 10, 'newest', _user_relationship_blocks_find_user_php()
-      );
+      db_insert('user_relationship_blocks')
+        ->fields(array(
+          'bid' => $bid,
+          'size' => 10,
+          'sort' => 'newest',
+          'get_account' => _user_relationship_blocks_find_user_php(),
+        ))
+        ->execute();
     }
   }
 }
@@ -369,8 +385,8 @@ function template_preprocess_user_relationships_block(&$variables) {
 
   // select the appropriate set of relationships based on admin's configuration settings
   switch ($settings->sort) {
-    case 'newest': $query_opts['order'] = 'updated_at DESC'; break;
-    case 'oldest': $query_opts['order'] = 'updated_at ASC'; break;
+    case 'newest': $query_opts['order'] = array('updated_at', 'DESC'); break;
+    case 'oldest': $query_opts['order'] = array('updated_at', 'ASC'); break;
     case 'random': $query_opts['order'] = 'RAND()'; break;
   }
 

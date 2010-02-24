@@ -73,45 +73,41 @@ function user_relationships_ui_request_ajax($requestee) {
 /**
  * Request a new relationship with another user
  */
-function user_relationships_ui_request(&$form_state, $requestee) {
+function user_relationships_ui_request($form, &$form_state, $requestee) {
   global $user;
   $requester = $user;
 
   $script = '<script type="text/javascript">setTimeout(\'Drupal.user_relationships_ui.hidePopup()\', 10000);</script>';
   if (empty($requestee->name)) {
     $form['error'] = array(
-      '#type' => 'markup',
       '#prefix' => '<div>',
       '#suffix' => '</div>',
-      '#value' => user_relationships_ui_get_message('non_existent_user') . $script
+      '#markup' => user_relationships_ui_get_message('non_existent_user') . $script
     );
     return $form;
   }
   elseif (!user_access('can have relationships', $requestee)) {
     $form['error'] = array(
-      '#type' => 'markup',
       '#prefix' => '<div>',
       '#suffix' => '</div>',
-      '#value' => user_relationships_ui_get_message('not_accepting_requests') . $script
+      '#markup' => user_relationships_ui_get_message('not_accepting_requests') . $script
     );
     return $form;
   }
   elseif ($user->uid == $requestee->uid) {
     $form['error'] = array(
-      '#type' => 'markup',
       '#prefix' => '<div>',
       '#suffix' => '</div>',
-      '#value' => user_relationships_ui_get_message('self_request') . $script
+      '#markup' => user_relationships_ui_get_message('self_request') . $script
     );
     return $form;
   }
   elseif (!variable_get('user_relationships_allow_multiple', TRUE) &&
            $relationships_count = user_relationships_load(array('between' => array($requester->uid, $requestee->uid)), array('count' => TRUE))) {
     $form['error'] = array(
-      '#type' => 'markup',
       '#prefix' => '<div>',
       '#suffix' => '</div>',
-      '#value' => user_relationships_ui_get_message('too_many_relationships') . $script
+      '#markup' => user_relationships_ui_get_message('too_many_relationships') . $script
     );
     return $form;
   }
@@ -161,7 +157,7 @@ function user_relationships_ui_pending_requested_ajax($action, $account, $relati
 /**
  * Approve, Disapprove, or Cancel confirmation form
  */
-function user_relationships_ui_pending_requested(&$form_state, $action, $account, $relationship) {
+function user_relationships_ui_pending_requested($form, &$form_state, $action, $account, $relationship) {
   $viewed_id = $account->uid;
 
   $form['rid'] = array(
@@ -183,7 +179,7 @@ function user_relationships_ui_pending_requested(&$form_state, $action, $account
       $confirmation_message = t('Are you sure you want to approve the %relationship_name relationship request from !name?', array(
         '@action'             => $action,
         '%relationship_name'  => ur_tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name),
-        '!name'               => theme('username', user_load(array('uid' => ($viewed_id == $relationship->requester_id ? $relationship->requestee_id : $relationship->requester_id))))
+        '!name'               => theme('username', array('account' => user_load(($viewed_id == $relationship->requester_id ? $relationship->requestee_id : $relationship->requester_id))))
       ));
       $action_message = t('Approve relationship');
       break;
@@ -191,7 +187,7 @@ function user_relationships_ui_pending_requested(&$form_state, $action, $account
       $confirmation_message = t('Are you sure you want to disapprove the %relationship_name relationship request from !name?', array(
         '@action'             => $action,
         '%relationship_name'  => ur_tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name),
-        '!name'               => theme('username', user_load(array('uid' => ($viewed_id == $relationship->requester_id ? $relationship->requestee_id : $relationship->requester_id))))
+        '!name'               => theme('username', array('account' => user_load(($viewed_id == $relationship->requester_id ? $relationship->requestee_id : $relationship->requester_id))))
       ));
       $action_message = t('Disapprove relationship');
       break;
@@ -199,7 +195,7 @@ function user_relationships_ui_pending_requested(&$form_state, $action, $account
       $confirmation_message = t('Are you sure you want to cancel your %relationship_name relationship request to !name?', array(
         '@action'             => $action,
         '%relationship_name'  => ur_tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name),
-        '!name'               => theme('username', user_load(array('uid' => ($viewed_id == $relationship->requester_id ? $relationship->requestee_id : $relationship->requester_id))))
+        '!name'               => theme('username', array('account' => user_load(($viewed_id == $relationship->requester_id ? $relationship->requestee_id : $relationship->requester_id))))
       ));
       $action_message = t('Cancel relationship');
   }
@@ -239,7 +235,7 @@ function user_relationships_ui_remove_ajax($account, $relationship) {
 /**
  * Confirm relationship removal.
  */
-function user_relationships_ui_remove(&$form_state, $account, $relationship) {
+function user_relationships_ui_remove($form, &$form_state, $account, $relationship) {
   global $user;
 
   $viewed_id = $account->uid;
@@ -259,7 +255,7 @@ function user_relationships_ui_remove(&$form_state, $account, $relationship) {
 
     t("Are you sure you wish to delete the %relationship_name relationship with !name?", array(
       '%relationship_name'  => ur_tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name),
-      '!name'               => theme('username', user_load(array('uid' => ($viewed_id == $relationship->requester_id ? $relationship->requestee_id : $relationship->requester_id))))
+      '!name'               => theme('username', array('account' => user_load(array('uid' => ($viewed_id == $relationship->requester_id ? $relationship->requestee_id : $relationship->requester_id)))))
     )),
     t('Yes'), t('No'),
     'user_relationships_remove_confirm'

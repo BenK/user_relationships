@@ -235,7 +235,7 @@ function user_relationships_save_relationship(&$relationship, $op = 'request') {
       // Delete possible requests coming the other direction
       $relationship_type = user_relationships_type_load($relationship->rtid);
       if (!$relationship_type->is_oneway) {
-        db_delete('user_relationshipts')
+        db_delete('user_relationships')
           ->condition('rtid', $relationship->rtid)
           ->condition('requester_id', $relationship->requestee_id)
           ->condition('requestee_id', $relationship->requester_id)
@@ -358,15 +358,17 @@ function user_relationships_load($param = array(), $options = array(), $reset = 
   $arguments = array();
   if (is_numeric($param)) {
     if (!$reset && isset($relationships[$param])) {
-      return is_object($relationships[$param]) ? clone ($relationships[$param]) : $relationships[$param];
+      return is_object($relationships[$param]) ? clone $relationships[$param] : $relationships[$param];
     }
     $rid = $param;
     $param = array('rid' => $param);
   }
 
-  $query = _user_relationships_generate_query($param, $options, isset($count) && $count);
+  $options['only_count'] = !empty($count);
 
-  if (isset($count) && $count) {
+  $query = _user_relationships_generate_query($param, $options);
+
+  if (!empty($count)) {
     return (int)$query->execute()->fetchField();
   }
 

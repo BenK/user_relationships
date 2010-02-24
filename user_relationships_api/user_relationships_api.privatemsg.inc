@@ -9,7 +9,7 @@
  * Fills new Privatemsg autocomplete To: field with friends only.
  *
  */
-function privatemsg_filter_query_privatemsg_autocomplete_alter($query) {
+function user_relationships_api_query_privatemsg_autocomplete_alter($query) {
   //#522078 killswitch for autocomplete
   if (!variable_get('user_relationships_privatemsg_autocomplete_alter', 0)) {
     return;

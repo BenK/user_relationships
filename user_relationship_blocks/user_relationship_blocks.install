@@ -26,19 +26,11 @@ function user_relationship_blocks_schema() {
  * Install
  */
 function user_relationship_blocks_install() {
-  drupal_install_schema('user_relationship_blocks');
 
   include_once(drupal_get_path('module', 'user_relationship_blocks') .'/user_relationship_blocks.module');
   include_once(drupal_get_path('module', 'user_relationships_api') .'/user_relationships_api.module');
 
   _user_relationship_blocks_insert_defaults();
-}
-
-/**
- * Uninstall
- */
-function user_relationship_blocks_uninstall() {
-  drupal_uninstall_schema('user_relationship_blocks');
 }
 
 /**

@@ -24,12 +24,16 @@ if ($relationships) {
 
     $title = $rtype_heading;
 
-    $username = theme('username', $relatee);
+    $username = theme('username', array('account' => $relatee));
     $rows[$title][] = $username;
   }
 
   foreach ($rows as $title => $users) {
-    $output[] = theme('item_list', ($rtid == UR_BLOCK_ALL_TYPES ? array($users) : $users), $showing_all_types ? $title : NULL);
+    $variables = array('items' => ($rtid == UR_BLOCK_ALL_TYPES ? array($users) : $users));
+    if ($showing_all_types) {
+      $variables['title'] = $title;
+    }
+    $output[] = theme('item_list', $variables);
   }
 
   print implode('', $output);

@@ -25,7 +25,7 @@ Enable User Relationship Migrate in the "Site building -> Modules" administratio
 Usage
 -----
 After enabling the module, go to the "User management -> Relationships" page
-(admin/user/relationships) and click on "Migrate buddylist2" in the menu across the top.
+(admin/config/people/relationships) and click on "Migrate buddylist2" in the menu across the top.
 
 Enter a relationship type for the migrated relationships, and click Migrate. 
 Your Buddylist data will be treated correctly depending on the type of relationship you are 

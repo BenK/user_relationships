@@ -326,7 +326,7 @@ function theme_user_relationship_implications_page($uid = NULL, $relationship = 
     );
   }
   if (count($rows)) {
-    $output .= theme('table', array(), $rows, array('class' => 'user-relationship-implications-listing-table'));
+    $output .= theme('table', array(), $rows, array('class' => array('user-relationship-implications-listing-table')));
   }
   else {
     $output .= t('No relationships found');

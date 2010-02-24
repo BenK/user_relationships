@@ -73,11 +73,12 @@ function user_relationships_ui_request_validate($form, &$form_state) {
       }
     }
     //check if there aren't any available (not yet used) types that can be established
-    if (!db_result(db_query(
-      'SELECT COUNT(*) FROM {user_relationship_types}' . 
-      ($test_relationships ? ' WHERE rtid NOT IN ('. db_placeholders($test_relationships) .')' : ''),
-      array_keys($test_relationships)
-    ))) {
+    $select = db_select('user_relationship_types');
+    $select->addExpression('COUNT(*)', 'count');
+    if ($test_relationships) {
+      $select->condition('rtid', $test_relationships, 'NOT IN');
+    }
+    if (!$select->execute()->fetchField()) {
       drupal_set_message(user_relationships_ui_get_message('too_many_relationships'), 'error');
       drupal_goto();
     }

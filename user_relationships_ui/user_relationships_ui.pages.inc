@@ -23,8 +23,8 @@ function user_relationships_ui_types_list_page() {
       ($relationship->is_oneway ? ($relationship->is_reciprocal ? t('reciprocal') : t('one way')) : t('mutual')),
       ($relationship->requires_approval ? t('yes') : t('no')),
       ($relationship->expires_val ? t('@expires_val', array('@expires_val' => format_plural($relationship->expires_val, '1 day', '@count days'))) : t('Never')),
-      l(t('edit'),    "admin/user/relationships/{$relationship->rtid}/edit") .' | '.
-      l(t('delete'),  "admin/user/relationships/{$relationship->rtid}/delete")
+      l(t('edit'),    "admin/config/people/relationships/{$relationship->rtid}/edit") .' | '.
+      l(t('delete'),  "admin/config/people/relationships/{$relationship->rtid}/delete")
     );
   }
 
@@ -40,10 +40,14 @@ function user_relationships_ui_types_list_page() {
   $page['relationships'] = array(
     '#type'   => 'fieldset',
     '#title'  => t('Relationship Types'),
-    '#weight' => 0
+    '#weight' => 0,
+    // No automatic fieldset processing to avoid fatal error. Maybe a core bug?
+    '#pre_render' => array(),
+    // Avoid notice/error in seven theme.
+    '#attributes' => array(),
   );
     $page['relationships']['list'] = array(
-      '#value' => theme('table', $table['headers'], $table['rows'])
+      '#markup' => theme('table', array('header' => $table['headers'], 'rows' => $table['rows']))
     );
 
   return drupal_render($page);
@@ -58,7 +62,7 @@ function user_relationships_page($account = NULL, $rtid = NULL) {
     $account = $user;
   }
 
-  return theme('user_relationships', $account, $rtid);
+  return theme('user_relationships', array('account' => $account, 'rtid' =>  $rtid));
 }
 
 /**
@@ -71,5 +75,5 @@ function user_relationships_pending_requests_page($account = NULL) {
     $account = $user;
   }
 
-  return theme('user_relationships_pending_requests', $account);
+  return theme('user_relationships_pending_requests', array('account' => $account));
 }

@@ -10,20 +10,20 @@ if ($relationships) {
     $this_user      = $relationship->{$this_user_str};
 
     $row = array(
-      theme('username', $this_user),
+      theme('username', array('account' => $this_user)),
       ur_tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name) . ($relationship->is_oneway ? ($this_user_str == 'requestee' ? t(' (You to Them)') : t(' (Them to You)')) : NULL),
       $relationship->extra_for_display,
-      $edit_access ? theme('user_relationships_remove_link', $account->uid, $relationship->rid) : '&nbsp;',
+      $edit_access ? theme('user_relationships_remove_link', array('uid' => $account->uid, 'rid' => $relationship->rid)) : '&nbsp;',
     );
     if (variable_get('user_relationships_show_user_pictures', 0)) {
-      array_unshift($row, theme('user_picture', $this_user)); 
+      array_unshift($row, theme('user_picture', array('account' => $this_user)));
     }
     $rows[] = $row;
   }
 
   print
-    theme('table', array(), $rows, array('class' => 'user-relationships-listing-table')) .
-    theme('pager', NULL, $relationships_per_page);
+    theme('table', array('rows' =>  $rows, 'attributes' => array('class' => array('user-relationships-listing-table'))));
+    //theme('pager');
 }
 else {
   print t('No relationships found');
