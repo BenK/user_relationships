@@ -253,10 +253,8 @@ function user_relationships_save_relationship(&$relationship, $op = 'request') {
         $select = db_select('user_relationships', 'ur')
           ->fields('ur', array('rid', 'requester_id', 'requestee_id', 'rtid', 'approved', 'created_at', 'updated_at', 'flags'))
           ->condition('rid', $relationship->rid);
-        debug($select->__toString());
-        debug(db_insert('user_relationships')
-          ->from($select)->__toString());
         db_insert('user_relationships')
+          ->fields(array('rid', 'requestee_id', 'requester_id', 'rtid', 'approved', 'created_at', 'updated_at', 'flags'))
           ->from($select)
           ->execute();
      }
