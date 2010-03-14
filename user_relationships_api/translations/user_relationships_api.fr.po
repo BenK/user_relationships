@@ -1,0 +1,110 @@
+# French translation of User Relationships (6.x-1.0-rc3)
+# Copyright (c) 2009 by the French translation team
+# Generated from files:
+#  user_relationships_api.actions.inc,v 1.1.2.7 2009/11/07 19:17:26 alexk
+#  user_relationships_api.api.inc,v 1.1.2.17 2009/11/08 17:32:35 alexk
+#  user_relationships_api.privatemsg.inc,v 1.1.2.6 2009/10/24 22:39:07 alexk
+#  user_relationships_api.module,v 1.1.2.21 2009/11/07 21:24:54 alexk
+#  user_relationships_api.info,v 1.1.2.4 2008/04/21 00:38:19 sprsquish
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: User Relationships (6.x-1.0-rc3)\n"
+"POT-Creation-Date: 2009-12-01 14:18+0000\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Language-Team: French\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n>1);\n"
+
+#: user_relationships_api/user_relationships_api.actions.inc:15
+msgid ""
+"When either saving a new relationship type or updating an existing "
+"relationship type"
+msgstr "Quand vous sauvegardez un nouveau type de relation ou mettez à un jour un type de relation existant"
+
+#: user_relationships_api/user_relationships_api.actions.inc:18
+msgid "After saving a new relationship type"
+msgstr "Après avoir sauvé un nouveau type de relation"
+
+#: user_relationships_api/user_relationships_api.actions.inc:24
+msgid "After deleting a relationship type"
+msgstr "Après avoir supprimé un type de relation"
+
+#: user_relationships_api/user_relationships_api.actions.inc:27
+msgid "When a relationship type is loaded"
+msgstr "Quand un type de relation est chargé"
+
+#: user_relationships_api/user_relationships_api.actions.inc:30
+msgid ""
+"When either saving a new relationship or updating an existing "
+"relationship"
+msgstr "Quand vous sauvegardez une nouvelle relation ou mettez à un jour une relation existante"
+
+#: user_relationships_api/user_relationships_api.actions.inc:33
+msgid "After a new relationship has been requested"
+msgstr "Après qu'une nouvelle relation ait été demandée"
+
+#: user_relationships_api/user_relationships_api.actions.inc:36
+msgid "When a relationship has been removed (specifically cancelled)"
+msgstr "Quand une relation a été supprimée (spécifiquement supprimée)"
+
+#: user_relationships_api/user_relationships_api.actions.inc:39
+msgid "After saving an existing relationship"
+msgstr "Après avoir sauvé une relation existante"
+
+#: user_relationships_api/user_relationships_api.actions.inc:42
+msgid "After approving a relationship"
+msgstr "Après avoir approuvé une relation"
+
+#: user_relationships_api/user_relationships_api.actions.inc:45
+msgid "When a relationship has been removed (specifically disapproved)"
+msgstr "Quand une relation a été supprimée (spécifiquement refusée)"
+
+#: user_relationships_api/user_relationships_api.actions.inc:48
+msgid "When a relationship has been removed"
+msgstr "Quand une relation a été supprimée"
+
+#: user_relationships_api/user_relationships_api.api.inc:181
+msgid "user_relationships_api"
+msgstr ""
+
+#: user_relationships_api/user_relationships_api.api.inc:181
+msgid "User %user has no suitable roles to request a %rtype relationship"
+msgstr "L'utilisateur %user n'a aucun rôle permettant de requêter une relation de type %rtype"
+
+#: user_relationships_api/user_relationships_api.privatemsg.inc:51
+msgid "!name is not a friend of yours."
+msgstr "!name ne fait pas partie de vos amis."
+
+#: user_relationships_api/user_relationships_api.module:200
+msgid "can have relationships"
+msgstr "peut avoir des relations"
+
+#: user_relationships_api/user_relationships_api.info:0
+msgid "UR-API"
+msgstr ""
+
+#: user_relationships_api/user_relationships_api.info:0
+msgid ""
+"API for User Relationships. This will only provide the programmer "
+"interface."
+msgstr "API pour User Relationship. Cela fournit uniquement l'interface de programmation"
+
+#: user_relationships_api/user_relationships_api.actions.inc:21
+msgid "After saving an existing relationship type"
+msgstr "Après avoir sauvegardé un type de relation existant"
+
+#: user_relationships_api/user_relationships_api.module:308
+msgid "The user who issued the connection request."
+msgstr "L'utilisateur qui a initié la demande de connection."
+
+#: user_relationships_api/user_relationships_api.module:313
+msgid "The user who approved the connnection request."
+msgstr "L'utilisateur qui a approuvé la demande de connection."
+
+#: user_relationships_api/user_relationships_api.module:314
+msgid "The relationship name (singular form)"
+msgstr "Le nom de la relation (au singulier)"
+

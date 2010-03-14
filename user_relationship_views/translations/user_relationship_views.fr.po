@@ -1,0 +1,190 @@
+# French translation of User Relationships (6.x-1.0-rc3)
+# Copyright (c) 2009 by the French translation team
+# Generated from files:
+#  views_handler_filter_user_relationships_status.inc,v 1.1.2.1 2008/10/08 14:38:41 alexk
+#  user_relationship_views.views.inc,v 1.1.2.5 2009/11/07 21:47:04 alexk
+#  views_handler_filter_user_relationships_type.inc,v 1.1.2.3 2009/07/10 07:27:49 alexk
+#  views_handler_field_user_relationships_name.inc,v 1.1.2.1 2008/10/08 14:38:41 alexk
+#  user_relationship_views.info,v 1.1.2.1 2008/10/08 14:38:41 alexk
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: User Relationships (6.x-1.0-rc3)\n"
+"POT-Creation-Date: 2009-12-01 14:18+0000\n"
+"PO-Revision-Date: 2009-09-18 12:28+0000\n"
+"Language-Team: French\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n>1);\n"
+
+#: user_relationship_views/views_handler_filter_user_relationships_status.inc:12,22
+msgid "Status"
+msgstr "Statut"
+
+#: user_relationship_views/user_relationship_views.views.inc:133
+msgid "Created date"
+msgstr "Date de création"
+
+#: user_relationship_views/user_relationship_views.views.inc:147
+msgid "Updated date"
+msgstr "Date de mise à jour"
+
+#: user_relationship_views/views_handler_filter_user_relationships_type.inc:26
+msgid "Relationship types"
+msgstr "Types de relation"
+
+#: user_relationship_views/user_relationship_views.views.inc:58,58,58
+msgid "Relationship type"
+msgstr "Type de relation"
+
+#: user_relationship_views/user_relationship_views.views.inc:119
+msgid "Relationship status"
+msgstr "Statut de la relation"
+
+#: user_relationship_views/user_relationship_views.views.inc:16
+msgid "User relationships"
+msgstr ""
+
+#: user_relationship_views/user_relationship_views.views.inc:37
+msgid "User relationship"
+msgstr ""
+
+#: user_relationship_views/user_relationship_views.views.inc:38
+msgid ""
+"Relationships that link users to one another. Use this to show user "
+"data, profile fields, or content_profile nodes of related users."
+msgstr "Relations qui lie des utilisateurs entre eux. A utiliser pour montrer aux utilisateurs des données, des champs de profil, ou des nodes content_profile d'utilisateurs en relation avec eux."
+
+#: user_relationship_views/user_relationship_views.views.inc:43,189
+msgid "RTID"
+msgstr ""
+
+#: user_relationship_views/user_relationship_views.views.inc:44
+msgid "Type ID of the relationship"
+msgstr "ID du type de la relation"
+
+#: user_relationship_views/user_relationship_views.views.inc:54
+msgid "Bring in name, type, and other properties of relationships"
+msgstr "Apporte le nom, le type, et d'autre propriétés de la relation"
+
+#: user_relationship_views/user_relationship_views.views.inc:59
+msgid "Singular or plural name of the relationship"
+msgstr "Nom singulier ou pluriel de la relation"
+
+#: user_relationship_views/user_relationship_views.views.inc:73
+msgid "Requester user"
+msgstr "utilisateur demandeur"
+
+#: user_relationship_views/user_relationship_views.views.inc:74
+msgid "User who started the relationship"
+msgstr "Utilisateur initiateur de la relation"
+
+#: user_relationship_views/user_relationship_views.views.inc:92
+msgid ""
+"Bring in data about the user who started the relationship, or link to "
+"relationships that they have established"
+msgstr "Amène des données concernant l'utilisateur initiateur de la relation, ou un lien sur les relations qui ont été établies"
+
+#: user_relationship_views/user_relationship_views.views.inc:96
+msgid "Requestee user"
+msgstr "Utilisateur destinataire"
+
+#: user_relationship_views/user_relationship_views.views.inc:97
+msgid "User who accepted the relationship"
+msgstr "Utilisateur qui a accepté la mise en relation"
+
+#: user_relationship_views/user_relationship_views.views.inc:115
+msgid ""
+"Bring in data about the user who accepted the relationship, or link to "
+"relationships that other users have established to this one"
+msgstr "Amène des données concernant l'utilisateur destinataire de la relation, ou un lien sur les relations que d'autres utilisateurs ont établies avec celui-ci"
+
+#: user_relationship_views/user_relationship_views.views.inc:120
+msgid "Pending/approved relationship status"
+msgstr "Statut de la relation en attente / approuvée"
+
+#: user_relationship_views/user_relationship_views.views.inc:134
+msgid "Date the relationship was requested or created"
+msgstr "Date à laquelle la relation a été créée ou demandée"
+
+#: user_relationship_views/user_relationship_views.views.inc:148
+msgid "Date the relationship was approved or edited"
+msgstr "Date à laquelle la relation a été approuvée ou éditée"
+
+#: user_relationship_views/user_relationship_views.views.inc:170
+msgid "User relationship types"
+msgstr "Types de User relationship"
+
+#: user_relationship_views/user_relationship_views.views.inc:183
+msgid "User relationship type"
+msgstr "type de User relationship"
+
+#: user_relationship_views/user_relationship_views.views.inc:184
+msgid ""
+"Kinds of relationships that can link users to one another. Use this if "
+"you want to show the kinds of relationships your site offers."
+msgstr "Sortes de relations qui peuvent lier les utilisateurs entre eux. A utiliser si vous voulez présenter les sortes de relations que votre site offre."
+
+#: user_relationship_views/user_relationship_views.views.inc:190
+msgid "Type of the relationship"
+msgstr "Type de la relation"
+
+#: user_relationship_views/user_relationship_views.views.inc:207
+msgid "Name of the relationship (singular)"
+msgstr "Nom de la relation (singulier)"
+
+#: user_relationship_views/user_relationship_views.views.inc:221
+msgid "Name of the relationship (plural)"
+msgstr "Nom de la relation (pluriel)"
+
+#: user_relationship_views/user_relationship_views.views.inc:245
+msgid "Requires approval"
+msgstr "Nécessite une approbation"
+
+#: user_relationship_views/user_relationship_views.views.inc:257
+msgid "Expiration period of pending relationship requests"
+msgstr "Période d'expiration des requêtes de relation en attente"
+
+#: user_relationship_views/views_handler_field_user_relationships_name.inc:26
+msgid "Singular/Plural"
+msgstr "Singulier / Pluriel"
+
+#: user_relationship_views/views_handler_field_user_relationships_name.inc:28
+msgid "Singular name"
+msgstr "Nom singulier"
+
+#: user_relationship_views/views_handler_filter_user_relationships_type.inc:27
+msgid "Enter a comma separated list of types."
+msgstr "Entrez une liste de types, séparés par des virgules."
+
+#: user_relationship_views/user_relationship_views.info:0
+msgid "UR-Views"
+msgstr ""
+
+#: user_relationship_views/user_relationship_views.info:0
+msgid "Integrates User Relationships with Views"
+msgstr "Intègre User Relationships avec Views"
+
+#: user_relationship_views/user_relationship_views.views.inc:235
+msgid "Whether the relationship is one way or mutual"
+msgstr "Si la relation est à sens unique ou mutuelle"
+
+#: user_relationship_views/user_relationship_views.views.inc:246
+msgid "Whether relationship requests must be approved"
+msgstr "Si les requêtes de mise en relation doivent être approuvées"
+
+#: user_relationship_views/views_handler_filter_user_relationships_type.inc:102
+msgid "Unable to find relationship type: @types"
+msgid_plural "Unable to find relationship types: @types"
+msgstr[0] "Impossible de trouver le type de relation: @types"
+msgstr[1] "Impossible de trouver les types de relation: @types"
+
+#: user_relationship_views/user_relationship_views.views.inc:161
+msgid "Status link"
+msgstr "Lien de mise à jour du statut"
+
+#: user_relationship_views/user_relationship_views.views.inc:162
+msgid "Provides a link to change status of the relationship."
+msgstr "Fournit un lien de mise à jour du statut de la relation."
+
