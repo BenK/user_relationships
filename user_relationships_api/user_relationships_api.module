@@ -52,8 +52,7 @@ function _user_relationships_generate_query($param = array(), $options = array()
 
     switch ($key) {
     case 'between':
-      $or = db_or()
-        ->condition(db_and()
+      $or = db_or()->condition(db_and()
           ->condition('ur.requester_id', $value[0])
           ->condition('ur.requestee_id', $value[1])
       );

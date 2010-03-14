@@ -13,10 +13,7 @@ class views_handler_filter_user_relationships_type extends views_handler_filter_
   function value_form(&$form, &$form_state) {
     $values = array();
     if ($this->value) {
-      $result = db_query("SELECT * FROM {user_relationship_types} rt WHERE rtid IN (". implode(', ', $this->value) .")");
-      while ($rtype = db_fetch_object($result)) {
-        $values[] = $rtype->name;
-      }
+      $values = db_query("SELECT * FROM {user_relationship_types} rt WHERE rtid IN (:values)", array(':values' => $this->value))->fetchAll();
     }
 
     sort($values);
@@ -92,8 +89,8 @@ class views_handler_filter_user_relationships_type extends views_handler_filter_
       return $rtids;
     }
 
-    $result = db_query("SELECT * FROM {user_relationship_types} WHERE name IN (". implode(', ', $placeholders) .")", $args);
-    while ($rtype = db_fetch_object($result)) {
+    $result = db_query("SELECT * FROM {user_relationship_types} WHERE name IN (:placeholders)", array(':placeholders' => $args));
+    foreach ($result as $rtid) {
       unset($missing[strtolower($rtype->name)]);
       $rtids[] = $rtype->rtid;
     }
@@ -127,13 +124,8 @@ class views_handler_filter_user_relationships_type extends views_handler_filter_
     $this->value_options = array();
 
     if ($this->value) {
-      $result = db_query("SELECT * FROM {user_relationship_types} rt WHERE rtid IN (". implode(', ', $this->value) .")");
-
-      while ($rtype = db_fetch_object($result)) {
-        $this->value_options[$rtype->rtid] = $rtype->name;
-      }
+      $this->value_options = db_query("SELECT rtid, name FROM {user_relationship_types} rt WHERE rtid IN (:values)", array(':values' => $this->value))->fetchAllKeyed();
     }
-
     return parent::admin_summary();
   }
 }

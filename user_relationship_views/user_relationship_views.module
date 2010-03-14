@@ -12,7 +12,7 @@
  */
 function user_relationship_views_views_api() {
   return array(
-    'api' => 2,
+    'api' => 3,
     'path' => drupal_get_path('module', 'user_relationship_views'),
   );
 }
@@ -46,9 +46,9 @@ function user_relationship_views_ajax_autocomplete_relationships_type($string = 
   if ($last_string != '') {
     $prefix = count($array) ? implode(', ', $array) .', ' : '';
 
-    $result = db_query_range("SELECT rtid, name FROM {user_relationship_types} WHERE LOWER(name) LIKE LOWER('%s%%')", $last_string, 0, 10);
+    $result = db_query_range("SELECT rtid, name FROM {user_relationship_types} WHERE LOWER(name) LIKE LOWER(:string)", 0, 10, array(':string' => $last_string));
 
-    while ($rtype = db_fetch_object($result)) {
+    foreach ($result as $rtype) {
       $n = $rtype->name;
       // Commas and quotes in terms are special cases, so encode 'em.
       if (strpos($rtype->name, ',') !== FALSE || strpos($rtype->name, '"') !== FALSE) {

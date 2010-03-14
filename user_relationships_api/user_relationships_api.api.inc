@@ -264,7 +264,7 @@ function user_relationships_save_relationship(&$relationship, $op = 'request') {
     return $relationship;
   }
   catch (Exception $e) {
-    $transaction->rollback('user_relationships', $e->getMessage(), array(), WATCHDOG_ERROR);
+    $transaction->rollback('user_relationships', $e, array(), WATCHDOG_ERROR);
     return FALSE;
   }
 }
