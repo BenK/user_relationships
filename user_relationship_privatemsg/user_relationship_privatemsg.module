@@ -1,0 +1,142 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Allows to send messages to all members of a role.
+ */
+
+/**
+ * Implements hook_perm().
+ */
+function user_relationship_privatemsg_perm() {
+  return array(
+    'write privatemsg to relationships',
+  );
+}
+
+/**
+ * Implements hook_privatemsg_recipient_types_info().
+ */
+function user_relationship_privatemsg_privatemsg_recipient_type_info() {
+  return array(
+    'relationship' => array(
+      'name' => t('Relationship'),
+      'format' => 'user_relationship_privatemsg_format',
+      'autocomplete' => 'user_relationship_privatemsg_autocomplete',
+      'generate recipients' => 'user_relationship_privatemsg_load_recipients',
+      'max' => 'user_relationship_privatemsg_count_recipients',
+    ),
+  );
+}
+
+function user_relationship_privatemsg_format($relationship) {
+  return $relationship->relationship_name . ' ' .  t('[relationship]');
+}
+
+function user_relationship_privatemsg_load_recipients($recipient, $author, $limit, $offset) {
+  $recipients = array();
+  $result = db_query('SELECT requestee_id FROM {user_relationships} WHERE rtid = %d AND requester_id = %d AND requestee_id > %d ORDER BY requestee_id ASC LIMIT %d', $recipient->recipient, $author->uid, $offset, $limit);
+
+  while ($row = db_fetch_object($result)) {
+    $recipients[] = $row->requestee_id;
+  }
+  return $recipients;
+}
+
+/**
+ * Return the number of users which have a given role.
+ */
+function user_relationship_privatemsg_count_recipients($recipient, $author) {
+  return db_result(db_query('SELECT MAX(requestee_id) FROM {user_relationships} WHERE rtid = %d AND requester_id = %d requestee_id > %d ORDER BY requestee_id ASC LIMIT %d', $recipient->recipient, $author->uid, $offset, $limit));
+}
+
+/**
+ * Implements hook_privatemsg_recipient_autocomplete().
+ */
+function user_relationship_privatemsg_autocomplete($fragment, $names, $limit) {
+  if (user_access('write privatemsg to relationships')) {
+    $query = _privatemsg_assemble_query(array('autocomplete_roles', 'user_relationship_privatemsg'), $fragment, $names);
+    $result = db_query_range($query['query'], $fragment, 0, $limit);
+    // 3: Build proper suggestions and print.
+    $matches = array();
+    while ($role = db_fetch_object($result)) {
+      // Don't use placeholders to make sure that the [relationship] is always at the end
+      // and can be used when resolving names again.
+      $matches[$role->plural_name] = $role->plural_name . ' ' .  t('[relationship]');
+    }
+    return $matches;
+  }
+  return array();
+}
+
+/**
+ * Implements hook_privatemsg_name_lookup().
+ */
+function user_relationship_privatemsg_privatemsg_name_lookup($string) {
+  global $user;
+  // To make it possible to have users and roles with the same name, roles need
+  // to contain an [relationship] as part of their "name".
+  // Search and replace this before looking up the role name.
+  if (strpos($string, t('[relationship]')) !== FALSE) {
+    $relationship = str_replace(t('[relationship]'), '', $string);
+    $result = db_query("SELECT *, rtid as recipient FROM {user_relationship_types} WHERE plural_name = '%s'", trim($relationship));
+    if ($relationship = db_fetch_object($result)) {
+      $relationship->type = 'relationship';
+      return $relationship;
+    }
+  }
+}
+
+/**
+ * Implements hook_privatemgs_sql_participants_alter().
+ */
+function user_relationship_privatemsg_privatemsg_sql_participants_alter(&$fragments, $thread_id) {
+  $fragments['select'][] = "relationship.plural_name AS relationship_name";
+
+  $fragments['inner_join'][] = "LEFT JOIN {user_relationship_types} relationship ON (relationship.rtid = pmi.recipient AND pmi.type = 'relationship')";
+  $fragments['group_by'][]    = 'relationship_name';
+}
+
+/**
+ * Implementation of hook_privatemsg_block_message().
+ */
+function user_relationship_privatemsg_privatemsg_block_message($author, $recipients) {
+  $blocked = array();
+  foreach($recipients as $key => $recipient) {
+    // Deny/block if the recipient type is role and the account does not have
+    // the necessary permission.
+    if ($recipient->type == 'relationship' && !privatemsg_user_access('write privatemsg to relationships', $author)) {
+      $blocked[] = array(
+        'recipient' => $key,
+        'message' => t('Not allowed to write private messages to relationships'),
+      );
+    }
+  }
+  return $blocked;
+}
+
+/**
+ * Query definition to search for username autocomplete suggestions.
+ *
+ * @param $fragments
+ *   Query fragments array.
+ * @param $search
+ *   Which search string is currently searched for.
+ * @param $names
+ *   Array of names not to be used as suggestions.
+ */
+function user_relationship_privatemsg_sql_autocomplete_roles(&$fragments, $search, $names) {
+  $fragments['primary_table'] = '{user_relationship_types} urt';
+  $fragments['select'][] = 'urt.plural_name';
+
+  // Escape the % to get it through the placeholder replacement.
+  $fragments['where'][] = "urt.plural_name LIKE '%s'";
+  $fragments['query_args']['where'][] = $search .'%%';
+  if (!empty($names)) {
+    // If there are already names selected, exclude them from the suggestions.
+    $fragments['where'][] = "urt.plural_name NOT IN (". db_placeholders($names, 'text') .")";
+    $fragments['query_args']['where'] += $names;
+  }
+  $fragments['order_by'][] = 'urt.plural_name ASC';
+}
