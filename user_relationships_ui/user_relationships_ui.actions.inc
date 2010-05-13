@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.actions.inc,v 1.1.2.15 2010-01-03 19:46:06 alexk Exp $
+// $Id: user_relationships_ui.actions.inc,v 1.1.2.16 2010-05-13 19:15:57 alexk Exp $
 
 /**
  * @file
@@ -40,6 +40,19 @@ function user_relationships_ui_request_validate($form, &$form_state) {
     }
     //check user is allowed to request this type
     if (!user_relationships_api_can_request($requester, $rtype)) {
+      $rtype->requester = $requester;
+      $rtype->requestee = $requestee;
+      form_set_error('rtid', user_relationships_ui_get_message('relationship_type_not_allowed', $rtype));
+      if (isset($_GET['ajax'])) {
+        drupal_goto();
+      }
+      else {
+        return;
+      }
+    }
+
+    //check user is allowed to receive this type
+    if (!user_relationships_api_can_receive($requestee, $rtype)) {
       $rtype->requester = $requester;
       $rtype->requestee = $requestee;
       form_set_error('rtid', user_relationships_ui_get_message('relationship_type_not_allowed', $rtype));

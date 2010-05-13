@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.admin.inc,v 1.1.2.22 2010-05-13 17:51:45 alexk Exp $
+// $Id: user_relationships_ui.admin.inc,v 1.1.2.23 2010-05-13 19:15:57 alexk Exp $
 
 /**
  * @file
@@ -209,6 +209,16 @@ function user_relationships_ui_type_edit(&$form_state, $relationship_type = NULL
       '#type' => 'checkboxes',
       '#options' => user_roles(TRUE),
       '#default_value' => isset($relationship_type->roles) ? $relationship_type->roles : array(),
+    ),
+  );
+  $form['roles_receive'] = array(
+    '#title' => t('Role receive access'),
+    '#type' => 'fieldset',
+    '#description' => t('You may choose which roles are allowed to receive this relationship. If none are selected, all roles are allowed to receive the relationship.'),
+    'roles_receive' => array(
+      '#type' => 'checkboxes',
+      '#options' => user_roles(TRUE),
+      '#default_value' => is_array($relationship_type->roles_receive) ? $relationship_type->roles_receive : array(),
     ),
   );
   $form['rtid'] = array(
