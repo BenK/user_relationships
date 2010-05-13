@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_node_access.module,v 1.1.4.14 2010-01-03 13:44:15 alexk Exp $
+// $Id: user_relationship_node_access.module,v 1.1.4.15 2010-05-13 19:31:02 alexk Exp $
 // Copyright (C) 2008 Jonathan Brown
 // http://openpackage.biz/
 
@@ -175,7 +175,7 @@ function user_relationship_node_access_form_alter(&$form, $form_state, $form_id)
       '#default_value'  => $defaults,
       '#description'    => $is_group_post ? 
              t('@group_post_ur_node_access_description', array('@group_post_ur_node_access_description' => '')) : 
-             t('If no box is ticked, then anyone can @action.', array('@action' => $action))
+             t('If no box is ticked, then anyone can @action.', array('@action' => t($action)))
     );
     if ($use_advanced_form) {
       $form['user_relationship_node_access'][$action]['#title'] = t('@action', array('@action' => ucfirst($action)));
