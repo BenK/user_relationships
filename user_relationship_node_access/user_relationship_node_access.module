@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_node_access.module,v 1.1.4.15 2010-05-13 19:31:02 alexk Exp $
+// $Id: user_relationship_node_access.module,v 1.1.4.16 2010-05-14 07:54:10 alexk Exp $
 // Copyright (C) 2008 Jonathan Brown
 // http://openpackage.biz/
 
@@ -231,9 +231,6 @@ function user_relationship_node_access_menu() {
  */
 function user_relationship_node_access_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
   global $user;
-  if ($node->uid != $user->uid) {
-    return;
-  }
 
   switch ($op) {
   case 'insert':
