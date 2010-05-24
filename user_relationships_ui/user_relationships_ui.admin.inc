@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.admin.inc,v 1.1.2.23 2010-05-13 19:15:57 alexk Exp $
+// $Id: user_relationships_ui.admin.inc,v 1.1.2.24 2010-05-24 12:03:33 alexk Exp $
 
 /**
  * @file
@@ -202,7 +202,7 @@ function user_relationships_ui_type_edit(&$form_state, $relationship_type = NULL
     '#weight'         => -5,
   );
   $form['roles'] = array(
-    '#title' => t('Role access'),
+    '#title' => t('Role request access'),
     '#type' => 'fieldset',
     '#description' => t('You may choose which roles are allowed to request this relationship. If none are selected, all roles are allowed.'),
     'roles' => array(
