@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.admin_actions.inc,v 1.1.2.14 2009-11-08 12:27:31 alexk Exp $
+// $Id: user_relationships_ui.admin_actions.inc,v 1.1.2.15 2010-05-13 19:15:57 alexk Exp $
 /**
  * @file
  * User Relationships admin submit handlers
@@ -9,7 +9,6 @@
  * Validate the submitted relationship type
  */
 function user_relationships_ui_type_edit_validate($form, &$form_state) {
-  // My god this is ugly. => Not anymore :)
   $select = db_select('user_relationship_types', 'urt')
     ->fields('urt', array('name'))
     ->where("LOWER(name) = LOWER(:name)", array(':name' => $form_state['values']['name']));
@@ -98,6 +97,21 @@ function user_relationships_ui_type_edit_submit($form, &$form_state) {
       if ($rid == $selected) {
         $role_record->rid = $selected;
         drupal_write_record('user_relationship_type_roles', $role_record);
+      }
+    }
+  }
+
+  //save role receive permissions for this rtype
+  db_delete('user_relationship_type_roles_receive')
+    ->condition('rtid', $relationship_type->rtid)
+    ->execute();
+  if ($form_state['values']['roles_receive']) {
+    $role_receive_record = new StdClass;
+    $role_receive_record->rtid = $relationship_type->rtid;
+    foreach ($form_state['values']['roles_receive'] as $rid => $selected) {
+      if ($rid == $selected) {
+        $role_receive_record->rid = $selected;
+        drupal_write_record('user_relationship_type_roles_receive', $role_receive_record);
       }
     }
   }

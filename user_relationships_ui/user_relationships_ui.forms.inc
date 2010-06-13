@@ -27,7 +27,7 @@ function user_relationships_ui_request_form($requester, $requestee, $form_values
     $default_relationship = $rtids[0];
   }
   //verify default relationship may be requested
-  $default_relationship = $relationships[$default_relationship] ? $default_relationship : NULL;
+  $default_relationship = isset($relationships[$default_relationship]) ? $default_relationship : NULL;
   
   if (count($relationships)) {
     //hide control if the relationship is chosen
@@ -130,7 +130,7 @@ function user_relationships_ui_request($form, &$form_state, $requestee) {
       $form,
       t('Request relationship'),
       "user/$requestee->uid",
-      $relationship ?
+      isset($relationship) ?
       ($relationship->requires_approval 
        ? t('Are you sure you wish to send a new %rel_name request to !name?', array('%name' => $requestee->name, '%rel_name' => ur_tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name), '%rel_plural_name' => ur_tt("user_relationships:rtid:$relationship->rtid:plural_name", $relationship->plural_name), '!name' => theme('username', $requestee))) 
        : t("Are you sure you want to become %name's %rel_name?", array('%name' => $requestee->name, '%rel_name' => ur_tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name)))) :
@@ -255,7 +255,7 @@ function user_relationships_ui_remove($form, &$form_state, $account, $relationsh
 
     t("Are you sure you wish to delete the %relationship_name relationship with !name?", array(
       '%relationship_name'  => ur_tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name),
-      '!name'               => theme('username', array('account' => user_load(array('uid' => ($viewed_id == $relationship->requester_id ? $relationship->requestee_id : $relationship->requester_id)))))
+      '!name'               => theme('username', array('account' => user_load(($viewed_id == $relationship->requester_id ? $relationship->requestee_id : $relationship->requester_id))))
     )),
     t('Yes'), t('No'),
     'user_relationships_remove_confirm'

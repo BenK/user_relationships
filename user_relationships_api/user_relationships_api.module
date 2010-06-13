@@ -193,7 +193,7 @@ function user_relationships_api_cron() {
         AND ur.updated_at < (:now - (urt.expires_val * 86400))
       GROUP BY ur.rid", array(':now' => $now)
   );
-  $expired_requests = $result->fetchAll();
+  $expired_requests = $result->fetchCol();
   if (count($expired_requests)) {
     db_delete('user_relationships')
       ->condition('rid', $expired_requests)
@@ -240,7 +240,7 @@ function user_relationships_api_user_relationships($op, &$relationship) {
     return;
   }
   if (module_exists('trigger')) {
-    $aids = _trigger_get_hook_aids('user_relationships_api', $op);
+    $aids = trigger_get_assigned_actions('user_relationships_api');
   
     $context = array(
       'hook' => 'user_relationships_api',
@@ -294,13 +294,13 @@ function user_relationships_api_token_values($type, $data = NULL, $options = arr
   if ($type == 'requester') {
     $r = $data;
     $token_values = array(
-      'requester' => theme('username', array('account' => user_load(array('uid' => $r)))),
+      'requester' => theme('username', array('account' => user_load($r))),
     );
   }
   elseif ($type == 'requestee') {
     $r = $data;
     $token_values = array(
-      'requestee' => theme('username', array('account' => user_load(array('uid' => $r)))),
+      'requestee' => theme('username', array('account' => user_load($r))),
     );
   }
   elseif ($type == 'relationship') {
@@ -308,8 +308,8 @@ function user_relationships_api_token_values($type, $data = NULL, $options = arr
     $r_type = user_relationships_type_load($r->rtid);
    
     $token_values = array(
-      'requestee' => theme('username', array('account' => user_load(array('uid' => $r->requestee_id)))),
-      'requester' => theme('username',array('account' => user_load(array('uid' => $r->requester_id)))),
+      'requestee' => theme('username', array('account' => user_load($r->requestee_id))),
+      'requester' => theme('username',array('account' => user_load($r->requester_id))),
       'relationship-name' => drupal_placeholder($r_type->name),
     );
   }

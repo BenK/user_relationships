@@ -168,7 +168,7 @@ function user_relationship_blocks_block_configure($delta) {
       $msg .= "\n". t("Because this relationship is one-way this block will show relationships where the @user_identifier is the @relation", array('@user_identifier' => $user_identifier, '@relation' => $relation));
     }
 
-    $sort_var = "{$var}_sort";
+    //$sort_var = "{$var}_sort";
     $form['sort'] = array(
       '#type'     => 'radios',
       '#title'    => t('Which relationships should be displayed'),
@@ -229,7 +229,7 @@ function user_relationship_blocks_block_view($delta) {
   if ($is_my_block && $user->uid) {
     $account =& $user;
   }
-  else if (module_exists('php') && $uid = drupal_eval($settings->get_account)) {
+  else if (module_exists('php') && $uid = php_eval($settings->get_account)) {
     $account = user_load($uid);
   }
 
@@ -366,6 +366,13 @@ function template_preprocess_user_relationships_block(&$variables) {
   $extra    =& $variables['extra'];
 
   $query_opts = array('include_user_info' => TRUE);
+
+  if (empty($settings->sort)) {
+    $settings->sort = 'newest';
+  }
+  if (empty($settings->size)) {
+    $settings->size = 10;
+  }
 
   // select the appropriate set of relationships based on admin's configuration settings
   switch ($settings->sort) {

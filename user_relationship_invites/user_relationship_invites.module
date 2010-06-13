@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationship_invites.module,v 1.1.2.4 2010-01-02 16:43:30 alexk Exp $
+// $Id: user_relationship_invites.module,v 1.1.2.5 2010-05-24 08:11:54 alexk Exp $
 
 /**
  * Drupal Module: User Relationship Invites
@@ -21,7 +21,7 @@
 */
 function user_relationship_invites_get_invite($code) {
   if ($invite = db_query("SELECT * FROM {user_relationship_invites} WHERE invite_code = :code", array(':code' => $code))->fetchObject()) {
-    $invite->inviter = user_load(array('uid' => $invite->inviter_uid));
+    $invite->inviter = user_load($invite->inviter_uid);
     $invite->relationship_type = user_relationships_type_load($invite->rtid);
   }
 
@@ -52,7 +52,7 @@ function user_relationship_invites_invite_form_validate($form, &$form_state) {
 /**
  * Implementation of hook_invite().
 */
-function user_relationship_invites_invite($op, &$args) {
+function user_relationship_invites_invite($op, $args) {
   switch ($op) {
     case 'invite':
       db_insert('user_relationship_invites')

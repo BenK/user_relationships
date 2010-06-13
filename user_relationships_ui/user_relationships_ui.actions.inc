@@ -1,5 +1,5 @@
 <?php
-// $Id: user_relationships_ui.actions.inc,v 1.1.2.15 2010-01-03 19:46:06 alexk Exp $
+// $Id: user_relationships_ui.actions.inc,v 1.1.2.16 2010-05-13 19:15:57 alexk Exp $
 
 /**
  * @file
@@ -51,6 +51,19 @@ function user_relationships_ui_request_validate($form, &$form_state) {
       }
     }
 
+    //check user is allowed to receive this type
+    if (!user_relationships_api_can_receive($requestee, $rtype)) {
+      $rtype->requester = $requester;
+      $rtype->requestee = $requestee;
+      form_set_error('rtid', user_relationships_ui_get_message('relationship_type_not_allowed', $rtype));
+      if (isset($_GET['ajax'])) {
+        drupal_goto();
+      }
+      else {
+        return;
+      }
+    }
+
     //check if this request contradicts existing relationships or requests of this type
     //gather rtid's of relationships that have already been requested from requester to requestee
     $test_relationships = array();
@@ -58,20 +71,21 @@ function user_relationships_ui_request_validate($form, &$form_state) {
       foreach ($value as $val_rel) {
         //existing two way relationships count no matter the direction
         if (!$val_rel->is_oneway) {
-          $test_relationships[$key]=$value;
+          $test_relationships[$key]=$key;
           continue;
         }
         //if it's one way, but not reciprocal, then it counts no matter the direction
         if (!$val_rel->is_reciprocal) {
-          $test_relationships[$key]=$value;
+          $test_relationships[$key]=$key;
           continue;
         }
         //remaining case is a reciprocal relationship - it counts unless the request is in the opposite direction
         if ($requester->uid == $val_rel->requester_id) {
-          $test_relationships[$key]=$value;
+          $test_relationships[$key]=$key;
         }
       }
     }
+    var_dump($test_relationships);
     //check if there aren't any available (not yet used) types that can be established
     $select = db_select('user_relationship_types');
     $select->addExpression('COUNT(*)', 'count');
