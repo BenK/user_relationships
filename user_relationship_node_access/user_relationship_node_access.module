@@ -9,9 +9,11 @@
  */
 
 /**
- * Theme function for styling out the permissions form
+ * Theme function for styling out the permissions form.
  */
-function theme_user_relationship_node_access_form($form) {
+function theme_user_relationship_node_access_form($arguments) {
+  $form = $arguments['form'];
+
   $all_actions = array('view' => t('view'), 'update' => t('update'), 'delete' => t('delete'));
   $actions = array();//allowed actions that will appear on the form
   //#388726 IE7 will not like sticky javascript table headers, so construct the header as a regular row
@@ -40,38 +42,20 @@ function theme_user_relationship_node_access_form($form) {
     $rows[] = $row;
   }
 
-  return theme('table', NULL, $rows);
+  return theme('table', array('rows' => $rows));
 }
 
 
 /**
- * hook_theme()
+ * Implements hook_theme().
  */
 function user_relationship_node_access_theme() {
   return array(
     'user_relationship_node_access_form' => array(
-      'arguments' => array('form' => NULL)
+      'render element' => 'form',
     ),
   );
 }
-
-
-/**
- * hook_enable()
- */
-function user_relationship_node_access_enable() {
-  node_access_rebuild();
-}
-
-
-/**
- * hook_disable()
- */
-function _user_relationship_node_access_disable() {
-  _user_relationship_node_access_disabling(TRUE);
-  node_access_rebuild();
-}
-
 
 /**
  * helper function to make sure we don't set up permissions if we're disabling
@@ -88,7 +72,7 @@ function _user_relationship_node_access_disabling($set = NULL) {
 
 
 /**
- * hook_form_alter()
+ * Implements hook_form_alter()
  */
 function user_relationship_node_access_form_alter(&$form, $form_state, $form_id) {
   global $user;
@@ -153,15 +137,10 @@ function user_relationship_node_access_form_alter(&$form, $form_state, $form_id)
            t('Node access based on your relationships to other users'),
     '#collapsible'  => TRUE,
     '#collapsed'    => $use_advanced_form,
+    '#group' => 'additional_settings',
     '#tree'         => TRUE,
   );
-  //place fieldset where content type admin has placed it on cck field management page
-  if (module_exists('content')) {
-    $fieldset_weight = content_extra_field_weight($form['#node']->type, 'user_relationship_node_access');
-    if (isset($fieldset_weight)) {
-      $form['user_relationship_node_access']['#weight'] = $fieldset_weight;
-    }
-  }
+
   //theme as a table if more than one permission is given
   if ($use_advanced_form) {
     $form['user_relationship_node_access']['#theme'] = 'user_relationship_node_access_form';
@@ -181,16 +160,18 @@ function user_relationship_node_access_form_alter(&$form, $form_state, $form_id)
       $form['user_relationship_node_access'][$action]['#title'] = t('@action', array('@action' => ucfirst($action)));
     }
   }
-
 }
 
 /**
- * Implementation of hook_perm().
+ * Implements hook_permission().
  */
 function user_relationship_node_access_perm() {
   $results = array();
   foreach (array('view', 'update', 'delete') as $type) {
-    $results[] = t('grant !type permission to related users', array('!type' => $type));
+    $results['grant !type permission to related users'] = array(
+      'title' => t('grant !type permission to related users', array('!type' => $type)),
+      'description' => '',
+    );
   }
   return $results;
 }
@@ -202,103 +183,118 @@ function user_relationship_node_access_admin_settings() {
   $form['user_relationship_node_access_allowed_types'] = array(
     '#type' => 'checkboxes',
     '#default_value' => variable_get('user_relationship_node_access_allowed_types', array()),
-    '#options' => node_get_types('names'),//$options,
+    '#options' => node_type_get_names(),//$options,
     '#multiple' => TRUE
   );
   return system_settings_form($form);
 }
 
 /**
- * Implementation of hook_menu().
+ * Implements hook_menu().
  */
 function user_relationship_node_access_menu() {
   $items = array();
-  $items['admin/content/user_relationship_node_access'] = array(
+  $items['admin/config/people/relationships/node_access'] = array(
     'title' => 'Posting to social network',
     'description' => 'Set up sharing content based on user relationships',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('user_relationship_node_access_admin_settings'),
     'access callback' => 'user_access',
     'access arguments' => array('administer nodes'),
-    'type' => MENU_NORMAL_ITEM,
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 20,
   );
 
   return $items;
 }
 
 /**
- * hook_nodeapi()
+ * Implements hook_node_update()
  */
-function user_relationship_node_access_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
+function user_relationship_node_access_node_update($node) {
+  user_relationsihp_node_access_update_node($node);
+}
+
+/**
+ * Implements hook_node_insert()
+ */
+function user_relationship_node_access_node_insert($node) {
+  user_relationsihp_node_access_update_node($node);
+}
+
+function user_relationsihp_node_access_update_node($node) {
   global $user;
+  // If user is not allowed to effect perms, do not change access settings
+  $allowed_grants = _user_relationship_node_access_get_allowed_grants($user);
+  if (!count($allowed_grants)) {
+    return;
+  }
+  // If no content type isn't included, do not change access settings
+  if (!_user_relationship_node_access_node_eligible($node)) {
+    return;
+  }
 
-  switch ($op) {
-  case 'insert':
-  case 'update':
-    // if user is not allowed to effect perms, do not change access settings
-    $allowed_grants = _user_relationship_node_access_get_allowed_grants($user);
-    if (!count($allowed_grants)) {
-      break;
-    }
-    // if no content type isn't included, do not change access settings
-    if (!_user_relationship_node_access_node_eligible($node)) {
-      break;
-    }
-    
-    // clear old settings, this will actually clear even ones that user is not allowed to set.
-    db_query(
-      "DELETE FROM {user_relationship_node_access} WHERE nid = %d",
-      $node->nid
-    );
+  // Clear old settings, this will actually clear even ones that user is not
+  // allowed to set.
+  db_delete('user_relationship_node_access')
+    ->condition('nid', $node->nid)
+    ->execute();
 
-    $user_relationship_node_access = array();
-    if (is_array($node->user_relationship_node_access)) {
-      // reformat the array and optimize
-      foreach ($node->user_relationship_node_access as $action => $permissions) {
-        foreach ($permissions as $key => $permission) {
-          //make sure user is allowed to set this permission
-          if ($allowed_grants[$action] && $permission) {
-            $user_relationship_node_access[$key][$action] = TRUE;
-          }
+  $user_relationship_node_access = array();
+  if (is_array($node->user_relationship_node_access)) {
+    // Reformat the array and optimize.
+    foreach ($node->user_relationship_node_access as $action => $permissions) {
+      foreach ($permissions as $key => $permission) {
+        // Make sure user is allowed to set this permission
+        if ($allowed_grants[$action] && $permission) {
+          $user_relationship_node_access[$key][$action] = TRUE;
         }
       }
-
-      // save permissions if any are set
-      db_query(
-        "INSERT INTO {user_relationship_node_access} (nid, permissions) VALUES (%d, '%s')",
-        $node->nid, serialize($user_relationship_node_access)
-      );
     }
-
-    $node->user_relationship_node_access = $user_relationship_node_access;
-    break;
-
-  case 'load':
-    $node->user_relationship_node_access = _user_relationship_node_access_load_node_perms($node->nid);
-    break;
-
-  case 'delete':
-    db_query(
-      "DELETE FROM {user_relationship_node_access} WHERE nid = %d",
-      $node->nid
-    );
-    break;
+    // Save permissions if any are set.
+    db_insert('user_relationship_node_access')
+      ->fields(array(
+        'nid' => $node->nid,
+        'permissions' => serialize($user_relationship_node_access),
+      ))
+      ->execute();
   }
+  $node->user_relationship_node_access = $user_relationship_node_access;
+}
+
+/**
+ * Implements hook_node_load()
+ */
+function user_relationship_node_access_node_load($nodes, $types) {
+  global $user;
+  foreach ($nodes as $node) {
+    $node->user_relationship_node_access = _user_relationship_node_access_load_node_perms($node->nid);
+  }
+}
+
+/**
+ * Implements hook_node_delete()
+ */
+function user_relationship_node_access_node_delete($node) {
+  global $user;
+  db_delete('user_relationship_node_access')
+    ->condition('nid', $node->nid)
+    ->execute();
 }
 
 
 /**
- * hook_node_grants()
+ * Implements hook_node_grants()
  */
-function user_relationship_node_access_node_grants($user, $op) {
+function user_relationship_node_access_node_grants($account, $op) {
   // get this user's relationships
   $relationships = user_relationships_load(array(
-    'user'      => $user->uid,
+    'user'      => $account->uid,
     'approved'  => TRUE
   ));
 
   foreach ($relationships as $relationship) {
-    $author_uid = $relationship->requestee_id == $user->uid ? $relationship->requester_id : $relationship->requestee_id;
+    $author_uid = $relationship->requestee_id == $account->uid ? $relationship->requester_id : $relationship->requestee_id;
 
     if ($relationship->is_oneway) {
       $grants["user_relationship_node_access_{$relationship->rtid}_yt"][] = $relationship->requester_id;
@@ -309,13 +305,14 @@ function user_relationship_node_access_node_grants($user, $op) {
     }
   }
 
-  $grants['user_relationship_node_access_author'] = array($user->uid);
+  $grants['user_relationship_node_access_author'] = array($account->uid);
+
 
   return $grants;
 }
 
 /**
- * hook_access_records()
+ * Implements hook_node_access_records().
  */
 function user_relationship_node_access_node_access_records($node) {
   if (_user_relationship_node_access_disabling()) {
@@ -334,9 +331,10 @@ function user_relationship_node_access_node_access_records($node) {
       $grants[] = array(
         'realm'         => "user_relationship_node_access_{$rtid}",
         'gid'           => $node->uid,
-        'grant_view'    => isset($permissions['view']) ? $permissions['view'] : NULL,
-        'grant_update'  => isset($permissions['update']) ? $permissions['update'] : NULL,
-        'grant_delete'  => isset($permissions['delete']) ? $permissions['delete'] : NULL,
+        'grant_view'    => isset($permissions['view']) ? (int)$permissions['view'] : 0,
+        'grant_update'  => isset($permissions['update']) ? (int)$permissions['update'] : 0,
+        'grant_delete'  => isset($permissions['delete']) ? (int)$permissions['delete'] : 0,
+        'priority'      => 0,
       );
     }
   }
@@ -345,9 +343,10 @@ function user_relationship_node_access_node_access_records($node) {
     $grants[] = array(
       'realm'         => 'user_relationship_node_access_author',
       'gid'           => $node->uid,
-      'grant_view'    => TRUE,
-      'grant_update'  => TRUE,
-      'grant_delete'  => TRUE
+      'grant_view'    => 1,
+      'grant_update'  => 1,
+      'grant_delete'  => 1,
+      'priority'      => 0,
     );
   }
 
@@ -363,9 +362,8 @@ function _user_relationship_node_access_load_node_perms($nid = NULL) {
   if (!$nid) {
     return NULL;
   }
-  return unserialize(db_result(
-    db_query('SELECT permissions FROM {user_relationship_node_access} WHERE nid = %d', $nid)
-  ));
+  $permissions = db_query('SELECT permissions FROM {user_relationship_node_access} WHERE nid = :nid', array(':nid' => $nid))->fetchField();
+  return unserialize($permissions);
 }
 
 /**
@@ -394,22 +392,4 @@ function _user_relationship_node_access_get_allowed_grants($user = NULL) {
     }
   }
   return $allowed_grants;
-}
-
-/**
- * Implementation of hook_content_extra_fields.
- *
- * Allow admins to set weight of permissions fieldset on CCK node edit form #546144
- */
-function user_relationship_node_access_content_extra_fields($type_name) {
-  $allowed_types = variable_get('user_relationship_node_access_allowed_types', array());
-  if (isset($allowed_types[$type_name])) {  
-    $extra = array();
-    $extra['user_relationship_node_access'] = array(
-      'label' => t('Post to Social Network'),
-      'description' => t('User Relationship Node Access module form.'),
-      'weight' => 3,
-    );
-    return $extra;
-  }
 }
