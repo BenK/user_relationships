@@ -24,7 +24,7 @@
  *
 */
 function user_relationship_default_load($param = array()) {
-  $defaults = user_relationship_defaults_load($rdid);
+  $defaults = user_relationship_defaults_load();
 
   if (is_numeric($param)) {
     return $defaults[$param];
@@ -58,7 +58,7 @@ function user_relationship_default_load($param = array()) {
 }
 
 /**
- * Public API to retrieve the full list of default relationships
+ * Public API to retrieve the full list of default relationships.
  *
  * @return
  *    array of default relationship objects
@@ -86,7 +86,7 @@ function user_relationship_defaults_load($reset = FALSE) {
 
 
 /**
- * hook_menu()
+ * Implements hook_menu().
  */
 function user_relationship_defaults_menu() {
   $items = array();
@@ -111,14 +111,13 @@ function user_relationship_defaults_menu() {
 }
 
 /**
- * Add new default relationship form
+ * Add new default relationship form.
  */
 function user_relationship_defaults_add_form($form, &$form_state) {
   $form['username'] = array(
     '#type'               => 'textfield',
     '#title'              => t('Username'),
     '#maxlength'          => 255,
-    '#default_value'      => $form_state['username'],
     '#description'        => t('Start typing the name of a user to automatically create a relationship to'),
     '#required'           => TRUE,
     '#autocomplete_path'  => 'user/autocomplete',
@@ -127,7 +126,6 @@ function user_relationship_defaults_add_form($form, &$form_state) {
     '#type'               => 'textfield',
     '#title'              => t('Relationship'),
     '#maxlength'          => 255,
-    '#default_value'      => $form_state['relationship_type_name'],
     '#description'        => t('Start typing the name of a relationship to use'),
     '#required'           => TRUE,
     '#autocomplete_path'  => 'relationship_types/autocomplete',
@@ -144,7 +142,8 @@ function user_relationship_defaults_add_form($form, &$form_state) {
  * Validate the default relationship add page form submission.
  */
 function user_relationship_defaults_add_form_validate($form, &$form_state) {
-  if (!empty($form_state['values']['username']) && !user_load(array('name' => $form_state['values']['username']))) {
+  $users = user_load_multiple(array(), array('name' => $form_state['values']['username']));
+  if (!empty($form_state['values']['username']) && empty($users)) {
     form_set_error('username', t("You must enter an existing user's name."));
   }
 
@@ -159,7 +158,7 @@ function user_relationship_defaults_add_form_validate($form, &$form_state) {
  * Process default relationship add form submission.
  */
 function user_relationship_defaults_add_form_submit($form, &$form_state) {
-  $user               = user_load(array('name' => $form_state['values']['username']));
+  $user               = array_shift(user_load_multiple(array(), array('name' => $form_state['values']['username'])));
   $relationship_type  = user_relationships_type_load(array('name' => $form_state['values']['relationship_type_name']));
 
   $new_default = array(
@@ -191,7 +190,7 @@ function user_relationship_defaults_delete_form($form, &$form_state, $default_re
   $form = confirm_form(
     $form,
     t('Are you sure you want to delete the default relationship %relationship of %name?', array(
-      '%relationship' => ur_tt("user_relationships:rtid:$default_relationship->relationship_type->rtid:name", $default_relationship->relationship_type->name),
+      '%relationship' => ur_tt('user_relationships:rtid:' . $default_relationship->relationship_type->rtid . ':name', $default_relationship->relationship_type->name),
       '%name'         => $default_relationship->user->name,
     )),
     'admin/config/people/relationships',
@@ -208,7 +207,6 @@ function user_relationship_defaults_delete_form($form, &$form_state, $default_re
 function user_relationship_defaults_delete_form_submit($form, &$form_state) {
   $default_relationship = user_relationship_default_load($form_state['values']['rdid']);
 
-  db_query("DELETE FROM {user_relationship_defaults} WHERE rdid = %d", $default_relationship->rdid);
   db_delete('user_relationship_defaults')
     ->condition('rdid', $default_relationship->rdid)
     ->execute();
