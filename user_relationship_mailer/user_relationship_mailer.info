@@ -4,4 +4,5 @@ description = "Gives the option to mail users when about relationship events (re
 dependencies[] = user_relationships_api
 dependencies[] = user_relationships_ui
 package = "User Relationships"
-core = 6.x
+core = 7.x
+files[]=user_relationship_mailer_defaults.inc

@@ -31,7 +31,16 @@ function _user_relationship_mailer_ops_translations() {
  * Replacements for mail messages
  * @param relationship relationship object for which emails are being sent
  */
-function user_relationship_mailer_replacements(&$relationship) {
+function user_relationship_mailer_replacements($relationship = NULL) {
+  // If no relationship is passed in, then we are only interested in the keys.
+  // create a dummy relationship.
+  if ($relationship == NULL) {
+    global $user;
+    $relationship = new stdClass();
+    $relationship->requester = $user;
+    $relationship->requestee = $user;
+    $relationship->relationship_type = array_pop(user_relationships_types_load());
+  }
   $requester = $relationship->requester;
   $requestee = $relationship->requestee;
   //load relationship type, if necessary
@@ -43,13 +52,13 @@ function user_relationship_mailer_replacements(&$relationship) {
     '@site_url'                 => $GLOBALS['base_url'],
 
     '@requester_name'           => $requester->name,
-    '@requester_link'           => theme('user_relationships_user_link', $requester->uid),
+    '@requester_link'           => theme('user_relationships_user_link', array('uid' => $requester->uid)),
     '@requester_uid'            => $requester->uid,
     '@requester_list_link'      => url("user/{$requester->uid}/relationships/list", array('absolute' => TRUE)),
     '@requester_pending_link'   => url("user/{$requester->uid}/relationships/requests", array('absolute' => TRUE)),
 
     '@requestee_name'           => $requestee->name,
-    '@requestee_link'           => theme('user_relationships_user_link', $requestee->uid),
+    '@requestee_link'           => theme('user_relationships_user_link', array('uid' => $requestee->uid)),
     '@requestee_uid'            => $requestee->uid,
     '@requestee_list_link'      => url("user/{$requestee->uid}/relationships/list", array('absolute' => TRUE)),
     '@requestee_pending_link'   => url("user/{$requestee->uid}/relationships/requests", array('absolute' => TRUE)),

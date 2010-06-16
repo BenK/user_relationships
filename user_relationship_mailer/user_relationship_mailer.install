@@ -16,12 +16,3 @@ function user_relationship_mailer_uninstall() {
   }
   
 }
-
-/**
- * Implementation of hook_update_N().
- * Update 6100 makes sure pre_approved emails are not sent to keep default behavior for upgrading users.
- */
-function user_relationship_mailer_update_6100() {
-  variable_set('user_relationship_mailer_send_pre_approved', FALSE);
-  return array();
-}

@@ -1,0 +1,2623 @@
+diff --git user_relationship_blocks/templates/user_relationships-actions_block.tpl.php user_relationship_blocks/templates/user_relationships-actions_block.tpl.php
+index 69198d9..f8516b0 100644
+--- user_relationship_blocks/templates/user_relationships-actions_block.tpl.php
++++ user_relationship_blocks/templates/user_relationships-actions_block.tpl.php
+@@ -8,12 +8,12 @@
+ $output = array();
+ 
+ if ($current_relationships) {
+-  $output[] = theme('item_list', $current_relationships, t('Your relationships to this user'), 'ul', array('class' => 'user_relationships'));
++  $output[] = theme('item_list', array('items' => $current_relationships, 'title' => t('Your relationships to this user'), 'attributes' => array('class' => 'user_relationships')));
+ }
+ 
+ // List of actions that can be taken between the current and viewed user
+ if ($actions) {
+-  $output[] = theme('item_list', $actions, t('Relationship actions'), 'ul', array('class' => 'user_relationships_actions'));
++  $output[] = theme('item_list', array('items' => $actions, 'title' => t('Relationship actions'), 'attributes' => array('class' => array('user_relationships_actions'))));
+ }
+ 
+ print implode('', $output);
+diff --git user_relationship_blocks/templates/user_relationships-block.tpl.php user_relationship_blocks/templates/user_relationships-block.tpl.php
+index 06e380f..46ecb12 100644
+--- user_relationship_blocks/templates/user_relationships-block.tpl.php
++++ user_relationship_blocks/templates/user_relationships-block.tpl.php
+@@ -24,12 +24,16 @@ if ($relationships) {
+ 
+     $title = $rtype_heading;
+ 
+-    $username = theme('username', $relatee);
++    $username = theme('username', array('account' => $relatee));
+     $rows[$title][] = $username;
+   }
+ 
+   foreach ($rows as $title => $users) {
+-    $output[] = theme('item_list', ($rtid == UR_BLOCK_ALL_TYPES ? array($users) : $users), $showing_all_types ? $title : NULL);
++    $variables = array('items' => ($rtid == UR_BLOCK_ALL_TYPES ? array($users) : $users));
++    if ($showing_all_types) {
++      $variables['title'] = $title;
++    }
++    $output[] = theme('item_list', $variables);
+   }
+ 
+   print implode('', $output);
+diff --git user_relationship_blocks/templates/user_relationships-pending_block.tpl.php user_relationship_blocks/templates/user_relationships-pending_block.tpl.php
+index c9c6347..a0e74cf 100644
+--- user_relationship_blocks/templates/user_relationships-pending_block.tpl.php
++++ user_relationship_blocks/templates/user_relationships-pending_block.tpl.php
+@@ -12,16 +12,16 @@ if ($relationships) {
+     $tt_rel_plural_name = ur_tt("user_relationships:rtid:$rtid:plural_name", $relationship->plural_name);
+     if ($user->uid == $relationship->requester_id) {
+       $relation_to =& $relationship->requestee;
+-      $controls = theme('user_relationships_pending_request_cancel_link', $user->uid, $relationship->rid);
+-      $line = t('@rel_name to !username (!controls)', array('@rel_name' => $tt_rel_name, '!username' => theme('username', $relation_to), '!controls' => $controls));
++      $controls = theme('user_relationships_pending_request_cancel_link', array('uid' => $account->uid, 'rid' => $relationship->rid));
++      $line = t('@rel_name to !username (!controls)', array('@rel_name' => $tt_rel_name, '!username' => theme('username', array('account' => $relation_to)), '!controls' => $controls));
+       $key = t('Sent requests');
+     }
+     else {
+       $relation_to =& $relationship->requester;
+       $controls =
+-        theme('user_relationships_pending_request_approve_link', $user->uid, $relationship->rid).'|'.
+-        theme('user_relationships_pending_request_disapprove_link', $user->uid, $relationship->rid);
+-      $line = t('@rel_name from !username (!controls)', array('@rel_name' => $tt_rel_name, '!username' => theme('username', $relation_to), '!controls' => $controls));
++        theme('user_relationships_pending_request_approve_link', array('uid' => $account->uid, 'rid' => $relationship->rid)).'|'.
++        theme('user_relationships_pending_request_disapprove_link', array('uid' => $account->uid, 'rid' => $relationship->rid));
++      $line = t('@rel_name from !username (!controls)', array('@rel_name' => $tt_rel_name, '!username' => theme('username', array('account' => $relation_to)), '!controls' => $controls));
+       $key = t('Received requests');
+     }
+     $list[$key][] = $line;
+@@ -29,7 +29,7 @@ if ($relationships) {
+ 
+   $output = array();
+   foreach ($list as $title => $users) {
+-    $output[] = theme('item_list', $users, $title);
++    $output[] = theme('item_list', array('items' => $users, 'title' => $title));
+   }
+ }
+ 
+diff --git user_relationship_blocks/user_relationship_blocks.info user_relationship_blocks/user_relationship_blocks.info
+index 2abeea5..305be72 100644
+--- user_relationship_blocks/user_relationship_blocks.info
++++ user_relationship_blocks/user_relationship_blocks.info
+@@ -4,4 +4,5 @@ description = "Blocks that can be used with User Relationships"
+ dependencies[] = user_relationships_api
+ dependencies[] = user_relationships_ui
+ package = "User Relationships"
+-core = 6.x
++core = 7.x
++files[]=user_relationship_blocks.module
+\ No newline at end of file
+diff --git user_relationship_blocks/user_relationship_blocks.install user_relationship_blocks/user_relationship_blocks.install
+index 42ca1b7..dfb1299 100644
+--- user_relationship_blocks/user_relationship_blocks.install
++++ user_relationship_blocks/user_relationship_blocks.install
+@@ -26,7 +26,6 @@ function user_relationship_blocks_schema() {
+  * Install
+  */
+ function user_relationship_blocks_install() {
+-  drupal_install_schema('user_relationship_blocks');
+ 
+   include_once(drupal_get_path('module', 'user_relationship_blocks') .'/user_relationship_blocks.module');
+   include_once(drupal_get_path('module', 'user_relationships_api') .'/user_relationships_api.module');
+@@ -35,13 +34,6 @@ function user_relationship_blocks_install() {
+ }
+ 
+ /**
+- * Uninstall
+- */
+-function user_relationship_blocks_uninstall() {
+-  drupal_uninstall_schema('user_relationship_blocks');
+-}
+-
+-/**
+  * Implementation of hook_update_N().
+  * Update 6000 creates db tables after upgrade from D5.
+  */
+diff --git user_relationship_blocks/user_relationship_blocks.module user_relationship_blocks/user_relationship_blocks.module
+index d2ab585..6cdce05 100644
+--- user_relationship_blocks/user_relationship_blocks.module
++++ user_relationship_blocks/user_relationship_blocks.module
+@@ -30,56 +30,34 @@ function user_relationship_blocks_user_relationships_type($op, &$rtype) {
+     break;
+ 
+   case 'delete':
+-    db_query("DELETE FROM {user_relationship_blocks} WHERE bid LIKE '%%%s%%'", UR_BLOCK_SEPARATOR . $rtype->rtid);
++    db_delete('user_relationship_blocks')
++      ->condition('bid', '%' . UR_BLOCK_SEPARATOR . $rtype->rtid)
++      ->execute();
+     break;
+   }
+ }
+ 
+-
+-
+-/**
+- * Implementation for hook_block
+- */
+-function user_relationship_blocks_block($op = 'list', $bid = '', $edit = array()) {
+-  if ($op != 'list') {
+-    //pad array with nulls before calling list() to avoid php notices
+-    $exploded = explode(UR_BLOCK_SEPARATOR, $bid);
+-    while (count($exploded) < 3) {
+-      $exploded[] = NULL;
+-    }
+-    list($block, $rtid, $extra) = $exploded;
+-  }
+-
+-  switch ($op) {
+-    case 'list':      return _user_relationship_blocks_list();
+-    case 'configure': return _user_relationship_blocks_form($block, $rtid, $extra, $bid);
+-    case 'save':      return _user_relationship_blocks_settings(NULL, $edit);
+-    case 'view':      return _user_relationship_blocks_view($block, $rtid, $extra, $bid);
+-  }
+-}
+-
+-
+ /**
+  * Implementation for hook_theme
+  */
+ function user_relationship_blocks_theme() {
+   return array(
+     'user_relationship_block_subject' => array(
+-      'arguments' => array('account' => NULL, 'rtid' => NULL, 'extra' => NULL)
++      'variables' => array('account' => NULL, 'rtid' => NULL, 'extra' => NULL)
+     ),
+ 
+     'user_relationships_block' => array(
+-      'arguments' => array('account' => NULL, 'settings' => NULL, 'extra' => NULL),
++      'variables' => array('account' => NULL, 'settings' => NULL, 'extra' => NULL),
+       'path'      => drupal_get_path('module', 'user_relationship_blocks') .'/templates',
+       'template'  => 'user_relationships-block',
+     ),
+     'user_relationships_pending_block' => array(
+-      'arguments' => array('account' => NULL, 'settings' => NULL),
++      'variables' => array('account' => NULL, 'settings' => NULL),
+       'path'      => drupal_get_path('module', 'user_relationship_blocks') .'/templates',
+       'template'  => 'user_relationships-pending_block',
+     ),
+     'user_relationships_actions_block' => array(
+-      'arguments' => array('account' => NULL, 'settings' => NULL) ,
++      'variables' => array('account' => NULL, 'settings' => NULL) ,
+       'path'      => drupal_get_path('module', 'user_relationship_blocks') .'/templates',
+       'template'  => 'user_relationships-actions_block',
+     ),
+@@ -90,7 +68,11 @@ function user_relationship_blocks_theme() {
+ /**
+  * Theme function to generate the title of a block
+  */
+-function theme_user_relationship_block_subject($bid, $account, $rtid, $extra) {
++function theme_user_relationship_block_subject($variables) {
++  $bid = $variables['bid'];
++  $account = $variables['account'];
++  $rtid = $variables['rtid'];
++  $extra = $variables['extra'];
+   if ($bid == 'pending') {
+     return t('Relationship requests');
+   }
+@@ -137,16 +119,24 @@ function theme_user_relationship_block_subject($bid, $account, $rtid, $extra) {
+ /**
+  * helper function user_relationship_blocks_block delegates to when $op == 'configure'
+  */
+-function _user_relationship_blocks_form($block, $rtid, $extra, $bid) {
++function user_relationship_blocks_block_configure($delta) {
++
++  //pad array with nulls before calling list() to avoid php notices
++  $exploded = explode(UR_BLOCK_SEPARATOR, $delta);
++  while (count($exploded) < 3) {
++    $exploded[] = NULL;
++  }
++  list($block, $rtid, $extra) = $exploded;
++
+   // No form needed for the pending block so don't even bother
+-  if ($block == 'pending') { 
++  if ($block == 'pending') {
+     return;
+   }
+ 
+   // need this file. it has the validator in it
+   include_once(drupal_get_path('module', 'user_relationships_ui') .'/user_relationships_ui.admin_actions.inc');
+   //current block settings
+-  $settings = _user_relationship_blocks_settings($bid);
++  $settings = user_relationship_blocks_block_save($delta);
+   
+   if ($block != 'actions') {
+     if ($rtid == UR_BLOCK_ALL_TYPES) {
+@@ -196,7 +186,7 @@ function _user_relationship_blocks_form($block, $rtid, $extra, $bid) {
+ 
+   $form['bid'] = array(
+     '#type'   => 'hidden',
+-    '#value'  => $bid,
++    '#value'  => $delta,
+   );
+   $form['get_account'] = array(
+     '#type'           => 'textarea',
+@@ -215,14 +205,23 @@ function _user_relationship_blocks_form($block, $rtid, $extra, $bid) {
+ /**
+  * helper function user_relationship_blocks_block delegates to when $op == 'view'
+  */
+-function _user_relationship_blocks_view($block_type, $rtid, $extra, $bid) {
++function user_relationship_blocks_block_view($delta) {
+   global $user;
++
++  //pad array with nulls before calling list() to avoid php notices
++  $exploded = explode(UR_BLOCK_SEPARATOR, $delta);
++  while (count($exploded) < 3) {
++    $exploded[] = NULL;
++  }
++  list($block_type, $rtid, $extra) = $exploded;
++
++
+   $is_my_block = ($block_type == UR_BLOCK_MY || $block_type == 'pending');
+   if ($is_my_block && !$user->uid) {
+     return;
+   }
+ 
+-  $settings = _user_relationship_blocks_settings($bid);
++  $settings = user_relationship_blocks_block_save($delta);
+   $settings->rtid = $rtid;
+   $settings->block_type = $block_type;
+ 
+@@ -230,15 +229,15 @@ function _user_relationship_blocks_view($block_type, $rtid, $extra, $bid) {
+   if ($is_my_block && $user->uid) {
+     $account =& $user;
+   }
+-  else if ($uid = drupal_eval($settings->get_account)) {
++  else if (module_exists('php') && $uid = drupal_eval($settings->get_account)) {
+     $account = user_load($uid);
+   }
+ 
+   if (isset($account)) {
+     $add_to_string = in_array($block_type, array('pending', 'actions')) ? "_{$block_type}" : '';
+     return array(
+-      'subject' => theme('user_relationship_block_subject', $bid, $account, $rtid, $extra),
+-      'content' => theme("user_relationships{$add_to_string}_block", $account, $settings, $extra),
++      'subject' => theme('user_relationship_block_subject', array('bid' => $delta, 'account' => $account, 'rtid' => $rtid, 'extra' => $extra)),
++      'content' => theme("user_relationships{$add_to_string}_block", array('account' => $account, 'settings' => $settings, 'extra' => $extra)),
+     );
+   }
+ }
+@@ -266,15 +265,15 @@ PHP;
+ /**
+  * helper function user_relationship_blocks_block delegates to when $op == 'list'
+  */
+-function _user_relationship_blocks_list() {
++function user_relationship_blocks_block_info() {
+   $my   = UR_BLOCK_MY . UR_BLOCK_SEPARATOR;
+   $usr  = UR_BLOCK_USER . UR_BLOCK_SEPARATOR;
+   // return list of all blocks defined by the module
+   $blocks = array(
+-    $my . UR_BLOCK_ALL_TYPES  => array('info' => t('My Relationships: All relationships'), 'cache' => BLOCK_NO_CACHE),
+-    $usr . UR_BLOCK_ALL_TYPES => array('info' => t('User Relationships: All relationships'), 'cache' => BLOCK_NO_CACHE),
+-    'pending' => array('info' => t('My Pending Relationships'), 'cache' => BLOCK_NO_CACHE),
+-    'actions' => array('info' => t('User Relationships: Actions'), 'cache' => BLOCK_NO_CACHE),
++    $my . UR_BLOCK_ALL_TYPES  => array('info' => t('My Relationships: All relationships'), 'cache' => DRUPAL_NO_CACHE),
++    $usr . UR_BLOCK_ALL_TYPES => array('info' => t('User Relationships: All relationships'), 'cache' => DRUPAL_NO_CACHE),
++    'pending' => array('info' => t('My Pending Relationships'), 'cache' => DRUPAL_NO_CACHE),
++    'actions' => array('info' => t('User Relationships: Actions'), 'cache' => DRUPAL_NO_CACHE),
+   );
+ 
+   $types = user_relationships_types_load();
+@@ -300,7 +299,7 @@ function _user_relationship_blocks_list() {
+       foreach ($block_types as $bid => $title) {
+         $blocks[$bid] = array(
+           'info' => $title,
+-          'cache' => BLOCK_NO_CACHE,
++          'cache' => DRUPAL_NO_CACHE,
+         );
+       }
+     }
+@@ -313,29 +312,26 @@ function _user_relationship_blocks_list() {
+ /**
+  * Push or pull the settings from the database
+  */
+-function _user_relationship_blocks_settings($bid = NULL, $new_settings = NULL) {
++function user_relationship_blocks_block_save($delta = NULL, $edit = NULL) {
+   static $settings = array();
+ 
+-  if (isset($new_settings)) {
++  if (isset($edit)) {
+     //can't find a better spot for this. If get_account php snippet is cleared by user, revert to default value
+-    if (!$new_settings['get_account']) {
+-      $new_settings['get_account'] = _user_relationship_blocks_find_user_php();
++    if (!$edit['get_account']) {
++      $edit['get_account'] = _user_relationship_blocks_find_user_php();
+     }
+-    drupal_write_record('user_relationship_blocks', $new_settings, 'bid');
++    drupal_write_record('user_relationship_blocks', $edit, 'bid');
+ 
+-    $settings[$key] = (object)$new_settings;
++    $settings[$key] = (object)$edit;
+   }
+-  else if ($bid && (!isset($settings[$bid]) || !$settings[$bid])) {
+-    $settings[$bid] = db_fetch_object(db_query("SELECT * FROM {user_relationship_blocks} WHERE bid = '%s'", $bid));
++  else if ($delta && (!isset($settings[$delta]) || !$settings[$delta])) {
++    $settings[$delta] = db_query("SELECT * FROM {user_relationship_blocks} WHERE bid = :bid", array(':bid' => $delta))->fetchObject();
+   }
+   else {
+-    $results = db_query("SELECT * FROM {user_relationship_blocks}");
+-    while ($setting = db_fetch_object($results)) {
+-      $settings[$setting->bid] = $setting;
+-    }
++    $settings = db_query("SELECT * FROM {user_relationship_blocks}")->fetchAllAssoc('bid');
+   }
+ 
+-  return $bid ? $settings[$bid] : $settings;
++  return $delta ? $settings[$delta] : $settings;
+ }
+ 
+ 
+@@ -344,14 +340,18 @@ function _user_relationship_blocks_settings($bid = NULL, $new_settings = NULL) {
+  * This makes sure it's not writing over user defined settings
+  */
+ function _user_relationship_blocks_insert_defaults() {
+-  $current_bids = array_keys(_user_relationship_blocks_settings());
+-  $all_bids     = _user_relationship_blocks_list();
++  $current_bids = array_keys(user_relationship_blocks_block_save());
++  $all_bids     = user_relationship_blocks_block_info();
+   foreach ($all_bids as $bid => $block) {
+     if (!in_array($bid, $current_bids)) {
+-      db_query(
+-        "INSERT INTO {user_relationship_blocks} (bid, size, sort, get_account) VALUES ('%s', %d, '%s', '%s')",
+-        $bid, 10, 'newest', _user_relationship_blocks_find_user_php()
+-      );
++      db_insert('user_relationship_blocks')
++        ->fields(array(
++          'bid' => $bid,
++          'size' => 10,
++          'sort' => 'newest',
++          'get_account' => _user_relationship_blocks_find_user_php(),
++        ))
++        ->execute();
+     }
+   }
+ }
+@@ -369,8 +369,8 @@ function template_preprocess_user_relationships_block(&$variables) {
+ 
+   // select the appropriate set of relationships based on admin's configuration settings
+   switch ($settings->sort) {
+-    case 'newest': $query_opts['order'] = 'updated_at DESC'; break;
+-    case 'oldest': $query_opts['order'] = 'updated_at ASC'; break;
++    case 'newest': $query_opts['order'] = array('updated_at', 'DESC'); break;
++    case 'oldest': $query_opts['order'] = array('updated_at', 'ASC'); break;
+     case 'random': $query_opts['order'] = 'RAND()'; break;
+   }
+ 
+diff --git user_relationship_defaults/user_relationship_defaults.info user_relationship_defaults/user_relationship_defaults.info
+index 2d7705a..023e49c 100644
+--- user_relationship_defaults/user_relationship_defaults.info
++++ user_relationship_defaults/user_relationship_defaults.info
+@@ -4,4 +4,5 @@ description = "Allows admins to specify relationships that are automatically cre
+ dependencies[] = user_relationships_api
+ dependencies[] = user_relationships_ui
+ package = "User Relationships"
+-core = 6.x
++core = 7.x
++files[]=user_relationship_defaults.module
+diff --git user_relationship_defaults/user_relationship_defaults.install user_relationship_defaults/user_relationship_defaults.install
+index f6af1c8..d9cd9c8 100644
+--- user_relationship_defaults/user_relationship_defaults.install
++++ user_relationship_defaults/user_relationship_defaults.install
+@@ -23,17 +23,3 @@ function user_relationship_defaults_schema() {
+ 
+   return $schema;
+ }
+-
+-/**
+- * Implementation of hook_install()
+-*/
+-function user_relationship_defaults_install() {
+-  drupal_install_schema('user_relationship_defaults');
+-}
+-
+-/**
+- * Implementation of hook_uninstall()
+- */
+-function user_relationship_defaults_uninstall() {
+-  drupal_uninstall_schema('user_relationship_defaults');
+-}
+diff --git user_relationship_defaults/user_relationship_defaults.module user_relationship_defaults/user_relationship_defaults.module
+index 961dbcf..04c6834 100644
+--- user_relationship_defaults/user_relationship_defaults.module
++++ user_relationship_defaults/user_relationship_defaults.module
+@@ -67,8 +67,8 @@ function user_relationship_defaults_load($reset = FALSE) {
+   static $defaults = array();
+ 
+   if ($reset || !$defaults) {
+-    $results = db_query("SELECT * FROM {user_relationship_defaults}");
+-    while ($default = db_fetch_object($results)) {
++    $result = db_query("SELECT * FROM {user_relationship_defaults}");
++    foreach ($result as $default) {
+       $default->user              = user_load($default->uid);
+       $default->user_name         = $default->user->name;
+       $default->relationship_type = user_relationships_type_load($default->rtid);
+@@ -91,7 +91,7 @@ function user_relationship_defaults_load($reset = FALSE) {
+ function user_relationship_defaults_menu() {
+   $items = array();
+ 
+-  $items['admin/user/relationships/defaults/add'] = array(
++  $items['admin/config/people/relationships/defaults/add'] = array(
+     'title'             => 'Add default',
+     'access arguments'  => array('administer user relationships'),
+     'page callback'     => 'drupal_get_form',
+@@ -99,11 +99,11 @@ function user_relationship_defaults_menu() {
+     'type'              => MENU_LOCAL_TASK,
+     'weight'            => 2
+   );
+-  $items['admin/user/relationships/defaults/%user_relationship_default/delete'] = array(
++  $items['admin/config/people/relationships/defaults/%user_relationship_default/delete'] = array(
+     'title'             => 'Delete default',
+     'access arguments'  => array('administer user relationships'),
+     'page callback'     => 'drupal_get_form',
+-    'page arguments'    => array('user_relationship_defaults_delete_form', 4),
++    'page arguments'    => array('user_relationship_defaults_delete_form', 5),
+     'type'              => MENU_CALLBACK,
+   );
+ 
+@@ -113,7 +113,7 @@ function user_relationship_defaults_menu() {
+ /**
+  * Add new default relationship form
+  */
+-function user_relationship_defaults_add_form(&$form_state) {
++function user_relationship_defaults_add_form($form, &$form_state) {
+   $form['username'] = array(
+     '#type'               => 'textfield',
+     '#title'              => t('Username'),
+@@ -173,16 +173,16 @@ function user_relationship_defaults_add_form_submit($form, &$form_state) {
+     '%relationship_name'  => ur_tt("user_relationships:rtid:$relationship_type->rtid:name", $relationship_type->name),
+   );
+   drupal_set_message(t('Default relationship %relationship_name of %username has been added.', $message_p));
+-  watchdog('u_relationship', 'Default relationship %relationship_name of %username has been added.', $message_p, WATCHDOG_NOTICE, l(t('view'), 'admin/user/relationships'));
++  watchdog('u_relationship', 'Default relationship %relationship_name of %username has been added.', $message_p, WATCHDOG_NOTICE, l(t('view'), 'admin/config/people/relationships'));
+ 
+-  $form_state['redirect'] = 'admin/user/relationships';
++  $form_state['redirect'] = 'admin/config/people/relationships';
+ }
+ 
+ 
+ /**
+  * Default Relationship delete confirmation.
+  */
+-function user_relationship_defaults_delete_form(&$form_state, &$default_relationship) {
++function user_relationship_defaults_delete_form($form, &$form_state, &$default_relationship) {
+   $form['rdid'] = array(
+     '#type'   => 'value',
+     '#value'  => $default_relationship->rdid
+@@ -194,7 +194,7 @@ function user_relationship_defaults_delete_form(&$form_state, &$default_relation
+       '%relationship' => ur_tt("user_relationships:rtid:$default_relationship->relationship_type->rtid:name", $default_relationship->relationship_type->name),
+       '%name'         => $default_relationship->user->name,
+     )),
+-    'admin/user/relationships',
++    'admin/config/people/relationships',
+     t('This action cannot be undone.'),
+     t('Delete'), t('Cancel')
+   );
+@@ -209,6 +209,9 @@ function user_relationship_defaults_delete_form_submit($form, &$form_state) {
+   $default_relationship = user_relationship_default_load($form_state['values']['rdid']);
+ 
+   db_query("DELETE FROM {user_relationship_defaults} WHERE rdid = %d", $default_relationship->rdid);
++  db_delete('user_relationship_defaults')
++    ->condition('rdid', $default_relationship->rdid)
++    ->execute();
+   $message_p = array(
+     '%name'         => $default_relationship->user_name,
+     '%relationship' => ur_tt("user_relationships:rtid:$default_relationship->rtid:name", $default_relationship->name),
+@@ -218,23 +221,33 @@ function user_relationship_defaults_delete_form_submit($form, &$form_state) {
+ 
+   user_relationship_defaults_load(TRUE);
+ 
+-  $form_state['redirect'] = 'admin/user/relationships';
++  $form_state['redirect'] = 'admin/config/people/relationships';
+ }
+ 
+ /**
+- * hook_user()
++ * Implements hook_user_insert().
+  */
+-function user_relationship_defaults_user($type, &$edit, &$account, $cagetory = NULL) {
+-  if (
+-      ($type == 'insert' && $account->status)  //if new user is already approved, create relationship
+-      || ($type == 'after_update' && $account->status && !$account->login) //#519440 if admin approves a new user account, create relationship
+-  ) {
+-    //note that if a new account is approved, then blocked and unblocked before the user logged in once,
+-    //it'll attempt to create default relationships again (there won't be any errors if they already exist, though)
+-    $defaults = user_relationship_defaults_load();
+-    foreach ($defaults as $default) {
+-      user_relationships_request_relationship($default->user, $account, $default->relationship_type, TRUE);
+-    }
++function user_relationship_defaults_user_insert(&$edit, $account) {
++  if ($account->status) {
++    _user_relationship_defaults_create_default_relationships($account);
++  }
++}
++
++/**
++ * Implements hook_user_update().
++ */
++function user_relationship_defaults_user_update(&$edit, $account) {
++  if ($account->status && !$account->login) {
++    _user_relationship_defaults_create_default_relationships($account);
++  }
++}
++
++function _user_relationship_defaults_create_default_relationships($account) {
++  //note that if a new account is approved, then blocked and unblocked before the user logged in once,
++  //it'll attempt to create default relationships again (there won't be any errors if they already exist, though)
++  $defaults = user_relationship_defaults_load();
++  foreach ($defaults as $default) {
++    user_relationships_request_relationship($default->user, $account, $default->relationship_type, TRUE);
+   }
+ }
+ 
+@@ -249,9 +262,9 @@ function user_relationship_defaults_user_relationships_page_alter($page_id, &$pa
+     $default_rows = array();
+     foreach ($defaults as $default) {
+       $default_rows[] = array(
+-        theme('username', $default->user),
++        theme('username', array('account' => $default->user)),
+         $default->relationship_type->name,
+-        l(t('delete'), "admin/user/relationships/defaults/{$default->rdid}/delete"),
++        l(t('delete'), "admin/config/people/relationships/defaults/{$default->rdid}/delete"),
+       );
+     }
+ 
+@@ -262,10 +275,12 @@ function user_relationship_defaults_user_relationships_page_alter($page_id, &$pa
+     $page['defaults'] = array(
+       '#type'   => 'fieldset',
+       '#title'  => t('Default Relationships'),
+-      '#weight' => 2
++      '#weight' => 2,
++      '#pre_render' => array(),
++      '#attributes' => array(),
+     );
+       $page['defaults']['list'] = array(
+-        '#value' => theme('table', array(t('User'), t('Relationship'), t('Operations')), $default_rows)
++        '#markup' => theme('table', array('header' => array(t('User'), t('Relationship'), t('Operations')), 'rows' => $default_rows))
+       );
+     break;
+   }
+@@ -276,6 +291,8 @@ function user_relationship_defaults_user_relationships_page_alter($page_id, &$pa
+  */
+ function user_relationship_defaults_user_relationships($op, &$relationship_type) {
+   if ($op == 'delete type') {
+-    db_query("DELETE FROM {user_relationship_defaults} WHERE rtid = %d", $relationship_type->rtid);
++    db_delete('user_relationship_defaults')
++      ->condition('rtid', $relationship_type->rtid)
++      ->execute();
+   }
+ }
+diff --git user_relationship_elaborations/user_relationship_elaborations.info user_relationship_elaborations/user_relationship_elaborations.info
+index bb70f62..91ba7d5 100644
+--- user_relationship_elaborations/user_relationship_elaborations.info
++++ user_relationship_elaborations/user_relationship_elaborations.info
+@@ -3,4 +3,5 @@ name = UR-Elaborations
+ description = "Allow users to elaborate on their relationships with others"
+ dependencies[] = user_relationships_api
+ package = "User Relationships"
+-core = 6.x
++core = 7.x
++files[]=user_relationship_elaborations.module
+diff --git user_relationship_elaborations/user_relationship_elaborations.install user_relationship_elaborations/user_relationship_elaborations.install
+index 19ad7d2..7a5dfbe 100644
+--- user_relationship_elaborations/user_relationship_elaborations.install
++++ user_relationship_elaborations/user_relationship_elaborations.install
+@@ -18,16 +18,8 @@ function user_relationship_elaborations_schema() {
+ }
+ 
+ /**
+- * Install
+- */
+-function user_relationship_elaborations_install() {
+-  drupal_install_schema('user_relationship_elaborations');
+-}
+-
+-/**
+  * Uninstall
+  */
+ function user_relationship_elaborations_uninstall() {
+-  drupal_uninstall_schema('user_relationship_elaborations');
+   variable_del('user_relationships_elaborations_api_only');
+ }
+diff --git user_relationship_elaborations/user_relationship_elaborations.module user_relationship_elaborations/user_relationship_elaborations.module
+index 03597a9..c018da8 100644
+--- user_relationship_elaborations/user_relationship_elaborations.module
++++ user_relationship_elaborations/user_relationship_elaborations.module
+@@ -20,14 +20,14 @@
+  * @return
+  *    An elaboration object or FALSE if the save was not successful
+  */
+-function user_relationships_save_elaboration($rid, &$elaboration) {
++function user_relationships_save_elaboration($rid, $elaboration) {
+   $record = array(
+     'rid'         => $rid,
+     'elaboration' => $elaboration,
+   );
+ 
+   //#456056 need to check if a record already exists, and update. do not assume there is no such rid
+-  $existing_rid = $message = db_result(db_query("SELECT rid FROM {user_relationship_elaborations} WHERE rid = %d", $rid));
++  $existing_rid = db_query("SELECT rid FROM {user_relationship_elaborations} WHERE rid = :rid", array(':rid' => $rid))->fetchField();
+   return drupal_write_record('user_relationship_elaborations', $record, ($existing_rid ? array('rid') : array()));
+ }
+ 
+@@ -38,7 +38,9 @@ function user_relationships_save_elaboration($rid, &$elaboration) {
+  *    an integer, the relationship ID
+  */
+ function user_relationships_delete_elaboration($rid) {
+-  db_query("DELETE FROM {user_relationship_elaborations} WHERE rid = %d", $rid);
++  db_delete('user_relationship_elaborations')
++    ->condition('rid', $rid)
++    ->execute();
+ }
+ 
+ /**
+@@ -48,8 +50,7 @@ function user_relationships_delete_elaboration($rid) {
+  *    an integer, the relationship ID
+  */
+ function user_relationships_get_elaboration($rid) {
+-  $message = db_result(db_query("SELECT elaboration FROM {user_relationship_elaborations} WHERE rid = %d", $rid));
+-  return $message;
++  return db_query("SELECT elaboration FROM {user_relationship_elaborations} WHERE rid = :rid", array(':rid' => $rid))->fetchField();
+ }
+ 
+ /**
+@@ -61,11 +62,13 @@ function user_relationship_elaborations_user_relationships($op, &$relationships)
+       return;
+     }
+     if (in_array($op, array('cancel', 'delete', 'remove', 'disapprove'))) {
+-      db_query('DELETE FROM {user_relationship_elaborations} WHERE rid = %d', $relationships->rid);
++      db_delete('user_relationship_elaborations')
++        ->condition('rid', $relationships->rid)
++        ->execute();
+     }
+     else {
+       //load elaboration string
+-      $elaboration = db_result(db_query('SELECT elaboration FROM {user_relationship_elaborations} WHERE rid = %d'), $relationships->rid);
++      $elaboration = db_query('SELECT elaboration FROM {user_relationship_elaborations} WHERE rid = :rid', array(':rid' => $relationships->rid))->fetchField();
+       if ($elaboration) {
+         $relationships->elaboration = $elaboration;
+       }
+@@ -79,14 +82,13 @@ function user_relationship_elaborations_user_relationships($op, &$relationships)
+ 
+     if ($rids) {
+       if (in_array($op, array('cancel', 'delete', 'remove', 'disapprove'))) {
+-        db_query('DELETE FROM {user_relationship_elaborations} WHERE rid IN ('. db_placeholders($rids) .')', $rids);
++         db_delete('user_relationship_elaborations')
++          ->condition('rid', $relationships->rid)
++          ->execute();
+       }
+       else {
+         //load elaboration data into these relationships
+-        $results = db_query('SELECT rid, elaboration FROM {user_relationship_elaborations} WHERE rid IN ('. db_placeholders($rids) .')', $rids);
+-        while ($result = db_fetch_object($results)) {
+-          $elaborations[$result->rid] = $result->elaboration;
+-        }
++        $elaborations = db_query('SELECT rid, elaboration FROM {user_relationship_elaborations} WHERE rid IN (:rids)', array(':rids' => $rids))->fetchAllKeyed();
+   
+         _user_relationship_elaborations_walk_recursive('load', $relationships, $elaborations);
+       }
+@@ -142,7 +144,7 @@ function user_relationship_elaborations_form_alter(&$form, $form_state, $form_id
+         $form['elaboration'] = array(
+           '#type'           => 'textarea',
+           '#title'          => t('Elaboration'),
+-          '#default_value'  => $form_state['post']['elaboration'] ? $form_state['post']['elaboration'] : user_relationships_get_elaboration($form['rid']['#value']),
++          '#default_value'  => isset($form_state['values']['elaboration']) ? $form_state['values']['elaboration'] : user_relationships_get_elaboration($form['rid']['#value']),
+           '#description'    => t('Please elaborate on this relationship (how/where you met, etc)')
+         );
+         $form['#submit'][] = 'user_relationship_elaborations_submit';
+diff --git user_relationship_implications/user_relationship_implications.info user_relationship_implications/user_relationship_implications.info
+index 4294c81..1b7e50c 100644
+--- user_relationship_implications/user_relationship_implications.info
++++ user_relationship_implications/user_relationship_implications.info
+@@ -4,4 +4,5 @@ description = "Lets admins create implied relationships. For example 'Manager im
+ dependencies[] = user_relationships_api
+ dependencies[] = user_relationships_ui
+ package = "User Relationships"
+-core = 6.x
++core = 7.x
++files[]=user_relationship_implications.module
+diff --git user_relationship_implications/user_relationship_implications.install user_relationship_implications/user_relationship_implications.install
+index ab91835..8b4f08a 100644
+--- user_relationship_implications/user_relationship_implications.install
++++ user_relationship_implications/user_relationship_implications.install
+@@ -24,32 +24,3 @@ function user_relationship_implications_schema() {
+   return $schema;
+ }
+ 
+-/**
+- * Install
+- */
+-function user_relationship_implications_install() {
+-  drupal_install_schema('user_relationship_implications');
+-}
+-
+-/**
+- * Uninstall
+- */
+-function user_relationship_implications_uninstall() {
+-  drupal_uninstall_schema('user_relationship_implications');
+-}
+-
+-/**
+- * Updates
+- */
+-function user_relationship_implications_update_1() {
+-  $ret = array();
+-
+-  db_add_field(
+-    $ret,
+-    'user_relationship_implications',
+-    'reverse',
+-    array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0, 'size' => 'tiny')
+-  );
+-
+-  return $ret;
+-}
+diff --git user_relationship_implications/user_relationship_implications.module user_relationship_implications/user_relationship_implications.module
+index 34a5bf6..b84598a 100644
+--- user_relationship_implications/user_relationship_implications.module
++++ user_relationship_implications/user_relationship_implications.module
+@@ -17,10 +17,10 @@
+ function user_relationship_implications_theme() {
+   return array(
+     'user_relationship_implications_page' => array(
+-      'arguments' => array('uid' => NULL, 'relationship' => NULL),
++      'variables' => array('uid' => NULL, 'relationship' => NULL),
+     ),
+     'user_relationship_implications_form_table' => array(
+-      'arguments' => array('form' => NULL),
++      'render element' => 'form',
+     ),
+   );
+ }
+@@ -72,7 +72,7 @@ function user_relationship_implications_form_user_relationships_ui_type_edit_alt
+     }
+   }
+ 
+-  if ($form['implications']) {
++  if (isset($form['implications'])) {
+     $implications_form = array(
+       '#title'          => t('This relationship implies'),
+       '#type'           => 'fieldset',
+@@ -93,7 +93,8 @@ function user_relationship_implications_form_user_relationships_ui_type_edit_alt
+   }
+ }
+ 
+-function theme_user_relationship_implications_form_table($form) {
++function theme_user_relationship_implications_form_table($variables) {
++  $form = $variables['form'];
+   $headers = array(t('Relationship Type'), t('Strict'), t('Reverse'));
+   $rows = array();
+ 
+@@ -107,7 +108,7 @@ function theme_user_relationship_implications_form_table($form) {
+       drupal_render(array_shift($elements)),
+     );
+   }
+-  return theme('table', $headers, $rows);
++  return theme('table', array('header' => $headers, 'rows' => $rows));
+ }
+ 
+ /**
+@@ -117,7 +118,9 @@ function user_relationship_implications_edit_submit($form, &$form_state) {
+   // the rtid is in a different place when adding a new type vs. editing an existing type
+   $rtid = $form_state['values']['rtid'];
+ 
+-  db_query("DELETE FROM {user_relationship_implications} WHERE rtid = %d", $rtid);
++  db_delete('user_relationship_implications')
++    ->condition('rtid', $rtid)
++    ->execute();
+ 
+   foreach ($form_state['values']['implications']['opts'] as $implies_rtid => $elements) {
+     if ($elements["implies_{$implies_rtid}"]) {
+@@ -143,16 +146,18 @@ function user_relationship_implications_user_relationships_type($op, &$rtypes) {
+     }
+ 
+     $results = db_query("SELECT * FROM {user_relationship_implications}");
+-    while ($implication = db_fetch_object($results)) {
++    foreach ($results as $implication) {
+       $rtypes[$implication->rtid]->implies[$implication->implies_rtid] = $implication;
+       $rtypes[$implication->implies_rtid]->implied_by[$implication->rtid] = $implication;
+     }
+   }
+   else if ($op == 'delete') {
+-    $results = db_query(
+-      "DELETE FROM {user_relationship_implications} WHERE rtid = %d OR implies_rtid = %d",
+-      $rtypes->rtid, $rtypes->rtid
+-    );
++    db_delete('user_relationship_implications')
++      ->condition(db_or()
++        ->condition('rtid', $rtypes->rtid)
++        ->condition('implies_rtid', $rtypes->rtid)
++      )
++      ->execute();
+   }
+ }
+ 
+@@ -279,11 +284,14 @@ function user_relationship_implications_user_relationships_page_alter($page_id,
+ /**
+  * Categorized list of relationships for a given user
+  */
+-function theme_user_relationship_implications_page($uid = NULL, $relationship = NULL) {
++function theme_user_relationship_implications_page($variables) {
+   global $user;
+ 
++  $uid = $variables['uid'];
++  $relation = $variables['relation'];
++
+   if (empty($uid)) {
+-    $viewed_user =& $user;
++    $viewed_user = $user;
+   }
+   else {
+     $viewed_user = user_load(array('uid' => $uid));
+@@ -300,39 +308,36 @@ function theme_user_relationship_implications_page($uid = NULL, $relationship =
+     $params['rtid'] = $relationship->rtid;
+   }
+ 
+-  $query = _user_relationships_generate_query($params);
++    // To Page or not to Page
++  $variables['relationships_per_page'] = variable_get('user_relationships_relationships_per_page', 16);
++  $options = array('include_user_info' => TRUE, 'paging' => $variables['relationships_per_page']);
+ 
+-  if ($relationships_per_page = variable_get('user_relationships_relationships_per_page', 16)) {
+-    $results = pager_query($query['query'], $relationships_per_page, 0, $query['count'], $query['arguments']);
+-  }
+-  else {
+-    $results = db_query($query['query'], $query['arguments']);
+-  }
++  $query = _user_relationships_generate_query($params, $options);
+ 
+   $edit_access = ($user->uid == $uid && user_access('maintain own relationships')) || user_access('administer users');
+   $online_interval = time() - variable_get('user_block_seconds_online', 180);
+ 
+-  while ($relation = db_fetch_object($results)) {
++  foreach ($query->execute() as $relation) {
+     $this_user = $viewed_user->uid == $relation->requestee_id ? 'requester_id' : 'requestee_id';
+-    $this_user = user_load(array('uid' => $relation->$this_user));
++    $this_user = user_load($relation->$this_user);
+     $relations = array();
+ 
+     $this_users_relationships = user_relationships_load(array('user' => $this_user->uid));
+     $rows[] = array(
+-      theme('username', $this_user),
+-      theme('item_list', _user_relationship_implications_load_relationship_names($this_users_relationships, $viewed_user->uid)),
++      theme('username', array('account' => $this_user)),
++      theme('item_list', array('items' => _user_relationship_implications_load_relationship_names($this_users_relationships, $viewed_user->uid))),
+       $this_user->access > $online_interval ? t('online') : t('not online'),
+-      $edit_access ? theme('user_relationships_remove_link', $viewed_user->uid, $relation) : '&nbsp;',
++      $edit_access ? theme('user_relationships_remove_link', array('uid' => $viewed_user->uid, 'rid' => $relation->rid)) : '&nbsp;',
+     );
+   }
+   if (count($rows)) {
+-    $output .= theme('table', array(), $rows, array('class' => 'user-relationship-implications-listing-table'));
++    $output .= theme('table', array('rows' => $rows, 'attributes' => array('class' => array('user-relationship-implications-listing-table'))));
+   }
+   else {
+     $output .= t('No relationships found');
+   }
+ 
+-  $output .= theme('pager', NULL, $relationships_per_page);
++  $output .= theme('pager');
+ 
+   drupal_set_title(t("%username's %relationships", array(
+     '%username' => $viewed_user->name,
+diff --git user_relationship_invites/user_relationship_invites.info user_relationship_invites/user_relationship_invites.info
+index 7c94f68..845733b 100644
+--- user_relationship_invites/user_relationship_invites.info
++++ user_relationship_invites/user_relationship_invites.info
+@@ -4,5 +4,6 @@ description = "Gives users the option of specifying a relationship when inviting
+ dependencies[] = user_relationships_api
+ dependencies[] = user_relationships_ui
+ dependencies[] = invite
+-core = 6.x
++core = 7.x
+ package = "User Relationships"
++files[]=user_relationship_invites.module
+diff --git user_relationship_invites/user_relationship_invites.install user_relationship_invites/user_relationship_invites.install
+index 7a3ee56..1e37c92 100644
+--- user_relationship_invites/user_relationship_invites.install
++++ user_relationship_invites/user_relationship_invites.install
+@@ -33,17 +33,3 @@ function user_relationship_invites_schema() {
+ 
+   return $schema;
+ }
+-
+-/**
+- * Implementation of hook_install().
+- */
+-function user_relationship_invites_install() {
+-  drupal_install_schema('user_relationship_invites');
+-}
+-
+-/**
+- * Implementation of hook_uninstall().
+- */
+-function user_relationship_invites_uninstall() {
+-  drupal_uninstall_schema('user_relationship_invites');
+-}
+diff --git user_relationship_invites/user_relationship_invites.module user_relationship_invites/user_relationship_invites.module
+index b242670..b2d7f26 100644
+--- user_relationship_invites/user_relationship_invites.module
++++ user_relationship_invites/user_relationship_invites.module
+@@ -20,7 +20,7 @@
+  *    object with the invite data including the inviter user object and relationship_type object
+ */
+ function user_relationship_invites_get_invite($code) {
+-  if ($invite = db_fetch_object(db_query("SELECT * FROM {user_relationship_invites} WHERE invite_code = '%s'", $code))) {
++  if ($invite = db_query("SELECT * FROM {user_relationship_invites} WHERE invite_code = :code", array(':code' => $code))->fetchObject()) {
+     $invite->inviter = user_load(array('uid' => $invite->inviter_uid));
+     $invite->relationship_type = user_relationships_type_load($invite->rtid);
+   }
+@@ -31,20 +31,12 @@ function user_relationship_invites_get_invite($code) {
+ /**
+  * Implementation of hook_form_alter().
+ */
+-function user_relationship_invites_form_alter(&$form, $form_state, $form_id) {
+-  if (!(module_exists('invite') && module_exists('user_relationships_api') && module_exists('user_relationships_ui'))) {
+-    return;
+-  }
+-
+-  if ($form_id == 'invite_form') {
+-    global $user;
+-
+-    $new_user = drupal_anonymous_user();
+-    module_load_include('inc', 'user_relationships_ui', 'user_relationships_ui.forms');
+-    $form += user_relationships_ui_request_form($user, $new_user, $form_state['values']);
+-    $form['rtid']['#weight'] = 0;
+-    $form['#validate'][] = 'user_relationship_invites_invite_form_validate';
+-  }
++function user_relationship_invites_form_invite_form_alter(&$form, $form_state) {
++  $new_user = drupal_anonymous_user();
++  module_load_include('inc', 'user_relationships_ui', 'user_relationships_ui.forms');
++  $form += user_relationships_ui_request_form($user, $new_user, $form_state['values']);
++  $form['rtid']['#weight'] = 0;
++  $form['#validate'][] = 'user_relationship_invites_invite_form_validate';
+ }
+ 
+ /**
+@@ -63,7 +55,13 @@ function user_relationship_invites_invite_form_validate($form, &$form_state) {
+ function user_relationship_invites_invite($op, &$args) {
+   switch ($op) {
+     case 'invite':
+-      db_query("INSERT INTO {user_relationship_invites} (inviter_uid, rtid, invite_code) VALUES (%d, %d, '%s')", $args['inviter']->uid, $args['inviter']->rtid, $args['code']);
++      db_insert('user_relationship_invites')
++        ->fields(array(
++          'inviter_uid' => $args['inviter']->uid,
++          'rtid' => $args['inviter']->rtid,
++          'invite_code' => $args['code'],
++        ))
++        ->execute();
+       break;
+   }
+ }
+diff --git user_relationship_migrate/README.txt user_relationship_migrate/README.txt
+index 02ec5eb..03c4dde 100644
+--- user_relationship_migrate/README.txt
++++ user_relationship_migrate/README.txt
+@@ -25,7 +25,7 @@ Enable User Relationship Migrate in the "Site building -> Modules" administratio
+ Usage
+ -----
+ After enabling the module, go to the "User management -> Relationships" page
+-(admin/user/relationships) and click on "Migrate buddylist2" in the menu across the top.
++(admin/config/people/relationships) and click on "Migrate buddylist2" in the menu across the top.
+ 
+ Enter a relationship type for the migrated relationships, and click Migrate. 
+ Your Buddylist data will be treated correctly depending on the type of relationship you are 
+diff --git user_relationship_migrate/user_relationship_migrate.module user_relationship_migrate/user_relationship_migrate.module
+index 24bb5e3..9fa59bf 100644
+--- user_relationship_migrate/user_relationship_migrate.module
++++ user_relationship_migrate/user_relationship_migrate.module
+@@ -21,7 +21,7 @@ module_load_include('inc', 'user_relationship_migrate', "user_relationship_migra
+ function user_relationship_migrate_menu() {
+   $items = array();
+ 
+-  $items['admin/user/relationships/migrate'] = array(
++  $items['admin/config/people/relationships/migrate'] = array(
+     'title'     => 'Migrate from buddylist2',
+     'page callback'  => 'user_relationship_migrate_page',
+     'access arguments' => array('administer user relationships'),
+@@ -29,7 +29,7 @@ function user_relationship_migrate_menu() {
+     'weight'    => 4,
+   );
+ 
+-  $items['admin/user/relationships/migrate/error'] = array(
++  $items['admin/config/people/relationships/migrate/error'] = array(
+     'title'     => 'Migrating from buddylist2 error',
+     'page callback'  => 'user_relationship_migrate_error',
+     'access arguments' => array('administer user relationships'),
+@@ -148,6 +148,6 @@ function user_relationship_migrate_form_submit($form, &$form_state) {
+ 
+   variable_set('user_relationship_migrate_last_run', time());
+ 
+-  $form_state['redirect'] = 'admin/user/relationships/migrate';
++  $form_state['redirect'] = 'admin/config/people/relationships/migrate';
+ }
+ 
+diff --git user_relationships_api/user_relationships_api.api.inc user_relationships_api/user_relationships_api.api.inc
+index 92b29d9..7e8121f 100644
+--- user_relationships_api/user_relationships_api.api.inc
++++ user_relationships_api/user_relationships_api.api.inc
+@@ -72,14 +72,10 @@ function user_relationships_types_load($reset = NULL) {
+ 
+   if ($reset || empty($relationship_types_list)) {
+     //clear the cached list, since some relationships may have disappeared
+-    $relationship_types_list = array();
+-    $results = db_query("SELECT * FROM {user_relationship_types}");
+-    while ($relationship = db_fetch_object($results)) {
+-      $relationship_types_list[$relationship->rtid] = $relationship;
+-    }
++    $relationship_types_list = db_query("SELECT * FROM {user_relationship_types}")->fetchAllAssoc('rtid');
+     //load role permissions for all types
+-    $results = db_query('SELECT rtid, rid FROM {user_relationship_type_roles} ORDER BY rtid, rid');
+-    while ($mapping = db_fetch_object($results)) {
++    $result = db_query('SELECT rtid, rid FROM {user_relationship_type_roles} ORDER BY rtid, rid');
++    foreach ($result as $mapping) {
+       $rtype = $relationship_types_list[$mapping->rtid];
+       // //roles is an associative array {role id} => {role id}
+       $rtype->roles[$mapping->rid] = $mapping->rid;//] = $mapping->name;
+@@ -133,8 +129,12 @@ function user_relationships_type_save(&$rtype) {
+ function user_relationships_type_delete($rtid) {
+   $rtype = user_relationships_type_load($rtid);
+ 
+-  db_query('DELETE FROM {user_relationship_types} WHERE rtid = %d', $rtid);
+-  db_query('DELETE FROM {user_relationships} WHERE rtid = %d', $rtid);
++  db_delete('user_relationship_types')
++    ->condition('rtid', $rtid)
++    ->execute();
++  db_delete('user_relationships')
++    ->condition('rtid', $rtid)
++    ->execute();
+ 
+   _user_relationships_invoke('delete', $rtype, TRUE);
+ }
+@@ -224,41 +224,49 @@ function user_relationships_save_relationship(&$relationship, $op = 'request') {
+   if ($op == 'approve') {
+     $relationship->approved = 1;
+   }
++
++  // Start a transaction so that we can roll back in case of an error.
++  $transaction = db_transaction();
++  try {
+   
+-  _user_relationships_invoke('presave', $relationship);
+-
+-  if (isset($relationship->rid)) {
+-    // Delete possible requests coming the other direction
+-    $relationship_type = user_relationships_type_load($relationship->rtid);
+-    if (!$relationship_type->is_oneway) {
+-      db_query(
+-        'DELETE FROM {user_relationships} WHERE rtid = %d AND requester_id = %d AND requestee_id = %d',
+-        $relationship->rtid, $relationship->requestee_id, $relationship->requester_id
+-      );
++    _user_relationships_invoke('presave', $relationship);
++
++    if (isset($relationship->rid)) {
++      // Delete possible requests coming the other direction
++      $relationship_type = user_relationships_type_load($relationship->rtid);
++      if (!$relationship_type->is_oneway) {
++        db_delete('user_relationships')
++          ->condition('rtid', $relationship->rtid)
++          ->condition('requester_id', $relationship->requestee_id)
++          ->condition('requestee_id', $relationship->requester_id)
++          ->execute();
++      }
+     }
+-  }
+ 
+-  //#454680 make sure that an update is performed if this is an existing relationship
+-  if ($valid = drupal_write_record('user_relationships', $relationship, (isset($relationship->rid) ? array('rid') : array()))) {
+-    // if the relationship has been approved and is two-way we need
+-    // to do a double entry for DB efficiency
+-    $relationship_type = user_relationships_type_load($relationship->rtid);
+-    if ($relationship->approved && !$relationship_type->is_oneway) {
+-      //#365623 drupal_write_record will not work because rid is a serial field, and we need to use the same rid
+-      $valid = db_query('INSERT INTO {user_relationships} (rid, requester_id, requestee_id, rtid, approved, created_at, updated_at, flags) SELECT rid, requestee_id, requester_id, rtid, approved, created_at, updated_at, flags from {user_relationships} where rid = %d', $relationship->rid);
++    //#454680 make sure that an update is performed if this is an existing relationship
++    if (drupal_write_record('user_relationships', $relationship, (isset($relationship->rid) ? array('rid') : array()))) {
++      // if the relationship has been approved and is two-way we need
++      // to do a double entry for DB efficiency
++      $relationship_type = user_relationships_type_load($relationship->rtid);
++      if ($relationship->approved && !$relationship_type->is_oneway) {
++        //#365623 drupal_write_record will not work because rid is a serial field, and we need to use the same rid
++        $select = db_select('user_relationships', 'ur')
++          ->fields('ur', array('rid', 'requester_id', 'requestee_id', 'rtid', 'approved', 'created_at', 'updated_at', 'flags'))
++          ->condition('rid', $relationship->rid);
++        db_insert('user_relationships')
++          ->fields(array('rid', 'requestee_id', 'requester_id', 'rtid', 'approved', 'created_at', 'updated_at', 'flags'))
++          ->from($select)
++          ->execute();
++     }
+     }
+ 
+-    // second entry didn't go well. revert the first
+-    if (!$valid) {
+-      db_query('DELETE FROM {user_relationships} WHERE rid = %d', $relationship->rid);
+-      unset($relationship->rid);
+-    }
+-  }
+-
+-  if ($valid) {
+     _user_relationships_invoke($op, $relationship);
+     return $relationship;
+   }
++  catch (Exception $e) {
++    $transaction->rollback('user_relationships', $e->getMessage(), array(), WATCHDOG_ERROR);
++    return FALSE;
++  }
+ }
+ 
+ 
+@@ -274,7 +282,9 @@ function user_relationships_save_relationship(&$relationship, $op = 'request') {
+  */
+ function user_relationships_delete_relationship(&$relationship, &$deleted_by, $op = 'remove') {
+   $relationship->deleted_by = $deleted_by;
+-  db_query("DELETE FROM {user_relationships} WHERE rid = %d", $relationship->rid);
++  db_delete('user_relationships')
++    ->condition('rid', $relationship->rid)
++    ->execute();
+ 
+   _user_relationships_invoke($op, $relationship);
+ }
+@@ -348,22 +358,22 @@ function user_relationships_load($param = array(), $options = array(), $reset =
+   $arguments = array();
+   if (is_numeric($param)) {
+     if (!$reset && isset($relationships[$param])) {
+-      return is_object($relationships[$param]) ? drupal_clone($relationships[$param]) : $relationships[$param];
++      return is_object($relationships[$param]) ? clone $relationships[$param] : $relationships[$param];
+     }
+     $rid = $param;
+     $param = array('rid' => $param);
+   }
+ 
+-  $query = _user_relationships_generate_query($param, $options);
++  $options['only_count'] = !empty($count);
+ 
+-  $results = db_query($query[(isset($count) && $count ? 'count' : 'query')], $query['arguments']);
++  $query = _user_relationships_generate_query($param, $options);
+ 
+-  if (isset($count) && $count) {
+-    return (int)db_result($results);
++  if (!empty($count)) {
++    return (int)$query->execute()->fetchField();
+   }
+ 
+   $relationships = array();
+-  while ($relationship = db_fetch_object($results)) {
++  foreach ($query->execute() as $relationship) {
+     if (isset($include_user_info)) {
+       user_relationships_api_translate_user_info($relationship);
+     }
+diff --git user_relationships_api/user_relationships_api.info user_relationships_api/user_relationships_api.info
+index 1705586..e475e6b 100644
+--- user_relationships_api/user_relationships_api.info
++++ user_relationships_api/user_relationships_api.info
+@@ -2,4 +2,12 @@
+ name = UR-API
+ description = "API for User Relationships. This will only provide the programmer interface."
+ package = "User Relationships"
+-core = 6.x
++core = 7.x
++files[]=user_relationships_api.actions.inc
++files[]=user_relationships_api.activity.inc
++files[]=user_relationships_api.api.inc
++files[]=user_relationships_api.privatemsg.inc
++files[]=user_relationships_api.socnet.inc
++files[]=user_relationships_api.module
++files[]=tests/user_relationships_api.api.test
++files[]=tests/user_relationships_api.socnet.test
+diff --git user_relationships_api/user_relationships_api.install user_relationships_api/user_relationships_api.install
+index 813f530..09cf268 100644
+--- user_relationships_api/user_relationships_api.install
++++ user_relationships_api/user_relationships_api.install
+@@ -61,20 +61,6 @@ function user_relationships_api_schema() {
+ }
+ 
+ /**
+- * Implementation of hook_install().
+- */
+-function user_relationships_api_install() {
+-  drupal_install_schema('user_relationships_api');
+-}
+-
+-/**
+- * Implementation of hook_uninstall().
+- */
+-function user_relationships_api_uninstall() {
+-  drupal_uninstall_schema('user_relationships_api');
+-}
+-
+-/**
+  * Implementation of hook_update_N().
+  * Update 6100 changes the {user_relationships} rid column from an INT to a SERIAL type.
+  */
+diff --git user_relationships_api/user_relationships_api.module user_relationships_api/user_relationships_api.module
+index d74ea38..2c28d47 100644
+--- user_relationships_api/user_relationships_api.module
++++ user_relationships_api/user_relationships_api.module
+@@ -43,40 +43,56 @@ function _user_relationships_generate_query($param = array(), $options = array()
+ 
+   $twoway_reverse_clause = FALSE;//#479486
+   // Turn the conditions into a query.
++  $query = db_select('user_relationships', 'ur');
++  $query->innerJoin('user_relationship_types', 'urt', 'urt.rtid = ur.rtid');
+   foreach ($param as $key => $value) {
+     if (!isset($value)) {
+       continue;
+     }
+ 
+-    $operator = _user_relationship_process_query_argument($key, $value);
+-
+     switch ($key) {
+     case 'between':
+-      $between_cond = "((ur.requester_id {$operator[0]} AND ur.requestee_id {$operator[1]}) OR (";
++      $or = db_or()
++        ->condition(db_and()
++          ->condition('ur.requester_id', $value[0])
++          ->condition('ur.requestee_id', $value[1])
++      );
++      $and = db_and()
++        ->condition('ur.requestee_id', $value[0])
++        ->condition('ur.requester_id', $value[1]);
+       //#479486 do not include reverse records of two-way relationships by default
+       if (!isset($include_twoway_reverse)) {
+-        $between_cond .= '(ur.approved <> 1 OR urt.is_oneway <> 0) AND ';
++        $and->condition(db_or()
++          ->condition('ur.approved', 1, '<>')
++          ->condition('urt.is_oneway', 0, '<>'));
+         $twoway_reverse_clause = TRUE;
+       }
+-      $between_cond .= "ur.requestee_id {$operator[0]} AND ur.requester_id {$operator[1]}))";
+-      $cond[] = $between_cond;
+-      $arguments[] = $value[0];
+-      $arguments[] = $value[1];
+-      $arguments[] = $value[0];
+-      $arguments[] = $value[1];
++      $or->condition($and);
++      $query->condition($or);
+       break;
+ 
+     case 'user':
+       //#479486 when showing all user's relationships, do not include reverse records of two-way relationships
+       if (!isset($include_twoway_reverse)) {
+-        $cond[] = "(ur.requester_id {$operator} OR ((ur.approved <> 1 OR urt.is_oneway <> 0) AND ur.requestee_id {$operator}))";
++        $query->condition(db_or()
++          ->condition('ur.requester_id', $value)
++          ->condition(db_and()
++            ->condition(db_or()
++              ->condition('ur.approved', 1, '<>')
++              ->condition('urt.is_oneway', 0, '<>')
++            )
++            ->condition('ur.requestee_id', $value)
++          )
++        );
+         $twoway_reverse_clause = TRUE;
+       }
+       else {
+-        $cond[] = "(ur.requester_id {$operator} OR ur.requestee_id {$operator})";
++        $query->condition(db_or()
++          ->condition('ur.requester_id', $value)
++          ->condition('ur.requestee_id', $value)
++        );
+       }
+       $arguments[] = $value;
+-      $arguments[] = $value;
+       break;
+     
+     case 'requester_id':
+@@ -85,122 +101,75 @@ function _user_relationships_generate_query($param = array(), $options = array()
+ 
+     default:
+       $types_cols = array('name', 'plural_name', 'is_oneway', 'is_reciprocal', 'requires_approval', 'expires_val');
+-      $cond[] = "%s.%s {$operator}";
+-      $arguments[] = !in_array($key, $types_cols) ? 'ur' : 'urt';
+-      $arguments[] = $key;
+-      //#358669 support having multiple values for a single column - the query already has IN(...) placeholders
+-      if (!is_array($value)) {
+-        $arguments[] = $value;
+-      }
+-      else {
+-        $arguments = array_merge($arguments, $value);
+-      }
++      $prefix = !in_array($key, $types_cols) ? 'ur' : 'urt';
++      $query->condition($prefix . '.' . $key, $value);
+     }
+   }
+   
+   //#479486 add a general clause that removed reverse direction from two-way relationship results, unless it's been addressed above
+   if (!$twoway_reverse_clause && !isset($include_twoway_reverse)) {
+-    $cond[] = '(urt.is_oneway <> 0 OR ur.approved <> 1 OR ur.requester_id < ur.requestee_id)';
++    $query->condition(db_or()
++      ->condition('urt.is_oneway', 0, '<>')
++      ->condition('ur.approved', 1, '<>')
++      ->where('ur.requester_id < ur.requestee_id')
++    );
+     $twoway_reverse_clause = TRUE;
+   }
+ 
+-  $selects = array('DISTINCT ur.rid', 'ur.*', 'urt.*');
+-  $joins = array('INNER JOIN {user_relationship_types} urt USING ( rtid )');
+-
+-  // We wont need anything after this point for the count SQL
+-  $count_joins = implode(' ', $joins);
++  if (!empty($only_count) || !empty($paging)) {
++    $count = clone $query;
++    $count->addExpression('COUNT(DISTINCT rid)', 'count');
++  }
++  $query
++    ->distinct()
++    ->fields('ur')
++    ->fields('urt');
+ 
+   if (isset($include_user_info) && $include_user_info) {
+-    $selects = array_merge($selects, array(
+-      'requesters.name AS requester_name',
+-      'requestees.name AS requestee_name',
+-      'requesters.mail AS requester_mail',
+-      'requestees.mail AS requestee_mail',
+-      'requesters.data AS requester_data',
+-      'requestees.data AS requestee_data',
+-      'requesters.picture AS requester_picture',
+-      'requestees.picture AS requestee_picture',
+-    ));
+-
+-    $joins = array_merge($joins, array(
+-      'INNER JOIN {users} requesters ON ur.requester_id = requesters.uid',
+-      'INNER JOIN {users} requestees ON ur.requestee_id = requestees.uid'
+-    ));
++    $query->addField('requesters', 'name', 'requester_name');
++    $query->addField('requesters', 'mail', 'requester_mail');
++    $query->addField('requesters', 'data', 'requester_data');
++    $query->addField('requesters', 'picture', 'requester_picture');
++    $query->addField('requestees', 'name', 'requestee_name');
++    $query->addField('requestees', 'mail', 'requestee_mail');
++    $query->addField('requestees', 'data', 'requestee_data');
++    $query->addField('requestees', 'picture', 'requestee_picture');
++
++    $query->innerJoin('users', 'requesters', 'ur.requester_id = requesters.uid');
++    $query->innerJoin('users', 'requestees', 'ur.requestee_id = requestees.uid');
+   }
+-
+-  $selects = implode(',', $selects);
+-  $joins = implode(' ', $joins);
+-
+-  $cond = $cond ? 'WHERE '. implode(' AND ', $cond) : '';
+-
+-  $extra = array();
+   if (!empty($order)) {
+-    $extra[] = "ORDER BY {$order}";
+-  }
+-  if (!empty($limit)) {
+-    $extra[] = "LIMIT {$limit}";
+-  }
+-  $extra = is_array($extra) ? implode(' ', $extra) : $extra;
+-
+-  return array(
+-    //331692 remove improper GROUP BY rid for Postgre
+-    'query'     => "SELECT {$selects} FROM {user_relationships} ur {$joins} {$cond} {$extra}",
+-    'count'     => "SELECT COUNT(DISTINCT rid) AS count FROM {user_relationships} ur {$count_joins} {$cond}",
+-    'arguments' => $arguments,
+-  );
+-}
+-
+-
+-/**
+- * Helper function to process the various argument types allowed
+- */
+-function _user_relationship_process_query_argument($key, &$value) {
+-  if ($key == 'between') {
+-    return array(
+-      _user_relationship_process_query_argument(NULL, $value[0]),
+-      _user_relationship_process_query_argument(NULL, $value[1]),
+-    );
+-  }
+-
+-  if (is_array($value)) {
+-    if (count($value) == 1) {
+-      $value = array_shift($value);
+-      return _user_relationship_process_query_argument($key, $value);
++    if (is_array($order)) {
++      $query->orderBy($order[0], $order[1]);
+     }
+     else {
+-      $type = is_numeric(current($value)) ? 'int' : 'varchar';
+-      return 'IN ('. db_placeholders($value, $type) .')';
++      $query->orderBy($order);
+     }
+   }
+-  elseif (is_numeric($value) || is_bool($value)) {
+-    $value = (int)$value;
+-    return '= %d';
++  if (!empty($limit)) {
++    $query->range(0, $limit);
+   }
+-  elseif (is_float($value)) {
+-    return '= %f';
++  if (!empty($only_count)) {
++    return $count;
+   }
+-  elseif (preg_match('/([<>=]{1,2})\s*(.+)/', $value, $matches)) {
+-    $marker = "'%s'";
+-    $value = $matches[3];
+-
+-    if (is_numeric($value)) {
+-      $marker = '%d';
+-      $value = (int)$value;
+-    }
+-
+-    return "{$matches[1]} {$marker}";
+-  }
+-  else {
+-    return "= '%s'";
++  if (!empty($paging)) {
++    $query
++      ->extend('PagerDefault')
++      ->limit($paging)
++      ->setCountQuery($count);
+   }
++  return $query;
+ }
+ 
+ 
+ /**
+  * hook_perm()
+  */
+-function user_relationships_api_perm() {
+-  return array('can have relationships');
++function user_relationships_api_permission() {
++  return array('can have relationships' => array(
++    'title' => t('Can have relationships'),
++    'description' => t('TODO'),
++  ));
+ }
+ 
+ 
+@@ -222,18 +191,14 @@ function user_relationships_api_cron() {
+         INNER JOIN {user_relationship_types} urt ON ur.rtid = urt.rtid
+       WHERE ur.approved = 0
+         AND urt.expires_val > 0
+-        AND ur.updated_at < (%d - (urt.expires_val * 86400))
+-      GROUP BY ur.rid", $now
++        AND ur.updated_at < (:now - (urt.expires_val * 86400))
++      GROUP BY ur.rid", array(':now' => $now)
+   );
+-
+-  $expired_requests = array();
+-  while ($request = db_fetch_object($result)) {
+-    $expired_requests[] = $request->rid;
+-  }
+-
++  $expired_requests = $result->fetchAll();
+   if (count($expired_requests)) {
+-    db_query('DELETE FROM {user_relationships} WHERE rid IN ('. db_placeholders($expired_requests) .')', $expired_requests);
+-    _user_relationships_invoke('delete', $expired_requests);
++    db_delete('user_relationships')
++      ->condition('rid', $expired_requests)
++      ->execute();
+   }
+ 
+   // remember when we last expired relationships
+@@ -243,12 +208,15 @@ function user_relationships_api_cron() {
+ 
+ 
+ /**
+- * hook_user()
++ * Implements hook_user_cancel().
+  */
+-function user_relationships_api_user($type, &$edit, &$account, $category = NULL) {
+-  if ($type == 'delete') {
+-    db_query("DELETE FROM {user_relationships} WHERE requester_id = %d OR requestee_id = %d", $account->uid, $account->uid);
+-  }
++function user_relationships_api_user_cancel($edit, $account, $method) {
++    db_delete('user_relationships')
++      ->condition(db_or()
++        ->condition('requester_id', $account->uid)
++        ->condition('requestee_id', $account->uid)
++      )
++      ->execute();
+ }
+ 
+ /**
+@@ -327,13 +295,13 @@ function user_relationships_api_token_values($type, $data = NULL, $options = arr
+   if ($type == 'requester') {
+     $r = $data;
+     $token_values = array(
+-      'requester' => theme('username', user_load(array('uid' => $r))),
++      'requester' => theme('username', array('account' => user_load(array('uid' => $r)))),
+     );
+   }
+   elseif ($type == 'requestee') {
+     $r = $data;
+     $token_values = array(
+-      'requestee' => theme('username', user_load(array('uid' => $r))),
++      'requestee' => theme('username', array('account' => user_load(array('uid' => $r)))),
+     );
+   }
+   elseif ($type == 'relationship') {
+@@ -341,9 +309,9 @@ function user_relationships_api_token_values($type, $data = NULL, $options = arr
+     $r_type = user_relationships_type_load($r->rtid);
+    
+     $token_values = array(
+-      'requestee' => theme('username', user_load(array('uid' => $r->requestee_id))),
+-      'requester' => theme('username', user_load(array('uid' => $r->requester_id))),
+-      'relationship-name' => theme('placeholder', $r_type->name),
++      'requestee' => theme('username', array('account' => user_load(array('uid' => $r->requestee_id)))),
++      'requester' => theme('username',array('account' => user_load(array('uid' => $r->requester_id)))),
++      'relationship-name' => drupal_placeholder($r_type->name),
+     );
+   }
+  
+diff --git user_relationships_api/user_relationships_api.privatemsg.inc user_relationships_api/user_relationships_api.privatemsg.inc
+index 9a6e0ed..3373061 100644
+--- user_relationships_api/user_relationships_api.privatemsg.inc
++++ user_relationships_api/user_relationships_api.privatemsg.inc
+@@ -9,22 +9,17 @@
+  * Fills new Privatemsg autocomplete To: field with friends only.
+  *
+  */
+-function user_relationships_api_privatemsg_sql_autocomplete_alter(&$fragments, $search, $names) {
++function user_relationships_api_query_privatemsg_autocomplete_alter($query) {
+   //#522078 killswitch for autocomplete
+   if (!variable_get('user_relationships_privatemsg_autocomplete_alter', 0)) {
+     return;
+   }
+-
+   global $user;
+-  
+-  static $uniqueprefix = 0;
+-  
+-  $fragments['inner_join'][] = "INNER JOIN {user_relationships} ur_$uniqueprefix ON u.uid = ur_$uniqueprefix.requestee_id";
+-  $fragments['where'][] = "ur_$uniqueprefix.approved = 1";
+-  $fragments['where'][] = "ur_$uniqueprefix.requester_id = %d";
+-  $fragments['query_args']['where'][] = $user->uid;
+-  
+-  $uniqueprefix++;
++
++  $query->innerJoin('user_relationships', 'ur', 'u.uid = ur.requestee_id');
++  $query
++    ->condition('ur.approved', 1)
++    ->condition('ur.requester_id', $user->uid);
+ }
+ 
+ 
+@@ -48,7 +43,7 @@ function user_relationships_api_privatemsg_block_message($author, $recipients) {
+      ) {
+       $blocked[] = array(
+         'uid' => $recipient->uid,
+-        'message' => t('!name is not a friend of yours.', array('!name' => theme('username', $recipient)))
++        'message' => t('!name is not a friend of yours.', array('!name' => theme('username', array('author' => $recipient))))
+       );
+     }
+   }
+diff --git user_relationships_ui/templates/user_relationships.tpl.php user_relationships_ui/templates/user_relationships.tpl.php
+index a7459d4..acb957e 100644
+--- user_relationships_ui/templates/user_relationships.tpl.php
++++ user_relationships_ui/templates/user_relationships.tpl.php
+@@ -10,20 +10,20 @@ if ($relationships) {
+     $this_user      = $relationship->{$this_user_str};
+ 
+     $row = array(
+-      theme('username', $this_user),
++      theme('username', array('account' => $this_user)),
+       ur_tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name) . ($relationship->is_oneway ? ($this_user_str == 'requestee' ? t(' (You to Them)') : t(' (Them to You)')) : NULL),
+       $relationship->extra_for_display,
+-      $edit_access ? theme('user_relationships_remove_link', $account->uid, $relationship->rid) : '&nbsp;',
++      $edit_access ? theme('user_relationships_remove_link', array('uid' => $account->uid, 'rid' => $relationship->rid)) : '&nbsp;',
+     );
+     if (variable_get('user_relationships_show_user_pictures', 0)) {
+-      array_unshift($row, theme('user_picture', $this_user)); 
++      array_unshift($row, theme('user_picture', array('account' => $this_user)));
+     }
+     $rows[] = $row;
+   }
+ 
+   print
+-    theme('table', array(), $rows, array('class' => 'user-relationships-listing-table')) .
+-    theme('pager', NULL, $relationships_per_page);
++    theme('table', array('rows' =>  $rows, 'attributes' => array('class' => array('user-relationships-listing-table'))));
++    //theme('pager');
+ }
+ else {
+   print t('No relationships found');
+diff --git user_relationships_ui/templates/user_relationships_pending_requests.tpl.php user_relationships_ui/templates/user_relationships_pending_requests.tpl.php
+index ff00f7e..f058db5 100644
+--- user_relationships_ui/templates/user_relationships_pending_requests.tpl.php
++++ user_relationships_ui/templates/user_relationships_pending_requests.tpl.php
+@@ -23,25 +23,25 @@
+     foreach ($$section as $relationship) {
+       $links = array();
+       if ($section == 'sent_requests') {
+-        $links[] = theme('user_relationships_pending_request_cancel_link', $account->uid, $relationship->rid);
++        $links[] = theme('user_relationships_pending_request_cancel_link', array('uid' => $account->uid, 'rid' => $relationship->rid));
+       }
+       else {
+-        $links[] = theme('user_relationships_pending_request_approve_link',    $account->uid, $relationship->rid);
+-        $links[] = theme('user_relationships_pending_request_disapprove_link', $account->uid, $relationship->rid);
++        $links[] = theme('user_relationships_pending_request_approve_link', array('uid' => $account->uid, 'rid' => $relationship->rid));
++        $links[] = theme('user_relationships_pending_request_disapprove_link', array('uid' => $account->uid, 'rid' => $relationship->rid));
+       }
+       $links = implode(' | ', $links);
+ 
+       if ($relationship->requester_id == $account->uid) {
+-        $rows[]   = array(t('@rel_name to !requestee', array('@rel_name' => ur_tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name), '!requestee' => theme('username', $relationship->requestee))), $links);
++        $rows[]   = array(t('@rel_name to !requestee', array('@rel_name' => ur_tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name), '!requestee' => theme('username', array('account' => $relationship->requestee)))), $links);
+       }
+       else {
+-        $rows[]   = array(t('@rel_name from !requester', array('@rel_name' => ur_tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name), '!requester' => theme('username', $relationship->requester))), $links);
++        $rows[]   = array(t('@rel_name from !requester', array('@rel_name' => ur_tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name), '!requester' => theme('username', array('account' => $relationship->requester)))), $links);
+       }
+     }
+ 
+     $output .=
+-      theme('table', array(), $rows, array('class' => 'user-relationships-pending-listing-table')).
+-      theme('pager', NULL, $relationships_per_page, $pager_id++);
++      theme('table', array('rows' => $rows, 'attributes' => array('class' => array('user-relationships-pending-listing-table'))));
++      //theme('pager', NULL, $relationships_per_page, $pager_id++);
+   }
+ 
+   if ($output == '') {
+diff --git user_relationships_ui/user_relationships_ui.actions.inc user_relationships_ui/user_relationships_ui.actions.inc
+index 08c1d43..8a0c2b8 100644
+--- user_relationships_ui/user_relationships_ui.actions.inc
++++ user_relationships_ui/user_relationships_ui.actions.inc
+@@ -73,11 +73,12 @@ function user_relationships_ui_request_validate($form, &$form_state) {
+       }
+     }
+     //check if there aren't any available (not yet used) types that can be established
+-    if (!db_result(db_query(
+-      'SELECT COUNT(*) FROM {user_relationship_types}' . 
+-      ($test_relationships ? ' WHERE rtid NOT IN ('. db_placeholders($test_relationships) .')' : ''),
+-      array_keys($test_relationships)
+-    ))) {
++    $select = db_select('user_relationship_types');
++    $select->addExpression('COUNT(*)', 'count');
++    if ($test_relationships) {
++      $select->condition('rtid', $test_relationships, 'NOT IN');
++    }
++    if (!$select->execute()->fetchField()) {
+       drupal_set_message(user_relationships_ui_get_message('too_many_relationships'), 'error');
+       drupal_goto();
+     }
+diff --git user_relationships_ui/user_relationships_ui.admin.inc user_relationships_ui/user_relationships_ui.admin.inc
+index b5114ea..8c6c469 100644
+--- user_relationships_ui/user_relationships_ui.admin.inc
++++ user_relationships_ui/user_relationships_ui.admin.inc
+@@ -143,7 +143,7 @@ function user_relationships_ui_settings() {
+ /**
+  * Relationship type edit page.
+  */
+-function user_relationships_ui_type_edit(&$form_state, $relationship_type = NULL) {
++function user_relationships_ui_type_edit($form, &$form_state, $relationship_type = NULL) {
+   $form['name'] = array(
+     '#type'           => 'textfield',
+     '#title'          => t('Name'),
+@@ -223,7 +223,7 @@ function user_relationships_ui_type_edit(&$form_state, $relationship_type = NULL
+ /**
+  * Relationship type delete page.
+  */
+-function user_relationships_ui_type_delete(&$form_state, $relationship_type = NULL) {
++function user_relationships_ui_type_delete($form, &$form_state, $relationship_type = NULL) {
+   if ($relationship_type) {
+     $form['rtid'] = array(
+       '#type'   => 'value',
+@@ -233,13 +233,13 @@ function user_relationships_ui_type_delete(&$form_state, $relationship_type = NU
+     return confirm_form(
+       $form,
+       t('Are you sure you want to delete %name?', array('%name' => ur_tt("user_relationships:rtid:$relationship_type->rtid:name", $relationship_type->name))),
+-      'admin/user/relationships',
++      'admin/config/people/relationships',
+       t('This action cannot be undone.'),
+       t('Delete'), t('Cancel')
+     );
+   }
+   else {
+     drupal_set_message(user_relationships_ui_get_message('non_existent_type'));
+-    drupal_goto('admin/user/relationships');
++    drupal_goto('admin/config/people/relationships');
+   }
+ }
+diff --git user_relationships_ui/user_relationships_ui.admin_actions.inc user_relationships_ui/user_relationships_ui.admin_actions.inc
+index bb27c85..957925e 100644
+--- user_relationships_ui/user_relationships_ui.admin_actions.inc
++++ user_relationships_ui/user_relationships_ui.admin_actions.inc
+@@ -9,20 +9,14 @@
+  * Validate the submitted relationship type
+  */
+ function user_relationships_ui_type_edit_validate($form, &$form_state) {
+-  // My god this is ugly
+-  if (
+-    (isset($form_state['values']['rtid']) &&
+-      db_result(db_query(
+-        "SELECT name FROM {user_relationship_types}
+-         WHERE LOWER(name) = LOWER('%s')
+-           AND rtid != %d",
+-        $form_state['values']['name'], $form_state['values']['rtid'])
+-      )
+-    ) ||
+-    (!isset($form_state['values']['rtid']) &&
+-      db_result(db_query("SELECT name FROM {user_relationship_types} WHERE LOWER(name) = LOWER('%s')", $form_state['values']['name']))
+-    )
+-  ) {
++  // My god this is ugly. => Not anymore :)
++  $select = db_select('user_relationship_types', 'urt')
++    ->fields('urt', array('name'))
++    ->where("LOWER(name) = LOWER(:name)", array(':name' => $form_state['values']['name']));
++  if (isset($form_state['values']['rtid'])) {
++    $select->condition('rtid', $form_state['values']['rtid'], '<>');
++  }
++  if ($select->execute()->fetchField()) {
+     form_set_error('name', t('%name has already been used.', array('%name' => $form_state['values']['name'])));
+   }
+ 
+@@ -89,12 +83,14 @@ function user_relationships_ui_type_edit_submit($form, &$form_state) {
+       'u_relationship',
+       'User Relationships form: relationship %name updated.', array('%name' => $relationship_type->name),
+       WATCHDOG_NOTICE,
+-      l(t('view'), 'admin/user/relationships/'. $relationship_type->rtid .'/edit')
++      l(t('view'), 'admin/config/people/relationships/'. $relationship_type->rtid .'/edit')
+     );
+   }
+   
+   //save role permissions for this rtype
+-  db_query('DELETE FROM {user_relationship_type_roles} WHERE rtid = %d', $relationship_type->rtid);
++  db_delete('user_relationship_type_roles')
++    ->condition('rtid', $relationship_type->rtid)
++    ->execute();
+   if ($form_state['values']['roles']) {
+     $role_record = new StdClass;
+     $role_record->rtid = $relationship_type->rtid;
+@@ -109,7 +105,7 @@ function user_relationships_ui_type_edit_submit($form, &$form_state) {
+   user_relationships_types_load(TRUE);
+   menu_rebuild();
+ 
+-  $form_state['redirect'] = 'admin/user/relationships';
++  $form_state['redirect'] = 'admin/config/people/relationships';
+ }
+ 
+ 
+@@ -119,9 +115,15 @@ function user_relationships_ui_type_edit_submit($form, &$form_state) {
+ function user_relationships_ui_type_delete_submit($form, &$form_state) {
+   $relationship_type = user_relationships_type_load($form_state['values']['rtid']);
+ 
+-  db_query("DELETE FROM {user_relationship_types} WHERE rtid = %d", $relationship_type->rtid);
+-  db_query("DELETE FROM {user_relationships} WHERE rtid = %d", $relationship_type->rtid);
+-  db_query('DELETE FROM {user_relationship_type_roles} WHERE rtid = %d', $relationship_type->rtid);
++  db_delete('user_relationship_type_roles')
++    ->condition('rtid', $relationship_type->rtid)
++    ->execute();
++  db_delete('user_relationships')
++    ->condition('rtid', $relationship_type->rtid)
++    ->execute();
++  db_delete('user_relationship_types')
++    ->condition('rtid', $relationship_type->rtid)
++    ->execute();
+ 
+   _user_relationships_invoke('delete', $relationship_type, TRUE);
+ 
+@@ -136,5 +138,5 @@ function user_relationships_ui_type_delete_submit($form, &$form_state) {
+     WATCHDOG_NOTICE
+   );
+ 
+-  $form_state['redirect'] = 'admin/user/relationships';
++  $form_state['redirect'] = 'admin/config/people/relationships';
+ }
+diff --git user_relationships_ui/user_relationships_ui.forms.inc user_relationships_ui/user_relationships_ui.forms.inc
+index f3aba87..66642fd 100644
+--- user_relationships_ui/user_relationships_ui.forms.inc
++++ user_relationships_ui/user_relationships_ui.forms.inc
+@@ -73,45 +73,41 @@ function user_relationships_ui_request_ajax($requestee) {
+ /**
+  * Request a new relationship with another user
+  */
+-function user_relationships_ui_request(&$form_state, $requestee) {
++function user_relationships_ui_request($form, &$form_state, $requestee) {
+   global $user;
+   $requester = $user;
+ 
+   $script = '<script type="text/javascript">setTimeout(\'Drupal.user_relationships_ui.hidePopup()\', 10000);</script>';
+   if (empty($requestee->name)) {
+     $form['error'] = array(
+-      '#type' => 'markup',
+       '#prefix' => '<div>',
+       '#suffix' => '</div>',
+-      '#value' => user_relationships_ui_get_message('non_existent_user') . $script
++      '#markup' => user_relationships_ui_get_message('non_existent_user') . $script
+     );
+     return $form;
+   }
+   elseif (!user_access('can have relationships', $requestee)) {
+     $form['error'] = array(
+-      '#type' => 'markup',
+       '#prefix' => '<div>',
+       '#suffix' => '</div>',
+-      '#value' => user_relationships_ui_get_message('not_accepting_requests') . $script
++      '#markup' => user_relationships_ui_get_message('not_accepting_requests') . $script
+     );
+     return $form;
+   }
+   elseif ($user->uid == $requestee->uid) {
+     $form['error'] = array(
+-      '#type' => 'markup',
+       '#prefix' => '<div>',
+       '#suffix' => '</div>',
+-      '#value' => user_relationships_ui_get_message('self_request') . $script
++      '#markup' => user_relationships_ui_get_message('self_request') . $script
+     );
+     return $form;
+   }
+   elseif (!variable_get('user_relationships_allow_multiple', TRUE) &&
+            $relationships_count = user_relationships_load(array('between' => array($requester->uid, $requestee->uid)), array('count' => TRUE))) {
+     $form['error'] = array(
+-      '#type' => 'markup',
+       '#prefix' => '<div>',
+       '#suffix' => '</div>',
+-      '#value' => user_relationships_ui_get_message('too_many_relationships') . $script
++      '#markup' => user_relationships_ui_get_message('too_many_relationships') . $script
+     );
+     return $form;
+   }
+@@ -161,7 +157,7 @@ function user_relationships_ui_pending_requested_ajax($action, $account, $relati
+ /**
+  * Approve, Disapprove, or Cancel confirmation form
+  */
+-function user_relationships_ui_pending_requested(&$form_state, $action, $account, $relationship) {
++function user_relationships_ui_pending_requested($form, &$form_state, $action, $account, $relationship) {
+   $viewed_id = $account->uid;
+ 
+   $form['rid'] = array(
+@@ -183,7 +179,7 @@ function user_relationships_ui_pending_requested(&$form_state, $action, $account
+       $confirmation_message = t('Are you sure you want to approve the %relationship_name relationship request from !name?', array(
+         '@action'             => $action,
+         '%relationship_name'  => ur_tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name),
+-        '!name'               => theme('username', user_load(array('uid' => ($viewed_id == $relationship->requester_id ? $relationship->requestee_id : $relationship->requester_id))))
++        '!name'               => theme('username', array('account' => user_load(($viewed_id == $relationship->requester_id ? $relationship->requestee_id : $relationship->requester_id))))
+       ));
+       $action_message = t('Approve relationship');
+       break;
+@@ -191,7 +187,7 @@ function user_relationships_ui_pending_requested(&$form_state, $action, $account
+       $confirmation_message = t('Are you sure you want to disapprove the %relationship_name relationship request from !name?', array(
+         '@action'             => $action,
+         '%relationship_name'  => ur_tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name),
+-        '!name'               => theme('username', user_load(array('uid' => ($viewed_id == $relationship->requester_id ? $relationship->requestee_id : $relationship->requester_id))))
++        '!name'               => theme('username', array('account' => user_load(($viewed_id == $relationship->requester_id ? $relationship->requestee_id : $relationship->requester_id))))
+       ));
+       $action_message = t('Disapprove relationship');
+       break;
+@@ -199,7 +195,7 @@ function user_relationships_ui_pending_requested(&$form_state, $action, $account
+       $confirmation_message = t('Are you sure you want to cancel your %relationship_name relationship request to !name?', array(
+         '@action'             => $action,
+         '%relationship_name'  => ur_tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name),
+-        '!name'               => theme('username', user_load(array('uid' => ($viewed_id == $relationship->requester_id ? $relationship->requestee_id : $relationship->requester_id))))
++        '!name'               => theme('username', array('account' => user_load(($viewed_id == $relationship->requester_id ? $relationship->requestee_id : $relationship->requester_id))))
+       ));
+       $action_message = t('Cancel relationship');
+   }
+@@ -239,7 +235,7 @@ function user_relationships_ui_remove_ajax($account, $relationship) {
+ /**
+  * Confirm relationship removal.
+  */
+-function user_relationships_ui_remove(&$form_state, $account, $relationship) {
++function user_relationships_ui_remove($form, &$form_state, $account, $relationship) {
+   global $user;
+ 
+   $viewed_id = $account->uid;
+@@ -259,7 +255,7 @@ function user_relationships_ui_remove(&$form_state, $account, $relationship) {
+ 
+     t("Are you sure you wish to delete the %relationship_name relationship with !name?", array(
+       '%relationship_name'  => ur_tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name),
+-      '!name'               => theme('username', user_load(array('uid' => ($viewed_id == $relationship->requester_id ? $relationship->requestee_id : $relationship->requester_id))))
++      '!name'               => theme('username', array('account' => user_load(array('uid' => ($viewed_id == $relationship->requester_id ? $relationship->requestee_id : $relationship->requester_id)))))
+     )),
+     t('Yes'), t('No'),
+     'user_relationships_remove_confirm'
+diff --git user_relationships_ui/user_relationships_ui.info user_relationships_ui/user_relationships_ui.info
+index 67f5fe5..d80f670 100644
+--- user_relationships_ui/user_relationships_ui.info
++++ user_relationships_ui/user_relationships_ui.info
+@@ -3,4 +3,11 @@ name = UR-UI
+ description = "User Relationships UI. This enables basic UI functionality for User Relationships"
+ package = "User Relationships"
+ dependencies[] = user_relationships_api
+-core = 6.x
++core = 7.x
++files[]=user_relationships_ui.actions.inc
++files[]=user_relationships_ui.admin.inc
++files[]=user_relationships_ui.admin_actions.inc
++files[]=user_relationships_ui.forms.inc
++files[]=user_relationships_ui.module
++files[]=user_relationships_ui.pages.inc
++files[]=user_relationships_ui.theme.inc
+diff --git user_relationships_ui/user_relationships_ui.module user_relationships_ui/user_relationships_ui.module
+index 36b9ab3..18c3da1 100644
+--- user_relationships_ui/user_relationships_ui.module
++++ user_relationships_ui/user_relationships_ui.module
+@@ -42,8 +42,8 @@ function user_relationships_ui_get_message($key, $relationship = NULL, $replacem
+     }
+ 
+     $replaceables = array(
+-      '!requester'                => theme('username', $relationship->requester),
+-      '!requestee'                => theme('username', $relationship->requestee),
++      '!requester'                => theme('username', array('account' => $relationship->requester)),
++      '!requestee'                => theme('username', array('account' => $relationship->requestee)),
+       '%relationship_name'        => isset($relationship->name) 
+                                      ? ur_tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name) 
+                                      : ur_tt("user_relationships:rtid:$relationship->rtid:name", $relationship->type->name),
+@@ -180,8 +180,8 @@ function _user_relationships_ui_set_notifications(&$account) {
+ function _user_relationships_ui_autocomplete_types($string = '') {
+   $matches = array();
+   if ($string) {
+-    $result = db_query_range("SELECT rtid, name FROM {user_relationship_types} WHERE LOWER(name) LIKE LOWER('%%%s%%')", strtolower($string), 0, 10);
+-    while ($relationship = db_fetch_object($result)) {
++    $result = db_query_range("SELECT rtid, name FROM {user_relationship_types} WHERE LOWER(name) LIKE LOWER('%:string%')", 0, 10, array(':string' => strtolower($string)));
++    foreach ($result as $relationship) {
+       $matches[$relationship->name] = check_plain(ur_tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name));
+    }
+   }
+@@ -200,7 +200,7 @@ function _user_relationships_ui_between(&$viewer, &$viewed) {
+     if ($relationship->approved && !isset($list[$relationship->rid])) {
+       $list[$relationship->rid] = t('%relationship_name (!remove_link)', array(
+         '%relationship_name'  => ur_tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name) . ($relationship->is_oneway ? ($relationship->requester_id == $viewer->uid ? t(' (You to Them)') : t(' (Them to You)')) : NULL),
+-        '!remove_link'        => theme('user_relationships_remove_link', $viewer->uid, $relationship->rid)
++        '!remove_link'        => theme('user_relationships_remove_link', array('uid' => $viewer->uid, 'rid' =>  $relationship->rid))
+       ));
+     }
+   }
+@@ -236,7 +236,7 @@ function _user_relationships_ui_actions_between(&$viewer, &$viewed) {
+   }
+ 
+   // Compute if any more relationships can be created
+-  $types_count = (int)db_result(db_query("SELECT COUNT(*) FROM {user_relationship_types}"));
++  $types_count = (int)db_query("SELECT COUNT(*) FROM {user_relationship_types}")->fetchField();
+   $existing_relationships = user_relationships_load(array('between' => array($viewer->uid, $viewed->uid)), array('sort' => 'rtid'));
+   $all_relationships = user_relationships_types_load();
+   $relationships_count = 0;
+@@ -260,12 +260,12 @@ function _user_relationships_ui_actions_between(&$viewer, &$viewed) {
+         if (!user_relationships_api_can_request($viewer, $relationship)) {
+           continue;
+         }
+-        $list[] = theme('user_relationships_request_relationship_direct_link', $viewed, $relationship);
++        $list[] = theme('user_relationships_request_relationship_direct_link', array('relate_to' => $viewed, 'relationship_type' => $relationship));
+       }
+     }
+     //just one generic link pointing to a page with dropdown
+     else {
+-      $list[] = theme('user_relationships_request_relationship_link', $viewed);
++      $list[] = theme('user_relationships_request_relationship_link', array('relate_to' => $viewed));
+     }
+   }
+ 
+@@ -371,7 +371,7 @@ function user_relationships_ui_help($section) {
+       $output = '<p>'. t('This module allows you to create relationship types that users can use to connect to each other.') .'</p>';
+       return $output;
+ 
+-    case 'admin/user/relationships':
++    case 'admin/config/people/relationships':
+       $output = '<p>'. t('This page lets you setup user relationship types.') .'</p>';
+       return $output;
+   }
+@@ -381,7 +381,7 @@ function user_relationships_ui_help($section) {
+  * Implementation of hook_init().
+  */
+ function user_relationships_ui_init() {
+-  //do not enable ajax functions if set in admin/user/relationships/settings
++  //do not enable ajax functions if set in admin/config/people/relationships/settings
+   if (!variable_get('user_relationships_enable_ajax_popups', 1)) {
+     return;
+   }
+@@ -400,20 +400,29 @@ function user_relationships_ui_init() {
+ /**
+  * Implementation of hook_perm().
+  */
+-function user_relationships_ui_perm() {
++function user_relationships_ui_permission() {
+   return array(
+-    'administer user relationships',
+-    'maintain own relationships',
+-    'view user relationships',
++    'administer user relationships' => array(
++      'title' => t('Administer User Relationships'),
++      'description' => t('TODO'),
++    ),
++    'maintain own relationships' => array(
++      'title' => t('Maintain own relationships'),
++      'description' => t('TODO'),
++    ),
++    'view user relationships' => array(
++      'title' => t('View user relationships'),
++      'description' => t('TODO'),
++    ),
+   );
+ }
+ 
+ /**
+  * Implementation of hook_footer().
+  */
+-function user_relationships_ui_footer($main = 0) {
++function user_relationships_ui_page_alter(&$page) {
+   // This is the div we are utilizing for the form popups for confirmation.
+-  return '<div id="user_relationships_popup_form" class="user_relationships_ui_popup_form"></div>';
++  $page['page_bottom']['user_relationships'] = array('#markup' => '<div id="user_relationships_popup_form" class="user_relationships_ui_popup_form"></div>');
+ }
+ 
+ /**
+@@ -424,7 +433,7 @@ function user_relationships_ui_menu() {
+ 
+   $items = array();
+ 
+-  $items['admin/user/relationships'] = array(
++  $items['admin/config/people/relationships'] = array(
+     'title'             => 'Relationships',
+     'description'       => 'Create relationship types',
+     'access callback'   => 'user_access',
+@@ -432,7 +441,7 @@ function user_relationships_ui_menu() {
+     'page callback'     => 'user_relationships_ui_types_list_page',
+     'file'              => 'user_relationships_ui.pages.inc',
+   );
+-    $items['admin/user/relationships/list'] = array(
++    $items['admin/config/people/relationships/list'] = array(
+       'title'             => 'List',
+       'type'              => MENU_DEFAULT_LOCAL_TASK,
+       'page callback'     => 'user_relationships_ui_types_list_page',
+@@ -440,7 +449,7 @@ function user_relationships_ui_menu() {
+       'access arguments'  => array('administer user relationships'),
+       'file'              => 'user_relationships_ui.pages.inc',
+     );
+-    $items['admin/user/relationships/add'] = array(
++    $items['admin/config/people/relationships/add'] = array(
+       'title'             => 'Add type',
+       'type'              => MENU_LOCAL_TASK,
+       'weight'            => 1,
+@@ -450,25 +459,25 @@ function user_relationships_ui_menu() {
+       'access arguments'  => array('administer user relationships'),
+       'file'              => 'user_relationships_ui.admin.inc',
+     );
+-    $items['admin/user/relationships/%user_relationships_type/edit'] = array(
++    $items['admin/config/people/relationships/%user_relationships_type/edit'] = array(
+       'title'             => 'Edit type',
+       'type'              => MENU_CALLBACK,
+       'page callback'     => 'drupal_get_form',
+-      'page arguments'    => array('user_relationships_ui_type_edit', 3),
++      'page arguments'    => array('user_relationships_ui_type_edit', 4),
+       'access callback'   => 'user_access',
+       'access arguments'  => array('administer user relationships'),
+       'file'              => 'user_relationships_ui.admin.inc',
+     );
+-    $items['admin/user/relationships/%user_relationships_type/delete'] = array(
++    $items['admin/config/people/relationships/%user_relationships_type/delete'] = array(
+       'title'             => 'Delete type',
+       'type'              => MENU_CALLBACK,
+       'page callback'     => 'drupal_get_form',
+-      'page arguments'    => array('user_relationships_ui_type_delete', 3),
++      'page arguments'    => array('user_relationships_ui_type_delete', 4),
+       'access callback'   => 'user_access',
+       'access arguments'  => array('administer user relationships'),
+       'file'              => 'user_relationships_ui.admin.inc',
+     );
+-  $items['admin/user/relationships/settings'] = array(
++  $items['admin/config/people/relationships/settings'] = array(
+     'title'             => 'Settings',
+     'type'              => MENU_LOCAL_TASK,
+     'weight'            => 2,
+@@ -494,6 +503,7 @@ function user_relationships_ui_menu() {
+     'access arguments'  => array('view'),
+     'page callback'     => 'user_relationships_page',
+     'file'              => 'user_relationships_ui.pages.inc',
++    'menu_name'        => 'user-menu',
+   );
+     $items['relationships/list'] = array(
+       'title'             => 'All',
+@@ -501,25 +511,30 @@ function user_relationships_ui_menu() {
+       'weight'            => -10,
+       'access callback'   => 'user_relationships_ui_check_access',
+       'access arguments'  => array('view'),
++    'menu_name'        => 'user-menu',
+     );
+     $items['relationships/requests'] = array(
+       'title'             => 'Pending',
+       'access callback'   => 'user_relationships_ui_check_access',
+       'access arguments'  => array('edit'),
+-      'type'              => MENU_NORMAL_ITEM|MENU_LOCAL_TASK,
++      'type'              => MENU_LOCAL_TASK,
+       'weight'            => -9,
+       'page callback'     => 'user_relationships_pending_requests_page',
+       'file'              => 'user_relationships_ui.pages.inc',
++      'menu_name'        => 'user-menu',
++
+     );
+     foreach (user_relationships_types_load() as $rtid => $relationship) {
+       $items["relationships/{$rtid}"] = array(
+         'title'             => $relationship->plural_name ? $relationship->plural_name : $relationship->name,
+-        'type'              => MENU_NORMAL_ITEM|MENU_LOCAL_TASK,
++        'type'              => MENU_LOCAL_TASK,
+         'access callback'   => 'user_relationships_ui_check_access',
+         'access arguments'  => array('edit'),
+         'page callback'     => 'user_relationships_page',
+         'page arguments'    => array(NULL, 1),
+         'file'              => 'user_relationships_ui.pages.inc',
++        'menu_name'        => 'user-menu',
++
+       );
+     }
+ 
+@@ -551,34 +566,38 @@ function user_relationships_ui_menu() {
+     'page callback'     => 'user_relationships_page',
+     'page arguments'    => array(1),
+     'file'              => 'user_relationships_ui.pages.inc',
++    'menu_name'        => 'user-menu',
+   );
+     $items['user/%user/relationships/list'] = array(
+       'title'             => 'All',
+-      'type'              => MENU_NORMAL_ITEM|MENU_DEFAULT_LOCAL_TASK,
++      'type'              => MENU_DEFAULT_LOCAL_TASK,
+       'weight'            => -10,
+       'access callback'   => 'user_relationships_ui_check_access',
+       'access arguments'  => array(array('admin', 'user'), 1),
++      'menu_name'        => 'user-menu',
+     );
+     $items['user/%user/relationships/requests'] = array(
+       'title'             => 'Pending',
+-      'type'              => MENU_NORMAL_ITEM|MENU_LOCAL_TASK,
++      'type'              => MENU_LOCAL_TASK,
+       'weight'            => -9,
+       'access callback'   => 'user_relationships_ui_check_access',
+       'access arguments'  => array(array('admin', 'user'), 1),
+       'page callback'     => 'user_relationships_pending_requests_page',
+       'page arguments'    => array(1),
+       'file'              => 'user_relationships_ui.pages.inc',
++      'menu_name'        => 'user-menu',
+     );
+ 
+     foreach (user_relationships_types_load() as $rtid => $relationship) {
+       $items["user/%user/relationships/{$rtid}"] = array(
+         'title'             => $relationship->plural_name ? $relationship->plural_name : $relationship->name,
+-        'type'              => MENU_NORMAL_ITEM|MENU_LOCAL_TASK,
++        'type'              => MENU_LOCAL_TASK,
+         'access callback'   => 'user_relationships_ui_check_access',
+         'access arguments'  => array(array('admin', 'user'), 1),
+         'page callback'     => 'user_relationships_page',
+         'page arguments'    => array(1, 3),
+         'file'              => 'user_relationships_ui.pages.inc',
++        'menu_name'        => 'user-menu',
+       );
+     }
+ 
+@@ -608,62 +627,58 @@ function user_relationships_ui_menu() {
+ }
+ 
+ /**
+- * Implementation of hook_user().
++ * Implementation of hook_user_login().
+  */
+-function user_relationships_ui_user($type, &$edit, &$account, $category = NULL) {
+-  switch ($type) {
+-  case 'login':
+-    if (user_access('maintain own relationships')) {
+-      _user_relationships_ui_set_notifications($account);
+-    }
+-    break;
+-
+-  case 'view':
+-    global $user;
+-    $viewer =& $user;
+-
+-    if (($account->uid == $user->uid) && user_access('maintain own relationships')) {
+-      _user_relationships_ui_set_notifications($account);
+-      break;
+-    }
++function user_relationships_ui_user_login(&$edit, $account) {
++  if (user_access('maintain own relationships')) {
++    _user_relationships_ui_set_notifications($account);
++  }
++}
+ 
+-    $output = array();
+-    if ($list = _user_relationships_ui_between($viewer, $account)) {
+-      $output['relations'] = array(
+-        '#title'      => t('Your relationships to this user'),
+-        '#type'       => 'user_profile_item',
+-        '#value'      => theme('item_list', $list),
+-        '#attributes' => array('class' => 'user_relationships_ui'),
+-      );
+-    }
++function user_relationships_ui_user_view($account, $view_mode) {
++  global $user;
++  if (($account->uid == $user->uid) && user_access('maintain own relationships')) {
++    _user_relationships_ui_set_notifications($account);
++    return;
++  }
+ 
+-    if ($actions = _user_relationships_ui_actions_between($viewer, $account)) {
+-      $output['actions'] = array(
+-        '#title'      => t('Relationship actions'),
+-        '#type'       => 'user_profile_item',
+-        '#value'      => theme('item_list', $actions),
+-        '#attributes' => array('class' => 'user_relationships_ui_actions'),
+-      );
+-    }
++  $output = array();
++  if ($list = _user_relationships_ui_between($user, $account)) {
++    $output['relations'] = array(
++      '#title'      => t('Your relationships to this user'),
++      '#type'       => 'user_profile_item',
++      '#markup'      => theme('item_list', array('item' => $list)),
++      '#attributes' => array('class' => array('user_relationships_ui')),
++    );
++  }
+ 
+-    if (sizeof($output)) {
+-      $account->content['user_relationships_ui'] = array(
+-        '#type'   => 'user_profile_category',
+-        '#title'  => t('Relationships'),
+-      );
+-      $account->content['user_relationships_ui'] = array_merge($account->content['user_relationships_ui'], $output);
+-    }
+-    break;
++  if ($actions = _user_relationships_ui_actions_between($user, $account)) {
++    $output['actions'] = array(
++      '#title'      => t('Relationship actions'),
++      '#type'       => 'user_profile_item',
++      '#markup'      => theme('item_list', array('items' => $actions)),
++      '#attributes' => array('class' => array('user_relationships_ui_actions')),
++    );
++  }
+ 
+-  case 'form':
+-    if (($category == 'account')
+-      && variable_get('user_relationships_ui_require_approval', TRUE)
+-      && user_access('maintain own relationships', $account)
+-    ) {
++  if (sizeof($output)) {
++    $account->content['user_relationships_ui'] = array(
++      '#type'   => 'user_profile_category',
++      '#title'  => t('Relationships'),
++    );
++    $account->content['user_relationships_ui'] = array_merge($account->content['user_relationships_ui'], $output);
++  }
++}
+ 
++/**
++ * Implements hook_form_alter().
++ */
++function user_relationships_ui_form_alter(&$form, &$form_state, $form_id) {
++  if (($form_id == 'user_register_form' || $form_id == 'user_profile_form') && $form['#user_category'] == 'account') {
++    if (variable_get('user_relationships_ui_require_approval', TRUE) && user_access('maintain own relationships', $form['#user'])) {
+       if (variable_get('user_relationships_allow_auto_approve', FALSE) && ($relationships = user_relationships_types_load())) {
+-        if (!is_array($edit['user_relationships_ui_auto_approve'])) {
+-          $edit['user_relationships_ui_auto_approve'] = array();
++        if (!is_array($form['#user']->user_relationships_ui_auto_approve)) {
++          $form['#user']->user_relationships_ui_auto_approve = array();
+         }
+ 
+         $options = array();
+@@ -686,16 +701,15 @@ function user_relationships_ui_user($type, &$edit, &$account, $category = NULL)
+           '#type'           => 'checkboxes',
+           '#title'          => t('Automatically approve the following relationship requests'),
+           '#options'        => $options,
+-          '#default_value'  => $edit['user_relationships_ui_auto_approve'],
++          '#default_value'  => $form['#user']->user_relationships_ui_auto_approve,
+           '#description'    => t("Check off the types of relationships you'd like to automatically approve.")
+         );
+         }
+       }
+     }
+     //#257748 #458046 for adding the functionality of allowing/disallowing private messages.
+-    if ($category == 'account' 
+-        && variable_get('user_relationships_restrict_privatemsg', 'all') == 'all_overridable'
+-        && user_access('maintain own relationships', $account) 
++    if (variable_get('user_relationships_restrict_privatemsg', 'all') == 'all_overridable'
++        && user_access('maintain own relationships', $account)
+         && module_exists('privatemsg')
+     ) { //check if privatemsg is installed
+       $form['user_relationships_ui_privatemsg_settings'] = array(
+@@ -710,15 +724,14 @@ function user_relationships_ui_user($type, &$edit, &$account, $category = NULL)
+        '#title' => t('Allow private messages'),
+        '#description' => t('Allow/disallow users in or outside relationships to send you private messages.'),
+        '#options' => array('on all users' => t('Everyone'), 'on in relations' => t('My relationships only')),
+-       '#default_value' => isset($edit['user_relationships_allow_private_message'])? $edit['user_relationships_allow_private_message'] : "on all users",
++       '#default_value' => isset($form['#user']->user_relationships_allow_private_message)? $form['#user']->user_relationships_allow_private_message : "on all users",
+       );
+     }
+ 
+     // No options have been set so don't display it
+-    if (sizeof($form['user_relationships_ui_settings']) == 3) {
++    if (isset($form['user_relationships_ui_settings']) && sizeof($form['user_relationships_ui_settings']) == 3) {
+       unset($form['user_relationships_ui_settings']);
+     }
+-    return $form;
+   }
+ }
+ 
+@@ -738,35 +751,35 @@ function user_relationships_ui_locale($op = 'groups') {
+ function user_relationships_ui_theme() {
+   $theme_funcs = array(
+     'user_relationships_request_relationship_link' => array(
+-      'arguments' => array('relate_to' => NULL)
++      'variables' => array('relate_to' => NULL)
+     ),
+ 
+     'user_relationships_request_relationship_direct_link' => array(
+-      'arguments' => array('relate_to' => NULL, 'relationship_type' => NULL)
++      'variables' => array('relate_to' => NULL, 'relationship_type' => NULL)
+     ),
+ 
+     'user_relationships_remove_link' => array(
+-      'arguments' => array('uid' => NULL, 'rid' => NULL)
++      'variables' => array('uid' => NULL, 'rid' => NULL)
+     ),
+ 
+     'user_relationships_pending_request_approve_link' => array(
+-      'arguments' => array('uid' => NULL, 'rid' => NULL)
++      'variables' => array('uid' => NULL, 'rid' => NULL)
+     ),
+ 
+     'user_relationships_pending_request_disapprove_link' => array(
+-      'arguments' => array('uid' => NULL, 'rid' => NULL)
++      'variables' => array('uid' => NULL, 'rid' => NULL)
+     ),
+ 
+     'user_relationships_pending_request_cancel_link' => array(
+-      'arguments' => array('uid' => NULL, 'rid' => NULL)
++      'variables' => array('uid' => NULL, 'rid' => NULL)
+     ),
+ 
+     'user_relationships_approval_status' => array(
+-      'arguments' => array('approved' => NULL)
++      'variables' => array('approved' => NULL)
+     ),
+ 
+     'user_relationships_user_link' => array(
+-      'arguments' => array('uid' => NULL)
++      'variables' => array('uid' => NULL)
+     ),
+   );
+   foreach ($theme_funcs as $key => $val) {
+@@ -775,13 +788,13 @@ function user_relationships_ui_theme() {
+ 
+   $theme_templates = array(
+     'user_relationships' => array(
+-      'arguments' => array('account' => NULL, 'rtid' => NULL),
++      'variables' => array('account' => NULL, 'rtid' => NULL),
+       'path'      => drupal_get_path('module', 'user_relationships_ui') .'/templates',
+       'template'  => 'user_relationships',
+     ),
+ 
+     'user_relationships_pending_requests' => array(
+-      'arguments' => array('account' => NULL),
++      'variables' => array('account' => NULL),
+       'path'      => drupal_get_path('module', 'user_relationships_ui') .'/templates',
+       'template'  => 'user_relationships_pending_requests',
+     ),
+@@ -806,18 +819,15 @@ function template_preprocess_user_relationships(&$variables) {
+     $args['rtid'] = $rtid;
+   }
+ 
+-  $query = _user_relationships_generate_query($args, array('include_user_info' => TRUE));
+-
+   // To Page or not to Page
+-  if ($variables['relationships_per_page'] = variable_get('user_relationships_relationships_per_page', 16)) {
+-    $results = pager_query($query['query'], $variables['relationships_per_page'], 0, $query['count'], $query['arguments']);
+-  }
+-  else {
+-    $results = db_query($query['query'], $query['arguments']);
+-  }
++  $variables['relationships_per_page'] = variable_get('user_relationships_relationships_per_page', 16);
++  $options = array('include_user_info' => TRUE, 'paging' => $variables['relationships_per_page']);
++
++  $query = _user_relationships_generate_query($args, $options);
++  $result = $query->execute();
+ 
+   $variables['relationships'] = array();
+-  while ($relationship = db_fetch_object($results)) {
++  foreach ($result as $relationship) {
+     user_relationships_api_translate_user_info($relationship);
+     $variables['relationships'][$relationship->rid] = $relationship;
+   }
+@@ -843,7 +853,7 @@ function template_preprocess_user_relationships_pending_requests(&$variables) {
+   global $user;
+ 
+   // readability
+-  $account  =& $variables['account'];
++  $account = $variables['account'];
+ 
+   $msg = $account->uid == $user->uid ? t('My pending relationships') : t("%username's pending relationships", array('%username' => $account->name));
+   $variables['title'] = $msg;
+@@ -856,16 +866,14 @@ function template_preprocess_user_relationships_pending_requests(&$variables) {
+   );
+   $pager_id = 0;
+   foreach ($variables['sections'] as $column => $section) {
+-    $query = _user_relationships_generate_query(array($column => $account->uid, 'approved' => FALSE), array('include_user_info' => TRUE));
++    // To Page or not to Page
++    $variables['relationships_per_page'] = variable_get('user_relationships_relationships_per_page', 16);
++    $options = array('include_user_info' => TRUE, 'paging' => $variables['relationships_per_page']);
+ 
+-    if ($relationships_per_page = variable_get('user_relationships_relationships_per_page', 16)) {
+-      $result = pager_query($query['query'], $variables['relationships_per_page'], $pager_id++, $query['count'], $query['arguments']);
+-    }
+-    else {
+-      $result = db_query($query['query'], $query['arguments']);
+-    }
++    $query = _user_relationships_generate_query(array($column => $account->uid, 'approved' => FALSE), $options);
++    $result = $query->execute();
+ 
+-    while ($relationship = db_fetch_object($result)) {
++    foreach ($result as $relationship) {
+       user_relationships_api_translate_user_info($relationship);
+       $variables[$section][$relationship->rid] = $relationship;
+     }
+diff --git user_relationships_ui/user_relationships_ui.pages.inc user_relationships_ui/user_relationships_ui.pages.inc
+index 9185eb0..b3bde3f 100644
+--- user_relationships_ui/user_relationships_ui.pages.inc
++++ user_relationships_ui/user_relationships_ui.pages.inc
+@@ -23,8 +23,8 @@ function user_relationships_ui_types_list_page() {
+       ($relationship->is_oneway ? ($relationship->is_reciprocal ? t('reciprocal') : t('one way')) : t('mutual')),
+       ($relationship->requires_approval ? t('yes') : t('no')),
+       ($relationship->expires_val ? t('@expires_val', array('@expires_val' => format_plural($relationship->expires_val, '1 day', '@count days'))) : t('Never')),
+-      l(t('edit'),    "admin/user/relationships/{$relationship->rtid}/edit") .' | '.
+-      l(t('delete'),  "admin/user/relationships/{$relationship->rtid}/delete")
++      l(t('edit'),    "admin/config/people/relationships/{$relationship->rtid}/edit") .' | '.
++      l(t('delete'),  "admin/config/people/relationships/{$relationship->rtid}/delete")
+     );
+   }
+ 
+@@ -40,10 +40,14 @@ function user_relationships_ui_types_list_page() {
+   $page['relationships'] = array(
+     '#type'   => 'fieldset',
+     '#title'  => t('Relationship Types'),
+-    '#weight' => 0
++    '#weight' => 0,
++    // No automatic fieldset processing to avoid fatal error. Maybe a core bug?
++    '#pre_render' => array(),
++    // Avoid notice/error in seven theme.
++    '#attributes' => array(),
+   );
+     $page['relationships']['list'] = array(
+-      '#value' => theme('table', $table['headers'], $table['rows'])
++      '#markup' => theme('table', array('header' => $table['headers'], 'rows' => $table['rows']))
+     );
+ 
+   return drupal_render($page);
+@@ -58,7 +62,7 @@ function user_relationships_page($account = NULL, $rtid = NULL) {
+     $account = $user;
+   }
+ 
+-  return theme('user_relationships', $account, $rtid);
++  return theme('user_relationships', array('account' => $account, 'rtid' =>  $rtid));
+ }
+ 
+ /**
+@@ -71,5 +75,5 @@ function user_relationships_pending_requests_page($account = NULL) {
+     $account = $user;
+   }
+ 
+-  return theme('user_relationships_pending_requests', $account);
++  return theme('user_relationships_pending_requests', array('account' => $account));
+ }
+diff --git user_relationships_ui/user_relationships_ui.theme.inc user_relationships_ui/user_relationships_ui.theme.inc
+index 1dc829b..d6cbae1 100644
+--- user_relationships_ui/user_relationships_ui.theme.inc
++++ user_relationships_ui/user_relationships_ui.theme.inc
+@@ -9,14 +9,16 @@
+ /**
+  * Show the current status of a relationship
+  */
+-function theme_user_relationships_approval_status($approved) {
++function theme_user_relationships_approval_status($variables) {
++  $approved = $variables['approved'];
+   return isset($approved) ? ($approved ? t('Approved') : t('Not Approved')) : t('Unknown');
+ }
+ 
+ /**
+  * Create relationship link
+  */
+-function theme_user_relationships_request_relationship_link($relate_to) {
++function theme_user_relationships_request_relationship_link($variables) {
++  $relate_to = $variables['relate_to'];
+   return l(
+     t('Create a relationship with %name', array('%name' => $relate_to->name)),
+     "relationship/{$relate_to->uid}/request",
+@@ -30,10 +32,12 @@ function theme_user_relationships_request_relationship_link($relate_to) {
+ /**
+  * Create a direct relationship link
+  */
+-function theme_user_relationships_request_relationship_direct_link($relate_to, $relationship_type) {
++function theme_user_relationships_request_relationship_direct_link($variables) {
++  $relate_to = $variables['relate_to'];
++  $relationship_type = $variables['relationship_type'];
+   //safety, revert to  a generic link
+   if (!isset($relationship_type)) {
+-    return theme('user_relationships_request_relationship_link', $relate_to);
++    return theme('user_relationships_request_relationship_link', array('relate_to' => $relate_to));
+   }
+   return l(
+     t("Become %name's %rel_name", array('%name' => $relate_to->name, '%rel_name' => ur_tt("user_relationships:rtid:$relationship_type->rtid:name", $relationship_type->name), '%rel_plural_name' => ur_tt("user_relationships:rtid:$relationship_type->rtid:plural_name", $relationship_type->plural_name))),
+@@ -41,7 +45,7 @@ function theme_user_relationships_request_relationship_direct_link($relate_to, $
+     array(
+       'query' => drupal_get_destination(),
+       'html'  => TRUE,
+-      'attributes' => array('class' => 'user_relationships_popup_link'),
++      'attributes' => array('class' => array('user_relationships_popup_link')),
+     )
+   );
+ }
+@@ -49,14 +53,16 @@ function theme_user_relationships_request_relationship_direct_link($relate_to, $
+ /**
+  * Remove relationship link
+  */
+-function theme_user_relationships_remove_link($uid, $rid) {
++function theme_user_relationships_remove_link($variables) {
++  $uid = $variables['uid'];
++  $rid = $variables['rid'];
+   return l(
+     t('Remove'),
+     "user/{$uid}/relationships/{$rid}/remove",
+     array(
+       'title' => array('title' => t('Remove')),
+       'query' => drupal_get_destination(),
+-      'attributes' => array('class' => 'user_relationships_popup_link'),
++      'attributes' => array('class' => array('user_relationships_popup_link')),
+     )
+   );
+ }
+@@ -64,14 +70,16 @@ function theme_user_relationships_remove_link($uid, $rid) {
+ /**
+  * Approve to pending relationship link
+  */
+-function theme_user_relationships_pending_request_approve_link($uid, $rid) {
++function theme_user_relationships_pending_request_approve_link($variables) {
++  $uid = $variables['uid'];
++  $rid = $variables['rid'];
+   return l(
+     t('Approve'),
+     "user/{$uid}/relationships/requested/{$rid}/approve",
+     array(
+       'title' => array('title' => t('Approve')),
+       'query' => drupal_get_destination(),
+-      'attributes' => array('class' => 'user_relationships_popup_link'),
++      'attributes' => array('class' => array('user_relationships_popup_link')),
+     )
+   );
+ }
+@@ -79,14 +87,16 @@ function theme_user_relationships_pending_request_approve_link($uid, $rid) {
+ /**
+  * Disapprove to pending relationship link
+  */
+-function theme_user_relationships_pending_request_disapprove_link($uid, $rid) {
++function theme_user_relationships_pending_request_disapprove_link($variables) {
++  $uid = $variables['uid'];
++  $rid = $variables['rid'];
+   return l(
+     t('Disapprove'),
+     "user/{$uid}/relationships/requested/{$rid}/disapprove",
+     array(
+       'title' => array('title' => t('Disapprove')),
+       'query' => drupal_get_destination(),
+-      'attributes' => array('class' => 'user_relationships_popup_link'),
++      'attributes' => array('class' => array('user_relationships_popup_link')),
+     )
+   );
+ }
+@@ -94,14 +104,16 @@ function theme_user_relationships_pending_request_disapprove_link($uid, $rid) {
+ /**
+  * Cancel request link
+  */
+-function theme_user_relationships_pending_request_cancel_link($uid, $rid) {
++function theme_user_relationships_pending_request_cancel_link($variables) {
++  $uid = $variables['uid'];
++  $rid = $variables['rid'];
+   return l(
+     t('Cancel'),
+     "user/{$uid}/relationships/requested/{$rid}/cancel",
+     array(
+       'title' => array('title' => t('Cancel')),
+       'query' => drupal_get_destination(),
+-      'attributes' => array('class' => 'user_relationships_popup_link'),
++      'attributes' => array('class' => array('user_relationships_popup_link')),
+     )
+   );
+ }
+@@ -109,6 +121,7 @@ function theme_user_relationships_pending_request_cancel_link($uid, $rid) {
+ /**
+  * Link to user's profile
+  */
+-function theme_user_relationships_user_link($uid) {
++function theme_user_relationships_user_link($variables) {
++  $uid = $variables['uid'];
+   return url("user/$uid", array('absolute' => TRUE));
+ }
