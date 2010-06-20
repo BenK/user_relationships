@@ -15,23 +15,41 @@ function user_relationship_privatemsg_perm() {
   );
 }
 
-/**
- * Implements hook_privatemsg_recipient_types_info().
- */
-function user_relationship_privatemsg_privatemsg_recipient_type_info() {
+function user_relationship_privatemsg_theme() {
   return array(
-    'relationship' => array(
-      'name' => t('Relationship'),
-      'format' => 'user_relationship_privatemsg_format',
-      'autocomplete' => 'user_relationship_privatemsg_autocomplete',
-      'generate recipients' => 'user_relationship_privatemsg_load_recipients',
-      'max' => 'user_relationship_privatemsg_count_recipients',
+    'user_relationship_privatemsg_format' => array(
+      'arguments' => array('relationship' => NULL, 'options' => array()),
     ),
   );
 }
 
-function user_relationship_privatemsg_format($relationship) {
-  return $relationship->relationship_name . ' ' .  t('[relationship]');
+/**
+ * Implements hook_privatemsg_recipient_types_info().
+ */
+function user_relationship_privatemsg_privatemsg_recipient_type_info() {
+  $types = user_relationships_types_load();
+
+  // If there is no relationship defined, don't expose it as a recipient type.
+  if (empty($types)) {
+    return;
+  }
+
+  return array(
+    'relationship' => array(
+      'name' => t('User relationship'),
+      'description' => t('Enter the name of a user relationship to write a message to all related users. Example: %example.', array('%example' => theme('user_relationship_privatemsg_format', reset($types)))),
+      'format' => 'user_relationship_privatemsg_format',
+      'load' => 'user_relationship_privatemsg_load_multiple',
+      'autocomplete' => 'user_relationship_privatemsg_autocomplete',
+      'generate recipients' => 'user_relationship_privatemsg_load_recipients',
+      'max' => 'user_relationship_privatemsg_count_recipients',
+      'write access' => 'write privatemsg to relationships',
+    ),
+  );
+}
+
+function theme_user_relationship_privatemsg_format($relationship) {
+  return $relationship->plural_name . ' ' .  t('[relationship]');
 }
 
 function user_relationship_privatemsg_load_recipients($recipient, $author, $limit, $offset) {
@@ -80,40 +98,12 @@ function user_relationship_privatemsg_privatemsg_name_lookup($string) {
   // Search and replace this before looking up the role name.
   if (strpos($string, t('[relationship]')) !== FALSE) {
     $relationship = str_replace(t('[relationship]'), '', $string);
-    $result = db_query("SELECT *, rtid as recipient FROM {user_relationship_types} WHERE plural_name = '%s'", trim($relationship));
-    if ($relationship = db_fetch_object($result)) {
-      $relationship->type = 'relationship';
-      return $relationship;
+    if ($recipient = user_relationships_type_load(array('plural_name' => $relationship))) {
+      $recipient->type = 'relationship';
+      $recipient->recipient = $recipient->rtid;
+      return $recipient;
     }
   }
-}
-
-/**
- * Implements hook_privatemgs_sql_participants_alter().
- */
-function user_relationship_privatemsg_privatemsg_sql_participants_alter(&$fragments, $thread_id) {
-  $fragments['select'][] = "relationship.plural_name AS relationship_name";
-
-  $fragments['inner_join'][] = "LEFT JOIN {user_relationship_types} relationship ON (relationship.rtid = pmi.recipient AND pmi.type = 'relationship')";
-  $fragments['group_by'][]    = 'relationship_name';
-}
-
-/**
- * Implementation of hook_privatemsg_block_message().
- */
-function user_relationship_privatemsg_privatemsg_block_message($author, $recipients) {
-  $blocked = array();
-  foreach($recipients as $key => $recipient) {
-    // Deny/block if the recipient type is role and the account does not have
-    // the necessary permission.
-    if ($recipient->type == 'relationship' && !privatemsg_user_access('write privatemsg to relationships', $author)) {
-      $blocked[] = array(
-        'recipient' => $key,
-        'message' => t('Not allowed to write private messages to relationships'),
-      );
-    }
-  }
-  return $blocked;
 }
 
 /**
