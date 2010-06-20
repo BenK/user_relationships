@@ -1,0 +1,51 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Install time hooks for user_relationship_privatemsg module.
+ */
+
+/***
+ * Implements hook_schema().
+ */
+function user_relationship_privatemsg_schema() {
+  $schema['user_relationship_privatemsg'] = array(
+    'fields' => array(
+      'urpid'   => array(
+        'type'     => 'serial',
+        'not NULL' => TRUE,
+      ),
+      'rtid'   => array(
+        'type'     => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'author' => array(
+        'type'     => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('urpid'),
+    'unique keys' => array(
+      'rtid_author' => array('rtid', 'author'),
+    ),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implements hook_install().
+ */
+function user_relationship_privatemsg_install() {
+  drupal_install_schema('user_relationship_privatemsg');
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function user_relationship_privatemsg_uninstall() {
+  drupal_uninstall_schema('user_relationship_privatemsg');
+}

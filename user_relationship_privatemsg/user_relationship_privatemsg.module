@@ -10,9 +10,7 @@
  * Implements hook_perm().
  */
 function user_relationship_privatemsg_perm() {
-  return array(
-    'write privatemsg to relationships',
-  );
+  return array('write privatemsg to relationships', 'view relationship recipients');
 }
 
 function user_relationship_privatemsg_theme() {
@@ -35,57 +33,104 @@ function user_relationship_privatemsg_privatemsg_recipient_type_info() {
   }
 
   return array(
-    'relationship' => array(
+    'user_relationship' => array(
       'name' => t('User relationship'),
-      'description' => t('Enter the name of a user relationship to write a message to all related users. Example: %example.', array('%example' => theme('user_relationship_privatemsg_format', reset($types)))),
+      'description' => t('Enter the name of a user relationship to write a message to all related users. Example: %example.', array('%example' => reset($types)->plural_name)),
       'format' => 'user_relationship_privatemsg_format',
       'load' => 'user_relationship_privatemsg_load_multiple',
       'autocomplete' => 'user_relationship_privatemsg_autocomplete',
       'generate recipients' => 'user_relationship_privatemsg_load_recipients',
       'max' => 'user_relationship_privatemsg_count_recipients',
-      'write access' => 'write privatemsg to relationships',
+      'write callback' => 'user_relationship_privatemsg_check_write_access',
+      'view access' => 'view relationship recipients',
     ),
   );
 }
 
-function theme_user_relationship_privatemsg_format($relationship) {
-  return $relationship->plural_name . ' ' .  t('[relationship]');
+function user_relationship_privatemsg_check_write_access($relationship = NULL) {
+  global $user;
+  // Users are only allowed to write their own related users.
+  if ($relationship && isset($relationship->account) && $relationship->account->uid != $user->uid) {
+    return FALSE;
+  }
+  return user_access('write privatemsg to relationships');
 }
 
+/**
+ * Format a relationship for displaying as recipient.
+ */
+function theme_user_relationship_privatemsg_format($relationship) {
+  global $user;
+  if ($relationship->account->uid == $user->uid) {
+    return t('Your %relationship (relationship)', array('%relationship' => $relationship->plural_name));
+  }
+  return t('%relationship of !username (relationship)', array('%relationship' => $relationship->plural_name, '!username' => theme('username', $relationship->account)));
+}
+
+/**
+ * Load relationships based on their rtid.
+ */
+function user_relationship_privatemsg_load_multiple($urpids) {
+  global $user;
+  $relationships = array();
+  $result = db_query('SELECT * FROM {user_relationship_privatemsg} WHERE urpid IN (' . db_placeholders($urpids) . ')', $urpids);
+  while ($row = db_fetch_object($result)) {
+    if ($relationship = user_relationships_type_load($row->rtid)) {
+      $relationship->type = 'user_relationship';
+      $relationship->recipient = $row->urpid;
+      $relationship->account = privatemsg_user_load($row->author);
+      $relationships[privatemsg_recipient_key($relationship)] = $relationship;
+    }
+  }
+  return $relationships;
+}
+
+/**
+ * Returns the recipient id for a rtid - author combination.
+ */
+function _user_relationship_privatemsg_get_recipient_id($rtid, $uid) {
+  if ($urpid = db_result(db_query('SELECT urpid FROM {user_relationship_privatemsg} WHERE rtid = %d AND author = %d', $rtid, $uid))) {
+    return $urpid;
+  }
+  db_query('INSERT INTO {user_relationship_privatemsg} (rtid, author) VALUES (%d, %d)', $rtid, $uid);
+  return db_last_insert_id('user_relationship', 'urpid');
+}
+
+/**
+ * Load a number of recipient user ids.
+ */
 function user_relationship_privatemsg_load_recipients($recipient, $author, $limit, $offset) {
   $recipients = array();
-  $result = db_query('SELECT requestee_id FROM {user_relationships} WHERE rtid = %d AND requester_id = %d AND requestee_id > %d ORDER BY requestee_id ASC LIMIT %d', $recipient->recipient, $author->uid, $offset, $limit);
-
-  while ($row = db_fetch_object($result)) {
-    $recipients[] = $row->requestee_id;
+  $relationships = user_relationships_load(array('user' => $author->uid, 'rtid' => $recipient->rtid), array('limit' => $offset > 0 ? "$limit OFFSET $offset" : $limit));
+  foreach ($relationships as $row) {
+    if ($row->requester_id == $author->uid) {
+      $recipients[] = $row->requestee_id;
+    }
+    else {
+      $recipients[] = $row->requester_id;
+    }
   }
   return $recipients;
 }
 
 /**
- * Return the number of users which have a given role.
+ * Return the number of users to which the author is related.
  */
 function user_relationship_privatemsg_count_recipients($recipient, $author) {
-  return db_result(db_query('SELECT MAX(requestee_id) FROM {user_relationships} WHERE rtid = %d AND requester_id = %d requestee_id > %d ORDER BY requestee_id ASC LIMIT %d', $recipient->recipient, $author->uid, $offset, $limit));
+  return user_relationships_load(array('user' => $author->uid, 'rtid' => $recipient->rtid), array('count' => TRUE));
 }
 
 /**
- * Implements hook_privatemsg_recipient_autocomplete().
+ * Return relationship autocomplete suggestions.
  */
 function user_relationship_privatemsg_autocomplete($fragment, $names, $limit) {
-  if (user_access('write privatemsg to relationships')) {
-    $query = _privatemsg_assemble_query(array('autocomplete_roles', 'user_relationship_privatemsg'), $fragment, $names);
-    $result = db_query_range($query['query'], $fragment, 0, $limit);
-    // 3: Build proper suggestions and print.
-    $matches = array();
-    while ($role = db_fetch_object($result)) {
-      // Don't use placeholders to make sure that the [relationship] is always at the end
-      // and can be used when resolving names again.
-      $matches[$role->plural_name] = $role->plural_name . ' ' .  t('[relationship]');
-    }
-    return $matches;
+  $query = _privatemsg_assemble_query(array('autocomplete_roles', 'user_relationship_privatemsg'), $fragment, $names);
+  $result = db_query_range($query['query'], $fragment, 0, $limit);
+  $matches = array();
+  while ($role = db_fetch_object($result)) {
+    $matches[$role->plural_name] = $role->plural_name;
   }
-  return array();
+  return $matches;
 }
 
 /**
@@ -93,16 +138,12 @@ function user_relationship_privatemsg_autocomplete($fragment, $names, $limit) {
  */
 function user_relationship_privatemsg_privatemsg_name_lookup($string) {
   global $user;
-  // To make it possible to have users and roles with the same name, roles need
-  // to contain an [relationship] as part of their "name".
-  // Search and replace this before looking up the role name.
-  if (strpos($string, t('[relationship]')) !== FALSE) {
-    $relationship = str_replace(t('[relationship]'), '', $string);
-    if ($recipient = user_relationships_type_load(array('plural_name' => $relationship))) {
-      $recipient->type = 'relationship';
-      $recipient->recipient = $recipient->rtid;
-      return $recipient;
-    }
+  $relationship = str_replace(t('[user_relationship]'), '', $string);
+  if ($recipient = user_relationships_type_load(array('plural_name' => $relationship))) {
+    $recipient->type = 'user_relationship';
+    $recipient->recipient = _user_relationship_privatemsg_get_recipient_id($recipient->rtid, $user->uid);
+    $recipient->account = $user;
+    return $recipient;
   }
 }
 

@@ -1,0 +1,115 @@
+<?php
+// $Id: user_relationships_api.api.test,v 1.1.2.6 2009-11-07 21:24:54 alexk Exp $
+
+/**
+ * @file
+ * User Relationships API testcase
+ * @author Alex Karshakevich http://drupal.org/user/183217
+ */
+class UserRelationshipsPrivatemsgRecipientTestCase extends DrupalWebTestCase {
+
+  /**
+   * Implements getInfo().
+   */
+  function getInfo() {
+    return array(
+      'name' => t('User Relationships Privatemsg recipients'),
+      'description' => t('Check relationship recipient type for privatemsg'),
+      'group' => t('User Relationships'),
+      'dependencies' => array('privatemsg'),
+    );
+  }
+
+  function setUp() {
+    return parent::setUp('privatemsg', 'user_relationships_api', 'user_relationships_ui', 'user_relationship_privatemsg');
+  }
+
+  /**
+   * Tests sending a message to related users.
+   */
+  function testSendtoRelationship() {
+    $admin = $this->drupalCreateUser(array('read privatemsg', 'write privatemsg', 'can have relationships', 'view relationship recipients', 'administer user relationships', 'maintain own relationships', 'write privatemsg to relationships', 'access user profiles'));
+    $userA = $this->drupalCreateUser(array('read privatemsg', 'write privatemsg', 'can have relationships', 'view relationship recipients', 'write privatemsg to relationships'));
+    $userB = $this->drupalCreateUser(array('read privatemsg', 'write privatemsg', 'can have relationships', 'view relationship recipients'));
+
+    $this->drupalLogin($admin);
+
+    // Create relationship.
+    $relationship = array(
+      'name' => $this->randomName(),
+      'plural_name' => $this->randomName(),
+      'requires_approval' => FALSE,
+    );
+    $this->drupalPost('admin/user/relationships/add', $relationship, t('Submit'));
+
+    // Become related to user A and B.
+    $this->drupalGet('relationship/' . $userA->uid . '/request/1');
+    $this->drupalPost(NULL, array(), t('Send'));
+    $this->drupalGet('relationship/' . $userB->uid . '/request/1');
+    $this->drupalPost(NULL, array(), t('Send'));
+
+    // Send a message to related users.
+
+    $this->drupalGet('messages/new');
+    $this->assertText(t('Enter the name of a user relationship to write a message to all related users. Example: @relationship.', array('@relationship' => $relationship['plural_name'])), t('Description is displayed.'));
+
+    $message = array(
+      'recipient' => $relationship['plural_name'],
+      'subject' => $this->randomName(),
+      'body' => $this->randomName(50),
+    );
+    $this->drupalPost(NULL, $message, t('Send message'));
+    $this->assertText(t('A message has been sent to Your @relationship (relationship).', array('@relationship' => $relationship['plural_name'])));
+
+    // Check if userA recieved the message and is able to respond.
+    $this->drupalLogin($userA);
+    $this->drupalGet('messages');
+    $this->clickLink($message['subject']);
+    $this->assertText($message['body']);
+    
+    // Check participants.
+    $this->assertText(t('Participants: @admin, @userA and @relationship of @admin (relationship)', array('@admin' => $admin->name, '@userA' => $userA->name, '@relationship' => $relationship['plural_name'])));
+
+    // Check recipients.
+    $this->assertText(t('Recipients: @admin', array('@admin' => $admin->name)));
+
+    // Send a reply
+    $reply = array('body' => $this->randomName(50));
+    $this->drupalPost(NULL, $reply, t('Send message'));
+
+    // Login as userB and make sure the original message is displayed but not the message nor the username of userA.
+    $this->drupalLogin($userB);
+    $this->drupalGet('messages');
+    $this->clickLink($message['subject']);
+    $this->assertText($message['body']);
+    $this->assertNoText($userA->name);
+
+    // Check participants.
+    $this->assertText(t('Participants: @admin, @userB and @relationship of @admin (relationship)', array('@admin' => $admin->name, '@userB' => $userB->name, '@relationship' => $relationship['plural_name'])));
+
+    // Check recipients.
+    $this->assertText(t('Recipients: @admin', array('@admin' => $admin->name)));
+
+    // Log in as admin and check that the response if user A is visible.
+    $this->drupalLogin($admin);
+    $this->drupalGet('messages');
+    $this->clickLink($message['subject']);
+    $this->assertText($reply['body']);
+
+    // Check participants.
+    $this->assertText(t('Participants: @admin, @userA and Your @relationship (relationship)', array('@admin' => $admin->name, '@userA' => $userA->name, '@relationship' => $relationship['plural_name'])));
+
+    // Check recipients.
+    $this->assertText(t('Recipients: @userA, Your @relationship (relationship)', array('@userA' => $userA->name, '@relationship' => $relationship['plural_name'])));
+
+    $reply2 = array('body' => $this->randomName(50));
+    $this->drupalPost(NULL, $reply2, t('Send message'));
+
+    // Log in as user B again and check that the reply but not user a is visible.
+    $this->drupalLogin($userB);
+    $this->drupalGet('messages');
+    $this->clickLink($message['subject']);
+    $this->assertText($reply2['body']);
+    $this->assertNoText($userA->name);
+  }
+}
