@@ -40,7 +40,7 @@ function user_relationship_privatemsg_privatemsg_recipient_type_info() {
       'load' => 'user_relationship_privatemsg_load_multiple',
       'autocomplete' => 'user_relationship_privatemsg_autocomplete',
       'generate recipients' => 'user_relationship_privatemsg_load_recipients',
-      'max' => 'user_relationship_privatemsg_count_recipients',
+      'count' => 'user_relationship_privatemsg_count_recipients',
       'write callback' => 'user_relationship_privatemsg_check_write_access',
       'view access' => 'view relationship recipients',
     ),
@@ -50,8 +50,14 @@ function user_relationship_privatemsg_privatemsg_recipient_type_info() {
 function user_relationship_privatemsg_check_write_access($relationship = NULL) {
   global $user;
   // Users are only allowed to write their own related users.
-  if ($relationship && isset($relationship->account) && $relationship->account->uid != $user->uid) {
-    return FALSE;
+  if ($relationship) {
+    if (!isset($relationship->account)) {
+      $author = db_result(db_query('SELECT author FROM {user_relationship_privatemsg} WHERE urpid = %d', $relationship->recipient));
+      $relationship->account = privatemsg_user_load($author);
+    }
+    if ($relationship->account->uid != $user->uid) {
+      return FALSE;
+    }
   }
   return user_access('write privatemsg to relationships');
 }
@@ -93,17 +99,17 @@ function _user_relationship_privatemsg_get_recipient_id($rtid, $uid) {
     return $urpid;
   }
   db_query('INSERT INTO {user_relationship_privatemsg} (rtid, author) VALUES (%d, %d)', $rtid, $uid);
-  return db_last_insert_id('user_relationship', 'urpid');
+  return db_last_insert_id('user_relationship_privatemsg', 'urpid');
 }
 
 /**
  * Load a number of recipient user ids.
  */
-function user_relationship_privatemsg_load_recipients($recipient, $author, $limit, $offset) {
+function user_relationship_privatemsg_load_recipients($relationship, $limit, $offset) {
   $recipients = array();
-  $relationships = user_relationships_load(array('user' => $author->uid, 'rtid' => $recipient->rtid), array('limit' => $offset > 0 ? "$limit OFFSET $offset" : $limit));
+  $relationships = user_relationships_load(array('user' => $relationship->account->uid, 'rtid' => $relationship->rtid), array('limit' => $offset > 0 ? "$limit OFFSET $offset" : $limit));
   foreach ($relationships as $row) {
-    if ($row->requester_id == $author->uid) {
+    if ($row->requester_id == $relationship->account->uid) {
       $recipients[] = $row->requestee_id;
     }
     else {
@@ -116,8 +122,9 @@ function user_relationship_privatemsg_load_recipients($recipient, $author, $limi
 /**
  * Return the number of users to which the author is related.
  */
-function user_relationship_privatemsg_count_recipients($recipient, $author) {
-  return user_relationships_load(array('user' => $author->uid, 'rtid' => $recipient->rtid), array('count' => TRUE));
+function user_relationship_privatemsg_count_recipients($relationship) {
+  $count_query = 'SELECT I AS count FROM {user_relationships} ur INNER JOIN {user_relationship_types} urt USING ( rtid ) WHERE (ur.requester_id = %d OR ((ur.approved <> 1 OR urt.is_oneway <> 0) AND ur.requestee_id = %d)) AND %s.%s = %d';
+  return user_relationships_load(array('user' => $relationship->account->uid, 'rtid' => $relationship->rtid), array('count' => TRUE));
 }
 
 /**
