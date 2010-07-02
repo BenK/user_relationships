@@ -132,7 +132,7 @@ function user_relationships_ui_request($form, &$form_state, $requestee) {
       "user/$requestee->uid",
       isset($relationship) ?
       ($relationship->requires_approval 
-       ? t('Are you sure you wish to send a new %rel_name request to !name?', array('%name' => $requestee->name, '%rel_name' => ur_tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name), '%rel_plural_name' => ur_tt("user_relationships:rtid:$relationship->rtid:plural_name", $relationship->plural_name), '!name' => theme('username', $requestee))) 
+       ? t('Are you sure you wish to send a new %rel_name request to !name?', array('%name' => $requestee->name, '%rel_name' => ur_tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name), '%rel_plural_name' => ur_tt("user_relationships:rtid:$relationship->rtid:plural_name", $relationship->plural_name), '!name' => theme('username', array('account' => $requestee))))
        : t("Are you sure you want to become %name's %rel_name?", array('%name' => $requestee->name, '%rel_name' => ur_tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name)))) :
       t('How do you relate to %name?', array('%name' => $requestee->name)),
       t('Send'), t('Cancel'),
