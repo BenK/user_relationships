@@ -208,6 +208,10 @@ function user_relationship_blocks_block_configure($delta) {
 function user_relationship_blocks_block_view($delta) {
   global $user;
 
+  if (!user_access('can have relationships')) {
+    return FALSE;
+  }
+
   //pad array with nulls before calling list() to avoid php notices
   $exploded = explode(UR_BLOCK_SEPARATOR, $delta);
   while (count($exploded) < 3) {

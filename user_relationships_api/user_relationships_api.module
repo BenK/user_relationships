@@ -167,7 +167,7 @@ function _user_relationships_generate_query($param = array(), $options = array()
 function user_relationships_api_permission() {
   return array('can have relationships' => array(
     'title' => t('Can have relationships'),
-    'description' => t('TODO'),
+    'description' => t('The user is allowed to have and accept relationships.'),
   ));
 }
 
