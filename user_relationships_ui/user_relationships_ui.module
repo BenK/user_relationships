@@ -351,6 +351,10 @@ function user_relationships_ui_check_access($types, $account = NULL) {
     $types = array($types);
   }
 
+  if (!user_access('can have relationships')) {
+    return FALSE;
+  }
+
   foreach ($types as $type) {
     switch ($type) {
       case 'view':
@@ -359,12 +363,12 @@ function user_relationships_ui_check_access($types, $account = NULL) {
         }
         break;
       case 'edit':
-        if (user_access('maintain own relationships') && user_access('can have relationships')) {
+        if (user_access('maintain own relationships')) {
           return TRUE;
         }
         break;
       case 'user':
-        if (user_access('can have relationships') && $account->uid == $user->uid) {
+        if ($account->uid == $user->uid) {
           return TRUE;
         }
     }
