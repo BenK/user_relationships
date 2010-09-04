@@ -699,7 +699,7 @@ function user_relationships_ui_form_alter(&$form, &$form_state, $form_id) {
   if (($form_id == 'user_register_form' || $form_id == 'user_profile_form') && $form['#user_category'] == 'account') {
     if (variable_get('user_relationships_ui_require_approval', TRUE) && user_access('maintain own relationships', $form['#user'])) {
       if (variable_get('user_relationships_allow_auto_approve', FALSE) && ($relationships = user_relationships_types_load())) {
-        if (!is_array($form['#user']->user_relationships_ui_auto_approve)) {
+        if (!isset($form['#user']->user_relationships_ui_auto_approve) || !is_array($form['#user']->user_relationships_ui_auto_approve)) {
           $form['#user']->user_relationships_ui_auto_approve = array();
         }
 
