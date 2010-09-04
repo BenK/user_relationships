@@ -125,7 +125,7 @@ function user_relationships_type_save(&$rtype) {
     $rtype->expires_val = 0;
   }
 
-  drupal_write_record('user_relationship_types', $rtype, ($op == 'update' ? 'rtid' : NULL));
+  drupal_write_record('user_relationship_types', $rtype, ($op == 'update' ? 'rtid' : array()));
 
   _user_relationships_invoke($op, $rtype, TRUE);
 }
