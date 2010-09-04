@@ -494,7 +494,7 @@ function user_relationships_api_can_receive($requestee, $relationship_type) {
   }
   //check user has at least one required role
   foreach ($relationship_type->roles_receive as $role_id) {
-    if ($requestee->roles[$role_id]) {
+    if (isset($requestee->roles[$role_id])) {
       return TRUE;
     }
   }
