@@ -12,7 +12,7 @@ if ($relationships) {
     $row = array(
       theme('username', array('account' => $this_user)),
       ur_tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name) . ($relationship->is_oneway ? ($this_user_str == 'requestee' ? t(' (You to Them)') : t(' (Them to You)')) : NULL),
-      $relationship->extra_for_display,
+      !empty($relationship->extra_for_display) ? $relationship->extra_for_display : '',
       $edit_access ? theme('user_relationships_remove_link', array('uid' => $account->uid, 'rid' => $relationship->rid)) : '&nbsp;',
     );
     if (variable_get('user_relationships_show_user_pictures', 0)) {
