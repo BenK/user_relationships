@@ -1,5 +1,7 @@
 // Javascript for user_relationships_ui.module
 
+(function ($) {
+
 // Creating our own namespace for the module
 Drupal.user_relationships_ui = {};
 
@@ -131,3 +133,4 @@ $(document).ready(function() {
     $('#edit-is-reciprocal-wrapper').hide();
   }
 });
+})(jQuery);
