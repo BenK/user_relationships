@@ -61,6 +61,7 @@ function user_relationships_page($account = NULL, $rtid = NULL) {
     global $user;
     $account = $user;
   }
+  dpm(func_get_args());
 
   return theme('user_relationships', array('account' => $account, 'rtid' =>  $rtid));
 }

@@ -16,6 +16,7 @@ module_load_include('inc', 'user_relationships_ui', 'user_relationships_ui.actio
 function user_relationships_ui_request_form($requester, $requestee, $form_values = NULL) {
   $relationships = _user_relationships_ui_get_requestable_rtypes($requester, $requestee);
   //try to find out desired relationship type
+  $default_relationship = NULL;
   if (isset($form_values['rtid'])) {//given through form
     $default_relationship = $form_values['rtid'];
   }
@@ -26,6 +27,7 @@ function user_relationships_ui_request_form($requester, $requestee, $form_values
     $rtids = array_keys($relationships);
     $default_relationship = $rtids[0];
   }
+
   //verify default relationship may be requested
   $default_relationship = isset($relationships[$default_relationship]) ? $default_relationship : NULL;
   
@@ -113,12 +115,11 @@ function user_relationships_ui_request($form, &$form_state, $requestee) {
   }
   // This is the default which means we will display the form
   $form = user_relationships_ui_request_form($requester, $requestee, $form_state);
-  if (!$form['rtid']) {
+  if (!isset($form['rtid'])) {
     $data['error'] = array(
-      '#type' => 'markup',
       '#prefix' => '<div>',
       '#suffix' => '</div>',
-      '#value' => user_relationships_ui_get_message('too_many_relationships') . $script
+      '#markup' => user_relationships_ui_get_message('too_many_relationships') . $script
     );
     return $data;
   }

@@ -836,7 +836,7 @@ function template_preprocess_user_relationships(&$variables) {
   $rtid     = $variables['rtid'];
 
   $args = array('user' => $account->uid, 'approved' => TRUE);
-  if (isset($rtid) && is_numeric($rtid)) {
+  if (!empty($rtid)) {
     $relationship_type = user_relationships_type_load($rtid);
     $args['rtid'] = $rtid;
   }
