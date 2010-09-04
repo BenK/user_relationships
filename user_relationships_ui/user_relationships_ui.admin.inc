@@ -25,7 +25,7 @@ function user_relationships_ui_settings() {
   $form['general']['user_relationships_show_direct_links'] = array(
     '#type'           => 'checkbox',
     '#title'          => t('Show direct request links'),
-    '#description'    => t("Show a 'create relationship with...' link for each available relationship type."),
+    '#description'    => t("On a user's page, show a link for each available relationship type"),
     '#default_value'  => variable_get('user_relationships_show_direct_links', 1),
   );
   $form['general']['user_relationships_show_user_pictures'] = array(

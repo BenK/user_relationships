@@ -85,7 +85,6 @@ function user_relationships_ui_request_validate($form, &$form_state) {
         }
       }
     }
-    var_dump($test_relationships);
     //check if there aren't any available (not yet used) types that can be established
     $select = db_select('user_relationship_types');
     $select->addExpression('COUNT(*)', 'count');
