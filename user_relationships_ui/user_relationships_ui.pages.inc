@@ -46,9 +46,9 @@ function user_relationships_ui_types_list_page() {
     // Avoid notice/error in seven theme.
     '#attributes' => array(),
   );
-    $page['relationships']['list'] = array(
-      '#markup' => theme('table', array('header' => $table['headers'], 'rows' => $table['rows']))
-    );
+  $page['relationships']['list'] = array(
+    '#markup' => theme('table', array('header' => $table['headers'], 'rows' => $table['rows']))
+  );
 
   return drupal_render($page);
 }
@@ -57,7 +57,7 @@ function user_relationships_ui_types_list_page() {
  * Main list of relationships for a specified user
  */
 function user_relationships_page($account = NULL, $rtid = NULL) {
-  if (!$account) {
+  if (!$account || !is_object($account) || !$account->uid) {
     global $user;
     $account = $user;
   }
@@ -75,7 +75,7 @@ function user_relationships_pending_requests_page($account = NULL) {
     $account = $user;
   }
 
-  if (!is_object($account) || !$account) {
+  if (!is_object($account) || !$account->uid) {
     return MENU_NOT_FOUND;
   }
 
