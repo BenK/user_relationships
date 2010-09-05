@@ -432,7 +432,7 @@ function user_relationships_ui_permission() {
       'description' => t('Allows to maintain own relationships including approving, removing and creating.'),
     ),
     'view user relationships' => array(
-      'title' => t('View user relationships'),
+      'title' => t('View own user relationships'),
       'description' => t('Allows to view own relationships.'),
     ),
   );
