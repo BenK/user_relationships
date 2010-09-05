@@ -12,7 +12,7 @@
 function user_relationships_api_query_privatemsg_autocomplete_alter($query) {
   global $user;
   // Check if $author needs to be restricted.
-  if (!user_relationships_api_privatemsg_restrict($user)) {
+  if (!user_relationships_api_privatemsg_restrict($user) || !variable_get('user_relationships_privatemsg_autocomplete_alter')) {
     return;
   }
 
