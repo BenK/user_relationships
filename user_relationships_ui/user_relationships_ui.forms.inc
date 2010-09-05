@@ -67,9 +67,11 @@ function user_relationships_ui_request_form($requester, $requestee, $form_values
 function user_relationships_ui_request_ajax($requestee) {
   $form = drupal_get_form('user_relationships_ui_request', $requestee);
   if (isset($_GET['ajax'])) {
-    die($form);
+    print drupal_render($form);
   }
-  return $form;
+  else {
+    return $form;
+  }
 }
 
 /**
