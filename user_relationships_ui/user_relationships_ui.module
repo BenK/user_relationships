@@ -368,7 +368,7 @@ function user_relationships_ui_check_access($types, $account = NULL) {
         }
         break;
       case 'user':
-        if ($account->uid == $user->uid) {
+        if ($account->uid == $user->uid && user_access('view user relationships')) {
           return TRUE;
         }
     }
