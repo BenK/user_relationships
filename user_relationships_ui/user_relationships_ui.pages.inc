@@ -75,5 +75,9 @@ function user_relationships_pending_requests_page($account = NULL) {
     $account = $user;
   }
 
+  if (!is_object($account) || !$account) {
+    return MENU_NOT_FOUND;
+  }
+
   return theme('user_relationships_pending_requests', array('account' => $account));
 }
