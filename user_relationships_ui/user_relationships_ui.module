@@ -204,7 +204,7 @@ function _user_relationships_ui_between($viewer, $viewed) {
       if (!empty($remove_link)) {
         $list[$relationship->rid] = t('%relationship_name (!remove_link)', array(
           '%relationship_name'  => ur_tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name) . ($relationship->is_oneway ? ($relationship->requester_id == $viewer->uid ? t(' (You to Them)') : t(' (Them to You)')) : NULL),
-          '!remove_link'        => $remvoe_link,
+          '!remove_link'        => $remove_link,
         ));
       }
       else {
