@@ -62,7 +62,7 @@ function user_relationships_ui_settings() {
         '#default_value'  => variable_get('user_relationships_restrict_privatemsg', 'all'),
         '#options' => array(
           'all' => t('Allow sending messages to all users'),
-          'all_overridable' => t('Allow sending messages to all users, users have option to accept messages only from their confirmed relationships'),
+          'all_overridable' => t('Allow sending messages to all users, but provide users with an option to only receive messages from their confirmed relationships.'),
           'relationships' => t('Allow sending messages only to confirmed relationships (You probably should enable "Suggest only relationships" below)'),
         ),
       );
