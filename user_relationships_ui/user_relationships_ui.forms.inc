@@ -152,9 +152,11 @@ function user_relationships_ui_request($form, &$form_state, $requestee) {
 function user_relationships_ui_pending_requested_ajax($action, $account, $relationship) {
   $form = drupal_get_form('user_relationships_ui_pending_requested', $action, $account, $relationship);
   if (isset($_GET['ajax'])) {
-    die($form);
+    print drupal_render($form);
   }
-  return $form;
+  else {
+    return $form;
+  }
 }
 
 /**
@@ -224,15 +226,17 @@ function user_relationships_ui_remove_ajax($account, $relationship) {
   //#382668 makes sure a valid relationship id was supplied
   if (!$relationship->rid) {
     if (isset($_GET['ajax'])) {
-      die();
+      print '';
     }
     drupal_goto();
   }
   $form = drupal_get_form('user_relationships_ui_remove', $account, $relationship);
   if (isset($_GET['ajax'])) {
-    die($form);
+    print drupal_render($form);
   }
-  return $form;
+  else {
+    return $form;
+  }
 }
 
 /**
