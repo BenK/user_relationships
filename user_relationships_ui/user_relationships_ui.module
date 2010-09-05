@@ -191,17 +191,26 @@ function _user_relationships_ui_autocomplete_types($string = '') {
 /**
  * List of relationships between two users
  */
-function _user_relationships_ui_between(&$viewer, &$viewed) {
+function _user_relationships_ui_between($viewer, $viewed) {
   $list = array();
 
   $relationships = user_relationships_load(array('between' => array($viewer->uid, $viewed->uid)));
   foreach ($relationships as $relationship) {
     if ($relationship->approved && !isset($list[$relationship->rid])) {
-      
-      $list[$relationship->rid] = t('%relationship_name (!remove_link)', array(
-        '%relationship_name'  => ur_tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name) . ($relationship->is_oneway ? ($relationship->requester_id == $viewer->uid ? t(' (You to Them)') : t(' (Them to You)')) : NULL),
-        '!remove_link'        => theme('user_relationships_remove_link', array('uid' => $viewer->uid, 'rid' =>  $relationship->rid))
-      ));
+      if (user_access('maintain own relationships')) {
+        $remove_link = theme('user_relationships_remove_link', array('uid' => $viewer->uid, 'rid' =>  $relationship->rid));
+      }
+      if (!empty($remove_link)) {
+        $list[$relationship->rid] = t('%relationship_name (!remove_link)', array(
+          '%relationship_name'  => ur_tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name) . ($relationship->is_oneway ? ($relationship->requester_id == $viewer->uid ? t(' (You to Them)') : t(' (Them to You)')) : NULL),
+          '!remove_link'        => $remvoe_link,
+        ));
+      }
+      else {
+        $list[$relationship->rid] = t('%relationship_name', array(
+          '%relationship_name'  => ur_tt("user_relationships:rtid:$relationship->rtid:name", $relationship->name) . ($relationship->is_oneway ? ($relationship->requester_id == $viewer->uid ? t(' (You to Them)') : t(' (Them to You)')) : NULL),
+        ));
+      }
     }
   }
 
