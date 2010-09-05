@@ -664,7 +664,7 @@ function user_relationships_ui_user_view($account, $view_mode) {
   }
 
   $output = array();
-  if ($list = _user_relationships_ui_between($user, $account)) {
+  if (user_access('view user relationships') && ($list = _user_relationships_ui_between($user, $account))) {
     $output['relations'] = array(
       '#title'      => t('Your relationships to this user'),
       '#type'       => 'user_profile_item',
