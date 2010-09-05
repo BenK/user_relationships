@@ -35,7 +35,7 @@ function user_relationships_api_privatemsg_block_message($author, $recipients) {
 
   $blocked = array();
   foreach ($recipients as $recipient) {
-    if ($recipient->type != 'user') {
+    if ($recipient->type != 'user' && $recipient->type != 'hidden') {
       continue;
     }
     //block if user is only receiving pm's from his relationships, and author is not one of them
