@@ -4,7 +4,7 @@
 //$relationships array is loaded in template_preprocess_user_relationships()
 if ($relationships) {
   foreach ($relationships as $relationship) {
-    $edit_access = ($user->uid == $account->uid && user_access('maintain own relationships')) || user_access('administer users');
+    $edit_access = ($user->uid == $account->uid && user_access('maintain own relationships')) || user_access('administer user relationships');
 
     $this_user_str  = $account->uid == $relationship->requestee_id ? 'requester' : 'requestee';
     $this_user      = $relationship->{$this_user_str};

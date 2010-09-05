@@ -12,6 +12,8 @@
     'received_requests' => t('Received Requests')
   );
 
+  $edit_access = ($user->uid == $account->uid && user_access('maintain own relationships')) || user_access('administer user relationships');
+
   foreach ($sections as $column => $section) {
     if (!isset($$section)) { continue; }
     $rows = array();
@@ -22,12 +24,14 @@
 
     foreach ($$section as $relationship) {
       $links = array();
-      if ($section == 'sent_requests') {
-        $links[] = theme('user_relationships_pending_request_cancel_link', array('uid' => $account->uid, 'rid' => $relationship->rid));
-      }
-      else {
-        $links[] = theme('user_relationships_pending_request_approve_link', array('uid' => $account->uid, 'rid' => $relationship->rid));
-        $links[] = theme('user_relationships_pending_request_disapprove_link', array('uid' => $account->uid, 'rid' => $relationship->rid));
+      if ($edit_access) {
+        if ($section == 'sent_requests') {
+          $links[] = theme('user_relationships_pending_request_cancel_link', array('uid' => $account->uid, 'rid' => $relationship->rid));
+        }
+        else {
+          $links[] = theme('user_relationships_pending_request_approve_link', array('uid' => $account->uid, 'rid' => $relationship->rid));
+          $links[] = theme('user_relationships_pending_request_disapprove_link', array('uid' => $account->uid, 'rid' => $relationship->rid));
+        }
       }
       $links = implode(' | ', $links);
 
