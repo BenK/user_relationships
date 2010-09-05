@@ -52,7 +52,6 @@ function user_relationships_api_privatemsg_block_message($author, $recipients) {
       );
     }
   }
-  dpm($blocked);
   return $blocked;
 }
 
