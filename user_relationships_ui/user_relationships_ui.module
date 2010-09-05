@@ -192,12 +192,13 @@ function _user_relationships_ui_autocomplete_types($string = '') {
  * List of relationships between two users
  */
 function _user_relationships_ui_between($viewer, $viewed) {
+  global $user;
   $list = array();
 
   $relationships = user_relationships_load(array('between' => array($viewer->uid, $viewed->uid)));
   foreach ($relationships as $relationship) {
     if ($relationship->approved && !isset($list[$relationship->rid])) {
-      if (user_access('maintain own relationships')) {
+      if (user_access('maintain own relationships') && in_array($user->uid, array($viewer->uid, $viewed->uid)) || user_access('administer user relationships')) {
         $remove_link = theme('user_relationships_remove_link', array('uid' => $viewer->uid, 'rid' =>  $relationship->rid));
       }
       if (!empty($remove_link)) {
