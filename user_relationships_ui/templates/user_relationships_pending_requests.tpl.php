@@ -14,13 +14,12 @@
 
   $edit_access = ($user->uid == $account->uid && user_access('maintain own relationships')) || user_access('administer user relationships');
 
+  $i = 0;
   foreach ($sections as $column => $section) {
     if (!isset($$section)) { continue; }
     $rows = array();
 
-    $rows[] = array(
-      array('data' => $section_headings[$section], 'header' => TRUE, 'colspan' => 2)
-    );
+    $header = array(array('data' => $section_headings[$section], 'colspan' => 2));
 
     foreach ($$section as $relationship) {
       $links = array();
@@ -43,11 +42,11 @@
       }
     }
 
-    $output .= theme('table', array('rows' => $rows, 'attributes' => array('class' => array('user-relationships-pending-listing-table'))));
-    $output .= theme('pager');
+    $output .= theme('table', array('rows' => $rows, 'header' => $header, 'attributes' => array('class' => array('user-relationships-pending-listing-table'))));
+    $output .= theme('pager', array('element' => $i++));
   }
 
-  if ($output == '') {
+  if (empty($output)) {
     $output = t('No pending relationships found');
   }
 

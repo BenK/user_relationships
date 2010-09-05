@@ -906,7 +906,6 @@ function template_preprocess_user_relationships_pending_requests(&$variables) {
   $pager_id = 0;
   foreach ($variables['sections'] as $column => $section) {
     // To Page or not to Page
-    $variables['relationships_per_page'] = variable_get('user_relationships_relationships_per_page', 16);
     $options = array('include_user_info' => TRUE, 'paging' => $variables['relationships_per_page']);
 
     $query = _user_relationships_generate_query(array($column => $account->uid, 'approved' => FALSE), $options);
