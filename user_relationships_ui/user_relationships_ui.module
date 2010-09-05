@@ -699,8 +699,8 @@ function user_relationships_ui_form_alter(&$form, &$form_state, $form_id) {
   if (($form_id == 'user_register_form' || $form_id == 'user_profile_form') && $form['#user_category'] == 'account') {
     if (variable_get('user_relationships_ui_require_approval', TRUE) && user_access('maintain own relationships', $form['#user'])) {
       if (variable_get('user_relationships_allow_auto_approve', FALSE) && ($relationships = user_relationships_types_load())) {
-        if (!isset($form['#user']->user_relationships_ui_auto_approve) || !is_array($form['#user']->user_relationships_ui_auto_approve)) {
-          $form['#user']->user_relationships_ui_auto_approve = array();
+        if (!isset($form['#user']->data['user_relationships_ui_auto_approve']) || !is_array($form['#user']->data['user_relationships_ui_auto_approve'])) {
+          $form['#user']->data['user_relationships_ui_auto_approve'] = array();
         }
 
         $options = array();
@@ -723,7 +723,7 @@ function user_relationships_ui_form_alter(&$form, &$form_state, $form_id) {
           '#type'           => 'checkboxes',
           '#title'          => t('Automatically approve the following relationship requests'),
           '#options'        => $options,
-          '#default_value'  => $form['#user']->user_relationships_ui_auto_approve,
+          '#default_value'  => $form['#user']->data['user_relationships_ui_auto_approve'],
           '#description'    => t("Check off the types of relationships you'd like to automatically approve.")
         );
         }
@@ -731,7 +731,7 @@ function user_relationships_ui_form_alter(&$form, &$form_state, $form_id) {
     }
     //#257748 #458046 for adding the functionality of allowing/disallowing private messages.
     if (variable_get('user_relationships_restrict_privatemsg', 'all') == 'all_overridable'
-        && user_access('maintain own relationships', $account)
+        && user_access('maintain own relationships', $form['#user'])
         && module_exists('privatemsg')
     ) { //check if privatemsg is installed
       $form['user_relationships_ui_privatemsg_settings'] = array(
@@ -746,7 +746,7 @@ function user_relationships_ui_form_alter(&$form, &$form_state, $form_id) {
        '#title' => t('Allow private messages'),
        '#description' => t('Allow/disallow users in or outside relationships to send you private messages.'),
        '#options' => array('on all users' => t('Everyone'), 'on in relations' => t('My relationships only')),
-       '#default_value' => isset($form['#user']->user_relationships_allow_private_message)? $form['#user']->user_relationships_allow_private_message : "on all users",
+       '#default_value' => isset($form['#user']->data['user_relationships_allow_private_message'])? $form['#user']->data['user_relationships_allow_private_message'] : "on all users",
       );
     }
 
@@ -755,6 +755,14 @@ function user_relationships_ui_form_alter(&$form, &$form_state, $form_id) {
       unset($form['user_relationships_ui_settings']);
     }
   }
+}
+
+/**
+ * Implements hook_user_presave().
+ */
+function user_relationships_ui_user_presave(&$edit, $account, $category) {
+  $edit['data']['user_relationships_ui_auto_approve'] = isset($edit['user_relationships_ui_auto_approve']) ? $edit['user_relationships_ui_auto_approve'] : array();
+  $edit['data']['user_relationships_allow_private_message'] = isset($edit['user_relationships_allow_private_message']) ? $edit['user_relationships_allow_private_message'] : array();
 }
 
 /**

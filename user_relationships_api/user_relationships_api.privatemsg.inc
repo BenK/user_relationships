@@ -36,10 +36,11 @@ function user_relationships_api_privatemsg_block_message($author, $recipients) {
   $blocked = array();
   foreach ($recipients as $recipient) {
     //block if user is only receiving pm's from his relationships, and author is not one of them
+    $allow = isset($recipient->data['user_relationships_allow_private_message']) ? $recipient->data['user_relationships_allow_private_message'] : 'on all users';
     if (
         (variable_get('user_relationships_restrict_privatemsg', 'all') == 'relationships' 
          || (variable_get('user_relationships_restrict_privatemsg', 'all') == 'all_overridable' 
-             && $recipient->user_relationships_allow_private_message == 'on in relations')) 
+             && $allow == 'on in relations'))
         && !module_invoke_all('socnet_is_related', $author->uid, $recipient->uid)
      ) {
       $blocked[] = array(

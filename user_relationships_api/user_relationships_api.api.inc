@@ -212,7 +212,7 @@ function user_relationships_request_relationship($requester, $requestee = NULL, 
   if (!$existing) {
     $relationship->requester_id = $requester->uid;
     $relationship->requestee_id = $requestee->uid;
-    $relationship->approved = $approved || !$type->requires_approval || (isset($requestee->user_relationships_ui_auto_approve) && $requestee->user_relationships_ui_auto_approve[$type->rtid]);
+    $relationship->approved = $approved || !$type->requires_approval || (isset($requestee->data['user_relationships_ui_auto_approve']) && $requestee->data['user_relationships_ui_auto_approve'][$type->rtid]);
     $relationship->rtid = $type->rtid;
 
     return user_relationships_save_relationship($relationship);
