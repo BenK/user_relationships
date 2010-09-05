@@ -68,7 +68,16 @@ function user_relationships_page($account = NULL, $rtid = NULL) {
 /**
  * List of pending requests from other users
  */
-function user_relationships_pending_requests_page() {
-  global $user;
-  return theme('user_relationships_pending_requests', array('account' => $user));
+function user_relationships_pending_requests_page($account = NULL) {
+  // Check that the uid is valid, not the anonymous user, and the user exists
+  if (!$account) {
+    global $user;
+    $account = $user;
+  }
+
+  if (!is_object($account) || !$account->uid) {
+    return MENU_NOT_FOUND;
+  }
+
+  return theme('user_relationships_pending_requests', array('account' => $account));
 }

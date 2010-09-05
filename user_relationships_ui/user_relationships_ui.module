@@ -544,17 +544,6 @@ function user_relationships_ui_menu() {
     'file'              => 'user_relationships_ui.pages.inc',
     'menu_name'         => 'user-menu',
   );
-  $items['relationships/requests/%user'] = array(
-    'title'             => 'Pending',
-    'access callback'   => 'user_relationships_ui_check_access',
-    'access arguments'  => array('edit'),
-    'type'              => MENU_LOCAL_TASK,
-    'weight'            => -9,
-    'page callback'     => 'user_relationships_pending_requests_page',
-    'page arguments'    => array(2),
-    'file'              => 'user_relationships_ui.pages.inc',
-    'menu_name'         => 'user-menu',
-  );
   foreach (user_relationships_types_load() as $rtid => $relationship) {
     $items["relationships/{$rtid}"] = array(
       'title'             => $relationship->plural_name ? $relationship->plural_name : $relationship->name,
