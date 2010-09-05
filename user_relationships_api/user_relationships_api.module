@@ -152,10 +152,10 @@ function _user_relationships_generate_query($param = array(), $options = array()
     return $count;
   }
   if (!empty($paging)) {
-    $query
+    $query = $query
       ->extend('PagerDefault')
-      ->limit($paging)
-      ->setCountQuery($count);
+      ->limit($paging);
+    $query->setCountQuery($count);
   }
   return $query;
 }

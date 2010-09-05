@@ -21,9 +21,8 @@ if ($relationships) {
     $rows[] = $row;
   }
 
-  print
-    theme('table', array('rows' =>  $rows, 'attributes' => array('class' => array('user-relationships-listing-table'))));
-    //theme('pager');
+  print theme('table', array('rows' =>  $rows, 'attributes' => array('class' => array('user-relationships-listing-table'))));
+  print theme('pager');
 }
 else {
   print t('No relationships found');
