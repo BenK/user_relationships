@@ -39,9 +39,8 @@
       }
     }
 
-    $output .=
-      theme('table', array('rows' => $rows, 'attributes' => array('class' => array('user-relationships-pending-listing-table'))));
-      //theme('pager', NULL, $relationships_per_page, $pager_id++);
+    $output .= theme('table', array('rows' => $rows, 'attributes' => array('class' => array('user-relationships-pending-listing-table'))));
+    $output .= theme('pager');
   }
 
   if ($output == '') {
