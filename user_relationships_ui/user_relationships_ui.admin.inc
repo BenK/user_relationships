@@ -69,7 +69,7 @@ function user_relationships_ui_settings() {
       $form['privatemsg']['user_relationships_privatemsg_autocomplete_alter'] = array(
         '#type'           => 'checkbox',
         '#title'          => t('Suggest only relationships in To: field'),
-        '#description'    => t("Show only user's relationships when autocompleting the To: field."),
+        '#description'    => t('When sending a private message, only display confirmed relationships in the "To" autocomplete field.'),
         '#default_value'  => variable_get('user_relationships_privatemsg_autocomplete_alter', 0),
       );
       $form['privatemsg']['roles'] = array(
